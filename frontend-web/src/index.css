@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+@theme {
+    --color-background: #FFCB7F;
+    --color-button: #FFFEFD;
+    --color-green: #BAFCA2;
+    --color-coral: #FC7B5E;
+    --shadow-hard: 4px 4px 0 0 #000;
+    --shadow-hard-lg: 8px 8px 0 0 #000;
+}
+
+body {
+    font-family: "Krona One", sans-serif;
+    background-color: var(--color-background);
+    color: #000;
+}
