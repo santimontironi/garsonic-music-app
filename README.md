@@ -23,6 +23,15 @@ Garsonic conecta a quienes escuchan música con quienes la hacen, en una sola pl
 
 Un mismo modelo de cuenta cubre usuarios y artistas: no hay tablas separadas, el rol lo distingue. Una canción tiene un único artista (las colaboraciones quedan fuera del alcance actual).
 
+## Plataformas
+
+| Plataforma | Tecnología | Cuándo |
+|---|---|---|
+| **Web** | React + Vite | Es el frontend actual. |
+| **Android / iOS** | React Native | Se empieza cuando el frontend web esté terminado. |
+
+Las dos apps van a consumir la misma API del backend.
+
 ## Tecnologías
 
 ### Backend — `backend/`

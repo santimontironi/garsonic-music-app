@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Build shared
+        working-directory: shared
+        run: |
+          npm ci
+          if ls *.ts >/dev/null 2>&1; then npm run build; fi
+
+      - name: Lint backend
+        working-directory: backend
+        run: |
+          npm ci
+          npx prisma generate
+          npm run lint
+
+      - name: Lint frontend
+        working-directory: frontend-web
+        run: |
+          npm ci
+          npm run lint

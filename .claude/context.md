@@ -7,6 +7,10 @@ Garsonic es una plataforma de música estilo Spotify. Cualquier persona puede cr
 - **Usuario:** escucha música, arma playlists y marca favoritos.
 - **Artista:** además de lo anterior, tiene un perfil público y publica álbumes y canciones.
 
+## Plataformas
+
+Primero se desarrolla el frontend web. Cuando esté terminado, se empieza con el frontend Android/iOS en React Native. Ambos usan la misma API del backend.
+
 ## Qué se puede hacer
 
 - Registrarse e iniciar sesión, con foto de perfil opcional.
