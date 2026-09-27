@@ -1,0 +1,12 @@
+{
+  "name": "garsonic",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Garsonic monorepo root — git hooks only",
+  "scripts": {
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7"
+  }
+}

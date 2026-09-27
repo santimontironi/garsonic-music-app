@@ -58,22 +58,8 @@ const Home = () => {
               <span>3:48</span>
             </div>
           </div>
-          <svg viewBox="0 0 100 100" className="absolute top-0 left-[4%] w-[18%] overflow-visible">
-            <polygon
-              points="50,6 96,94 4,94"
-              className="fill-coral stroke-black"
-              strokeWidth={3}
-              vectorEffect="non-scaling-stroke"
-            />
-          </svg>
-          <svg viewBox="0 0 100 100" className="absolute bottom-0 left-0 w-[18%] overflow-visible">
-            <polygon
-              points="50,6 61.2,36.6 93.8,37.8 68.1,57.9 77,89.2 50,71 23,89.2 31.9,57.9 6.2,37.8 38.8,36.6"
-              className="fill-green stroke-black"
-              strokeWidth={3}
-              vectorEffect="non-scaling-stroke"
-            />
-          </svg>
+          <i className="bi bi-triangle-fill absolute top-0 left-[4%] text-5xl leading-none text-coral xl:text-7xl"></i>
+          <i className="bi bi-star-fill absolute bottom-0 left-0 text-5xl leading-none text-green xl:text-7xl"></i>
         </div>
       </main>
     </div>

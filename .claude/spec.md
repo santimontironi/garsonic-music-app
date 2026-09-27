@@ -8,6 +8,8 @@
 | `frontend-web/` | Web en React 19 + Vite + Tailwind 4, con `react-router-dom` y `axios`. |
 | `shared/` | Paquete compartido entre front y back (todavía vacío). |
 
+Cuando el frontend web esté terminado, se empieza el frontend Android/iOS en React Native, que consume la misma API del backend.
+
 ## Modelo de datos
 
 El schema está en `backend/prisma/schema.prisma`.
@@ -38,6 +40,13 @@ Decisiones:
 - **Envío de mails:** Nodemailer, para dos casos:
   - Confirmar la cuenta del usuario: al confirmarla, `User.emailVerified` pasa a `true`.
   - Resetear la clave.
+
+## Rate limiting
+
+Todos los endpoints tienen rate limit.
+
+- Endpoints de auth (login, register, cambiar clave): **5 requests por minuto**.
+- Resto de los endpoints: **70 requests por minuto**.
 
 ## Estado actual
 
