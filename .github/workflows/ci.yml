@@ -9,7 +9,7 @@ on:
       - master
 
 jobs:
-  lint:
+  backend:
     runs-on: ubuntu-latest
 
     steps:
@@ -31,6 +31,16 @@ jobs:
           npm ci
           npx prisma generate
           npm run lint
+
+  frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
 
       - name: Lint frontend
         working-directory: frontend-web
