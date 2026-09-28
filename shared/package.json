@@ -2,6 +2,12 @@
   "name": "shared",
   "private": true,
   "type": "module",
+  "exports": {
+    "./schemas/*.js": {
+      "types": "./dist/schemas/*.d.ts",
+      "default": "./dist/schemas/*.js"
+    }
+  },
   "scripts": {
     "build": "tsc"
   },

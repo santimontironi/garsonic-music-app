@@ -13,7 +13,7 @@ enum Role {
 }
 
 model User {
-  id            Int      @id @default(autoincrement())
+  id            String   @id @default(uuid()) @db.Uuid
   name          String
   surname       String
   username      String   @unique
@@ -22,6 +22,7 @@ model User {
   password      String
   role          Role     @default(USER)
   photo         String?
+  photoPublicId String?
   bio           String?
   createdAt     DateTime @default(now())
 
@@ -34,25 +35,27 @@ model User {
 }
 
 model Album {
-  id        Int      @id @default(autoincrement())
-  artistId  Int
-  title     String
-  cover     String?
-  createdAt DateTime @default(now())
+  id            String   @id @default(uuid()) @db.Uuid
+  artistId      String   @db.Uuid
+  title         String
+  cover         String?
+  coverPublicId String?
+  createdAt     DateTime @default(now())
 
   artist User   @relation(fields: [artistId], references: [id], onDelete: Cascade)
   songs  Song[]
 }
 
 model Song {
-  id          Int      @id @default(autoincrement())
-  artistId    Int
-  albumId     Int?
-  title       String
-  durationSec Int
-  audioUrl    String
-  cover       String?
-  createdAt   DateTime @default(now())
+  id            String   @id @default(uuid()) @db.Uuid
+  artistId      String   @db.Uuid
+  albumId       String?  @db.Uuid
+  title         String
+  durationSec   Int
+  audioUrl      String
+  cover         String?
+  coverPublicId String?
+  createdAt     DateTime @default(now())
 
   artist    User           @relation(fields: [artistId], references: [id], onDelete: Cascade)
   album     Album?         @relation(fields: [albumId], references: [id], onDelete: SetNull)
@@ -61,19 +64,21 @@ model Song {
 }
 
 model Playlist {
-  id        Int      @id @default(autoincrement())
-  ownerId   Int
-  name      String
-  isPublic  Boolean  @default(false)
-  createdAt DateTime @default(now())
+  id            String   @id @default(uuid()) @db.Uuid
+  ownerId       String   @db.Uuid
+  name          String
+  image         String
+  imagePublicId String
+  isPublic      Boolean  @default(false)
+  createdAt     DateTime @default(now())
 
   owner User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   songs SongPlaylist[]
 }
 
 model SongPlaylist {
-  playlistId Int
-  songId     Int
+  playlistId String   @db.Uuid
+  songId     String   @db.Uuid
   position   Int
   addedAt    DateTime @default(now())
 
@@ -84,8 +89,8 @@ model SongPlaylist {
 }
 
 model FavArtist {
-  userId    Int
-  artistId  Int
+  userId    String   @db.Uuid
+  artistId  String   @db.Uuid
   createdAt DateTime @default(now())
 
   user   User @relation("UserFavArtists", fields: [userId], references: [id], onDelete: Cascade)
@@ -95,8 +100,8 @@ model FavArtist {
 }
 
 model FavSong {
-  userId    Int
-  songId    Int
+  userId    String   @db.Uuid
+  songId    String   @db.Uuid
   createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)

@@ -16,10 +16,10 @@ El schema está en `backend/prisma/schema.prisma`.
 
 | Tabla | Para qué sirve |
 |---|---|
-| `User` | Cuenta de usuarios y artistas: `name`, `surname`, `username` (único), `email` (único), `emailVerified` (arranca en `false`), `password`, `role` (`USER` / `ARTIST`), `photo`, `bio` (opcional, pensada para artistas). |
-| `Album` | Pertenece a un artista (`artistId` → `User`) y agrupa canciones. |
-| `Song` | Pertenece a un artista (`artistId` → `User`) y, opcionalmente, a un álbum. |
-| `Playlist` | Pertenece a un usuario (`ownerId`). Puede ser pública o privada. |
+| `User` | Cuenta de usuarios y artistas: `name`, `surname`, `username` (único), `email` (único), `emailVerified` (arranca en `false`), `password`, `role` (`USER` / `ARTIST`), `photo` + `photoPublicId`, `bio` (opcional, pensada para artistas). |
+| `Album` | Pertenece a un artista (`artistId` → `User`) y agrupa canciones. `cover` + `coverPublicId` (opcionales). |
+| `Song` | Pertenece a un artista (`artistId` → `User`) y, opcionalmente, a un álbum. `cover` + `coverPublicId` (opcionales). |
+| `Playlist` | Pertenece a un usuario (`ownerId`). Puede ser pública o privada. `image` + `imagePublicId` (obligatorios). |
 | `SongPlaylist` | Tabla intermedia playlist ↔ canción, con `position` para ordenarlas. |
 | `FavArtist` | Artistas favoritos de un usuario (`userId` y `artistId` apuntan a `User`). |
 | `FavSong` | Canciones favoritas de un usuario. |
@@ -33,6 +33,7 @@ Decisiones:
 - No hay `@@index` en el schema: solo existen los índices implícitos de `@id` y `@unique`. Si alguna consulta se vuelve lenta, se agregan con una migración.
 - Al borrar un `User` o una `Playlist` se borran en cascada sus dependencias (un artista borrado se lleva sus álbumes y canciones). Al borrar un `Album`, sus canciones quedan sin álbum (`albumId = null`).
 - Un `Song` tiene un solo artista. Si hicieran falta colaboraciones (feats), habría que reemplazar `Song.artistId` por una tabla `SongArtist`.
+- Todos los `id` (y las FK que apuntan a ellos) son `String @default(uuid()) @db.Uuid`, no autoincrement: evita exponer IDs secuenciales/adivinables en la API.
 
 ## Autenticación y mails
 
@@ -40,6 +41,12 @@ Decisiones:
 - **Envío de mails:** Nodemailer, para dos casos:
   - Confirmar la cuenta del usuario: al confirmarla, `User.emailVerified` pasa a `true`.
   - Resetear la clave.
+
+## Imágenes
+
+Las fotos (perfil de usuario/artista, portada de álbum, portada de canción, portada de playlist) se suben a **Cloudinary**. Configuración en `backend/src/config/cloudinary.config.ts`, credenciales en `CLOUDINARY_CLOUD_NAME` / `CLOUDINARY_API_KEY` / `CLOUDINARY_API_SECRET`.
+
+Cada campo de imagen (`photo`, `cover`, `image`) tiene su par `*PublicId` (`photoPublicId`, `coverPublicId`, `imagePublicId`) que guarda el `public_id` de Cloudinary. Es necesario porque `cloudinary.uploader.destroy()` pide el `public_id`, no la URL, y parsearlo desde la URL es frágil. Al borrar un registro que tiene imagen, se usa ese `public_id` para borrarla también de Cloudinary, no solo el registro en la base.
 
 ## Rate limiting
 
