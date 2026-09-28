@@ -93,7 +93,7 @@ erDiagram
     Song ||--o{ FavSong : "es favorita"
 
     User {
-        int id PK
+        uuid id PK
         string name
         string surname
         string username UK
@@ -102,23 +102,28 @@ erDiagram
         string password
         Role role "USER | ARTIST"
         string photo
+        string photoPublicId
         string bio
     }
     Album {
-        int id PK
+        uuid id PK
         string title
         string cover
+        string coverPublicId
     }
     Song {
-        int id PK
+        uuid id PK
         string title
         int durationSec
         string audioUrl
         string cover
+        string coverPublicId
     }
     Playlist {
-        int id PK
+        uuid id PK
         string name
+        string image
+        string imagePublicId
         boolean isPublic
     }
     SongPlaylist {
@@ -140,6 +145,8 @@ Decisiones de diseño:
 - **Claves primarias compuestas** en `SongPlaylist`, `FavArtist` y `FavSong`, para evitar duplicados.
 - **Borrado en cascada:** al borrar un `User` o una `Playlist` se borran sus dependencias (un artista borrado se lleva sus álbumes y canciones). Al borrar un `Album`, sus canciones quedan como singles (`albumId = null`).
 - **Índices:** solo los implícitos de `@id` y `@unique`; si alguna consulta se vuelve lenta, se agregan con una migración.
+- **Campos `*PublicId`** (`photoPublicId`, `coverPublicId`, `imagePublicId`): guardan el `public_id` de Cloudinary junto a la URL, porque borrar la imagen de Cloudinary requiere el `public_id`, no la URL.
+- **IDs como UUID:** todos los `id` (y las FK) son `uuid`, no autoincrement, para no exponer IDs secuenciales/adivinables en la API.
 
 ## Autenticación y mails
 
@@ -176,10 +183,19 @@ cd backend
 npm install
 ```
 
-Crear `backend/.env` con la conexión a la base:
+Crear `backend/.env` con la conexión a la base y las credenciales de [Cloudinary](https://cloudinary.com/) (subida de fotos e imágenes):
 
 ```env
 DATABASE_URL="postgresql://usuario:clave@localhost:5432/garsonic"
+
+CLOUDINARY_CLOUD_NAME="tu-cloud-name"
+CLOUDINARY_API_KEY="tu-api-key"
+CLOUDINARY_API_SECRET="tu-api-secret"
+
+EMAIL_USER="tu-email@gmail.com"
+EMAIL_PASS="tu-contraseña-de-aplicación"
+
+JWT_SECRET="un-secreto-largo-y-random"
 ```
 
 Aplicar las migraciones, generar el cliente de Prisma y levantar la API (queda en `http://localhost:3000`, o en el `PORT` que se defina):
@@ -195,6 +211,15 @@ npm run start:dev
 ```bash
 cd frontend-web
 npm install
+```
+
+Crear `frontend-web/.env` con la URL del backend:
+
+```env
+VITE_BACKEND_URL="http://localhost:3000/api"
+```
+
+```bash
 npm run dev
 ```
 

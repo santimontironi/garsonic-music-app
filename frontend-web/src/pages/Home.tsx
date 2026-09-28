@@ -58,8 +58,6 @@ const Home = () => {
               <span>3:48</span>
             </div>
           </div>
-          <i className="bi bi-triangle-fill absolute top-0 left-[4%] text-5xl leading-none text-coral xl:text-7xl"></i>
-          <i className="bi bi-star-fill absolute bottom-0 left-0 text-5xl leading-none text-green xl:text-7xl"></i>
         </div>
       </main>
     </div>
