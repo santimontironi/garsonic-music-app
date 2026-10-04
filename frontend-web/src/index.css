@@ -6,8 +6,12 @@
     --color-button: #FFFEFD;
     --color-green: #BAFCA2;
     --color-coral: #FC7B5E;
-    --shadow-hard: 4px 4px 0 0 #000;
+    --shadow-hard:4px 4px 0 0 #000;
     --shadow-hard-lg: 8px 8px 0 0 #000;
+}
+
+html{
+    scroll-behavior: smooth;
 }
 
 body {
