@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Post, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common'
+import { BadRequestException, Body, Controller, Get, Param, Post, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
 import type { Request, Response } from 'express'
 import { loginSchema, registerSchema, type LoginInput, type RegisterInput } from 'shared/schemas/auth.schema.js'
@@ -27,6 +27,11 @@ export class AuthController {
     @UploadedFile() photo?: Express.Multer.File
   ) {
     return this.authService.register(body, photo)
+  }
+
+  @Post('confirm/:token')
+  confirm(@Param('token') token: string) {
+    return this.authService.confirm(token)
   }
 
   @Post('login')

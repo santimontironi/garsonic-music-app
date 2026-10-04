@@ -48,6 +48,19 @@ Las fotos (perfil de usuario/artista, portada de álbum, portada de canción, po
 
 Cada campo de imagen (`photo`, `cover`, `image`) tiene su par `*PublicId` (`photoPublicId`, `coverPublicId`, `imagePublicId`) que guarda el `public_id` de Cloudinary. Es necesario porque `cloudinary.uploader.destroy()` pide el `public_id`, no la URL, y parsearlo desde la URL es frágil. Al borrar un registro que tiene imagen, se usa ese `public_id` para borrarla también de Cloudinary, no solo el registro en la base.
 
+## Estadísticas del artista
+
+La sección "Estadísticas" del panel de artista muestra, por ahora, solo lo que se puede calcular con el schema actual:
+
+| Estadística | De dónde sale |
+|---|---|
+| Seguidores (fans) | Cantidad de `FavArtist` que apuntan al artista. |
+| Favoritos por canción y canciones más guardadas | Cantidad de `FavSong` por canción. |
+| En cuántas playlists aparece cada canción | Cantidad de `SongPlaylist` por canción. |
+| Total de canciones, álbumes y singles | `Song` y `Album` del artista; los singles son las canciones con `albumId = null`. |
+
+Las reproducciones quedan afuera hasta que exista el reproductor: no hay tabla ni campo que las cuente. A futuro se evaluará agregar una tabla `Play` (canción, usuario y fecha) para tener reproducciones por período y oyentes únicos.
+
 ## Rate limiting
 
 Todos los endpoints tienen rate limit.

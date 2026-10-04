@@ -30,6 +30,17 @@ Rasgos del estilo:
 - Los botones responden al hover y al click "hundiéndose": se trasladan hacia su sombra y la sombra se reduce o desaparece.
 - Todo elemento interactivo debe tener foco visible y contraste suficiente. El texto va en negro sobre cualquiera de los colores de la paleta.
 
+Excepciones pactadas:
+
+- La cuadrícula de fondo del Hero usa líneas negras al 15% (`#00000026`) para que no sea invasiva. Es la única transparencia permitida.
+- Sobre fondo negro el texto va en `#FFFEFD` (ítem activo del SideNav, cuadrados de íconos).
+- El Hero de la izquierda usa `#FFFEFD` como fondo de sección, con la cuadrícula encima.
+
+## Maquetación
+
+- **Paneles (usuario y artista):** SideNav fijo a la izquierda en blanco con borde derecho. Arriba, un bloque con el logo (verde en artista, coral en usuario); después, las secciones agrupadas con su etiqueta y, al fondo, el botón de cerrar sesión. Barra superior fija con el título del panel a la izquierda y el perfil a la derecha, separado por un borde izquierdo. En mobile el SideNav se abre desde la izquierda, debajo de la barra superior.
+- **Home:** Header y Hero dentro de un mismo marco con borde grueso y sombra dura. El Header son celdas separadas por bordes: logo en verde, secciones al centro y los botones de sesión a la derecha. El Hero va en dos columnas: a la izquierda el texto sobre la cuadrícula, a la derecha la ilustración sobre coral.
+
 ## Calidad visual
 
 Los estilos deben ser modernos, atractivos y nada genéricos. Que la pantalla no parezca una plantilla:
