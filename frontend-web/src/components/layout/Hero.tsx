@@ -3,7 +3,7 @@ import Vinyl from "../ui/Logo.tsx"
 
 const Hero = () => {
   return (
-    <div className="grid md:grid-cols-2 2xl:min-h-[calc(100svh-6.5rem)]">
+    <div className="grid md:grid-cols-2 2xl:min-h-[70svh]">
       <div className="flex flex-col items-start justify-center gap-5 border-b-4 border-black bg-button bg-[linear-gradient(to_right,#00000026_1px,transparent_1px),linear-gradient(to_bottom,#00000026_1px,transparent_1px)] bg-size-[36px_36px] p-6 md:gap-6 md:border-r-4 md:border-b-0 md:p-10 xl:p-16">
         <h1 className="text-3xl leading-[1.05] font-bold uppercase text-shadow-[4px_4px_0_#FC7B5E] md:text-shadow-[6px_6px_0_#FC7B5E] md:text-4xl xl:text-6xl 2xl:text-7xl">
           Escuchá lo que te mueve y publicá lo tuyo
