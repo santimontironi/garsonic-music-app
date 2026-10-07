@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom"
 import Logo from "../components/ui/Logo.tsx"
 import { useLogin } from '../hooks/auth/useLogin'
-import { loginSchema, type LoginInput } from "../../../shared/schemas/auth.schema.js"
+import { loginSchema, type LoginInput } from "shared/schemas/auth.schema"
 import { useEffect, useState } from "react"
 import { useMe } from "../hooks/auth/useMe"
 import { useForm } from 'react-hook-form'

@@ -1,7 +1,7 @@
 import { BadRequestException, Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Req, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common'
 import { FileFieldsInterceptor } from '@nestjs/platform-express'
 import type { Request } from 'express'
-import { createSongSchema, updateSongAlbumSchema, type CreateSongInput, type UpdateSongAlbumInput } from 'shared/schemas/song.schema.js'
+import { createSongSchema, updateSongAlbumSchema, type CreateSongInput, type UpdateSongAlbumInput } from 'shared/schemas/song.schema'
 import { Roles } from '../auth/decorators/roles.decorator.js'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js'
 import { RolesGuard } from '../auth/guards/roles.guard.js'

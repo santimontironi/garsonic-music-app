@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { contactSchema, type ContactInput } from "../../../../shared/schemas/contact.schema.js"
+import { contactSchema, type ContactInput } from "shared/schemas/contact.schema"
 import SectionLabel from "../ui/SectionLabel.tsx"
 
 const Contact = () => {

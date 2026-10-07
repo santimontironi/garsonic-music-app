@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import type { CreateAlbumInput } from 'shared/schemas/album.schema.js'
+import type { CreateAlbumInput } from 'shared/schemas/album.schema'
 import { CloudinaryService } from '../cloudinary/cloudinary.service.js'
 import { PrismaService } from '../prisma/prisma.service.js'
 

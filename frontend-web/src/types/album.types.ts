@@ -1,5 +1,5 @@
-import type { CreateAlbumInput } from "../../../shared/schemas/album.schema";
-import { albumSchema } from "../../../shared/schemas/album.schema";
+import type { CreateAlbumInput } from "shared/schemas/album.schema";
+import { albumSchema } from "shared/schemas/album.schema";
 import { z } from "zod";
 
 export type CreateAlbumCredentials = {

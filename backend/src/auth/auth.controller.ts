@@ -1,7 +1,7 @@
 import { BadRequestException, Body, Controller, Get, Param, Post, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
 import type { Request, Response } from 'express'
-import { loginSchema, registerSchema, type LoginInput, type RegisterInput } from 'shared/schemas/auth.schema.js'
+import { loginSchema, registerSchema, type LoginInput, type RegisterInput } from 'shared/schemas/auth.schema'
 import { ZodValidationPipe } from '../common/pipes/zod.validation.pipe.js'
 import { AuthService } from './auth.service.js'
 import { JwtAuthGuard } from './guards/jwt-auth.guard.js'

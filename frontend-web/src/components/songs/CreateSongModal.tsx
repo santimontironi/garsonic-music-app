@@ -1,7 +1,7 @@
 import { useState, type ChangeEvent } from "react"
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { createSongSchema, type CreateSongInput } from "../../../../shared/schemas/song.schema"
+import { createSongSchema, type CreateSongInput } from "shared/schemas/song.schema"
 import { useCreateSong } from "../../hooks/song/useCreateSong"
 import { useMyAlbums } from "../../hooks/album/useMyAlbums"
 import InputImage from "../ui/InputImage"

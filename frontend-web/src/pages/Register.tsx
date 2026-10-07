@@ -4,7 +4,7 @@ import InputImage from "../components/ui/InputImage.tsx"
 import { useRegister } from "../hooks/auth/useRegister.ts"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { registerSchema, type RegisterInput } from "../../../shared/schemas/auth.schema.ts"
+import { registerSchema, type RegisterInput } from "shared/schemas/auth.schema"
 import { useState } from "react"
 
 const Register = () => {

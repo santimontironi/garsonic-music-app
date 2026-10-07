@@ -1,7 +1,7 @@
 import { BadRequestException, Body, Controller, Get, Post, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
 import type { Request } from 'express'
-import { createAlbumSchema, type CreateAlbumInput } from 'shared/schemas/album.schema.js'
+import { createAlbumSchema, type CreateAlbumInput } from 'shared/schemas/album.schema'
 import { Roles } from '../auth/decorators/roles.decorator.js'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js'
 import { RolesGuard } from '../auth/guards/roles.guard.js'

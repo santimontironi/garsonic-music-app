@@ -1,5 +1,5 @@
 import api from "./api";
-import { albumSchema } from "../../../shared/schemas/album.schema";
+import { albumSchema } from "shared/schemas/album.schema";
 import type { CreateAlbumCredentials } from "../types/album.types";
 
 export const getMyAlbumsService = async () => {

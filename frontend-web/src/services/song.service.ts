@@ -1,7 +1,7 @@
 import api from "./api";
-import { songSchema } from "../../../shared/schemas/song.schema.js";
+import { songSchema } from "shared/schemas/song.schema";
 import type { CreateSongCredentials } from "../types/song.types";
-import type { UpdateSongAlbumInput } from "../../../shared/schemas/song.schema.js";
+import type { UpdateSongAlbumInput } from "shared/schemas/song.schema";
 
 export const getMySongsService = async () => {
     const res = await api.get('/songs/me')

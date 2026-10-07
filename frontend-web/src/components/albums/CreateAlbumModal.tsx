@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { createAlbumSchema, type CreateAlbumInput } from "../../../../shared/schemas/album.schema"
+import { createAlbumSchema, type CreateAlbumInput } from "shared/schemas/album.schema"
 import { useCreateAlbum } from "../../hooks/album/useCreateAlbum"
 import InputImage from "../ui/InputImage"
 

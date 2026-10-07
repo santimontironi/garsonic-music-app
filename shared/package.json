@@ -1,9 +1,11 @@
 {
   "name": "shared",
+  "version": "0.0.0",
   "private": true,
   "type": "module",
   "exports": {
-    "./schemas/*.js": {
+    "./schemas/*": {
+      "source": "./schemas/*.ts",
       "types": "./dist/schemas/*.d.ts",
       "default": "./dist/schemas/*.js"
     }

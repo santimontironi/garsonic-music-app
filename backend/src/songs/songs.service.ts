@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
-import type { CreateSongInput, UpdateSongAlbumInput } from 'shared/schemas/song.schema.js'
+import type { CreateSongInput, UpdateSongAlbumInput } from 'shared/schemas/song.schema'
 import { CloudinaryService } from '../cloudinary/cloudinary.service.js'
 import { PrismaService } from '../prisma/prisma.service.js'
 
