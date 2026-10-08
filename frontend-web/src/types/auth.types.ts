@@ -1,4 +1,4 @@
-import type { RegisterInput } from "../../../shared/schemas/auth.schema.js"
+import type { RegisterInput } from "shared/schemas/auth.schema"
 
 export interface RegisterPayload {
     data: RegisterInput

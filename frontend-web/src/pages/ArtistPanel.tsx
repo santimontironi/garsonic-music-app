@@ -1,10 +1,10 @@
 import { useState } from "react"
 import HeaderPanel from "../components/ui/HeaderPanel"
-import SideNavArtist from "../components/ui/SideNavArtist"
+import SideNavArtist from "../components/artist/SideNavArtist"
 import HomeArtist from "../components/artist/HomeArtist"
 import SearchArtist from "../components/artist/SearchArtist"
 import MySongs from "../components/artist/MySongs"
-import UploadSong from "../components/artist/UploadSong"
+import MyAlbums from "../components/artist/MyAlbums"
 import Stats from "../components/artist/Stats"
 import ProfileArtist from "../components/artist/ProfileArtist"
 import type { SideNavArtistSections } from "../types/general.types"
@@ -36,14 +36,14 @@ const ArtistPanel = () => {
             <i className={`bi ${menuOpen ? "bi-x-lg" : "bi-list"}`} aria-hidden="true" />
           </button>
 
-          <HeaderPanel title="Estudio" />
+          <HeaderPanel title="Estudio" icon="bi-mic-fill" />
         </div>
 
         <main className="flex-1 p-5 md:p-8 xl:p-10">
-          {section === "home" && <HomeArtist />}
+          {section === "home" && <HomeArtist setSection={selectSection} />}
           {section === "search" && <SearchArtist />}
           {section === "my-songs" && <MySongs />}
-          {section === "upload" && <UploadSong />}
+          {section === "my-albums" && <MyAlbums />}
           {section === "stats" && <Stats />}
           {section === "profile" && <ProfileArtist />}
         </main>

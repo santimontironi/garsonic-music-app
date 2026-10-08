@@ -5,7 +5,7 @@ import { CloudinaryService } from '../cloudinary/cloudinary.service.js'
 import { MailService } from '../mail/mail.service.js'
 import { confirmTemplate } from '../mail/templates/confirm.template.js'
 import { PrismaService } from '../prisma/prisma.service.js'
-import type { LoginInput, RegisterInput } from 'shared/schemas/auth.schema.js'
+import type { LoginInput, RegisterInput } from 'shared/schemas/auth.schema'
 
 @Injectable()
 export class AuthService {

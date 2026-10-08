@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom"
 import type { SideNavArtistSections } from "../../types/general.types"
-import Logo from "./Logo"
-import LogoutButton from "./LogoutButton"
+import Logo from "../ui/Logo"
+import LogoutButton from "../ui/LogoutButton"
 
 type Props = {
   section: SideNavArtistSections
@@ -13,7 +13,7 @@ const items: { id: SideNavArtistSections; label: string; icon: string; group: st
   { id: "home", label: "Inicio", icon: "bi-house-fill", group: "General" },
   { id: "search", label: "Buscar", icon: "bi-search", group: "General" },
   { id: "my-songs", label: "Mis canciones", icon: "bi-music-note-beamed", group: "Estudio" },
-  { id: "upload", label: "Subir canción", icon: "bi-cloud-arrow-up-fill", group: "Estudio" },
+  { id: "my-albums", label: "Mis álbumes", icon: "bi-disc-fill", group: "Estudio" },
   { id: "stats", label: "Estadísticas", icon: "bi-bar-chart-fill", group: "Estudio" },
   { id: "profile", label: "Perfil", icon: "bi-person-badge-fill", group: "Cuenta" },
 ]
@@ -38,9 +38,9 @@ const SideNavArtist = ({ section, setSection, open }: Props) => {
         <span className="text-base uppercase md:text-lg">Garsonic</span>
       </Link>
 
-      <div className="flex flex-col gap-6 p-5">
+      <div className="flex flex-col gap-5 p-5">
         {groups.map(group => (
-          <div key={group} className="flex flex-col gap-3">
+          <div key={group} className="flex flex-col gap-3 border-t-2 border-black pt-5 first:border-t-0 first:pt-0">
             <p className="text-[10px] uppercase md:text-xs">{group}</p>
 
             {items.filter(item => item.group === group).map(({ id, label, icon }) => {

@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { contactSchema, type ContactInput } from "../../../../shared/schemas/contact.schema.js"
+import { contactSchema, type ContactInput } from "shared/schemas/contact.schema"
 import SectionLabel from "../ui/SectionLabel.tsx"
 
 const Contact = () => {
@@ -17,7 +17,7 @@ const Contact = () => {
     <div className="grid border-t-4 border-black xl:grid-cols-[20rem_1fr]">
       <SectionLabel title="Contacto" accent="bg-coral" />
 
-      <div className="flex flex-col gap-8 bg-background p-6 md:gap-10 md:p-10 xl:p-16">
+      <div className="flex flex-col gap-10 bg-background px-6 py-14 md:gap-14 md:px-10 md:py-20 xl:gap-16 xl:px-16 xl:py-28">
         <div className="flex flex-col gap-4">
           <h3 className="text-2xl leading-tight uppercase md:text-3xl xl:text-4xl">
             ¿Tenés algo para decirnos?
@@ -75,7 +75,6 @@ const Contact = () => {
             className="flex w-fit cursor-pointer items-center gap-2 border-2 border-black bg-green px-6 py-3 text-xs uppercase shadow-hard hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_0_#000] active:translate-x-1 active:translate-y-1 active:shadow-none focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-black md:text-sm"
           >
             Enviar mensaje
-            <i className="bi bi-send-fill" aria-hidden="true" />
           </button>
         </form>
       </div>

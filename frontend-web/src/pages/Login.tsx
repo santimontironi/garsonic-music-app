@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom"
 import Logo from "../components/ui/Logo.tsx"
 import { useLogin } from '../hooks/auth/useLogin'
-import { loginSchema, type LoginInput } from "../../../shared/schemas/auth.schema.js"
+import { loginSchema, type LoginInput } from "shared/schemas/auth.schema"
 import { useEffect, useState } from "react"
 import { useMe } from "../hooks/auth/useMe"
 import { useForm } from 'react-hook-form'
@@ -82,7 +82,7 @@ const Login = () => {
           <button
             type="submit"
             disabled={isPending}
-            className="rounded-full cursor-pointer border-2 border-black bg-coral px-6 py-3 text-sm font-bold shadow-hard hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_0_#000] active:translate-x-1 active:translate-y-1 active:shadow-none focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-black disabled:opacity-60 md:text-base"
+            className="rounded-full cursor-pointer border-2 border-black bg-coral px-6 py-3 text-sm font-bold shadow-hard hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_0_#000] active:translate-x-1 active:translate-y-1 active:shadow-none focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-black disabled:pointer-events-none disabled:opacity-60 md:text-base"
           >
             {isPending ? 'Ingresando...' : 'Ingresar'}
           </button>

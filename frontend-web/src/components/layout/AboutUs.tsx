@@ -6,7 +6,7 @@ const AboutUs = () => {
     <div className="grid border-t-4 border-black xl:grid-cols-[20rem_1fr]">
       <SectionLabel title="Sobre Garsonic" accent="bg-green" />
 
-      <div className="flex flex-col gap-8 bg-button p-6 md:gap-10 md:p-10 xl:p-16">
+      <div className="flex flex-col gap-10 bg-button px-6 py-14 md:gap-14 md:px-10 md:py-20 xl:gap-16 xl:px-16 xl:py-28">
         <p className="max-w-2xl text-sm leading-relaxed md:text-base">
           Garsonic es una plataforma de música hecha para los dos lados del parlante: los que escuchan y los que crean.
         </p>

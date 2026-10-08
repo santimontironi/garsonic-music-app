@@ -53,7 +53,8 @@ model Song {
   title         String
   durationSec   Int
   audioUrl      String
-  cover         String?
+  audioPublicId String
+  cover        String?
   coverPublicId String?
   createdAt     DateTime @default(now())
 

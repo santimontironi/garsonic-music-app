@@ -1,5 +1,5 @@
 import api from "./api";
-import { userSchema, type LoginInput } from "../../../shared/schemas/auth.schema.js";
+import { userSchema, type LoginInput } from "shared/schemas/auth.schema";
 import type { RegisterPayload } from "../types/auth.types";
 
 export const loginService = async (body: LoginInput) => {

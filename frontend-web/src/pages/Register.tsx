@@ -4,7 +4,7 @@ import InputImage from "../components/ui/InputImage.tsx"
 import { useRegister } from "../hooks/auth/useRegister.ts"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { registerSchema, type RegisterInput } from "../../../shared/schemas/auth.schema.ts"
+import { registerSchema, type RegisterInput } from "shared/schemas/auth.schema"
 import { useState } from "react"
 
 const Register = () => {
@@ -100,7 +100,7 @@ const Register = () => {
           <button
             type="submit"
             disabled={isPending}
-            className="rounded-full border-2 cursor-pointer border-black bg-coral px-6 py-3 text-sm font-bold shadow-hard hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_0_#000] active:translate-x-1 active:translate-y-1 active:shadow-none focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-black disabled:opacity-60 md:text-base"
+            className="rounded-full border-2 cursor-pointer border-black bg-coral px-6 py-3 text-sm font-bold shadow-hard hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_0_#000] active:translate-x-1 active:translate-y-1 active:shadow-none focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-black disabled:pointer-events-none disabled:opacity-60 md:text-base"
           >
             {isPending ? "Creando..." : "Crear cuenta"}
           </button>

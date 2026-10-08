@@ -1,3 +1,4 @@
-cd shared && ls *.ts >/dev/null 2>&1 && npm run build
-cd ../backend && npx prisma generate && npm run lint && npm run typecheck
-cd ../frontend-web && npm run lint && npm run typecheck
+npm run build -w shared
+npm exec -w backend -- prisma generate
+npm run lint --workspaces --if-present
+npm run typecheck --workspaces --if-present

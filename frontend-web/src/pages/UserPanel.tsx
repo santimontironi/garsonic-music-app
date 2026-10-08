@@ -4,7 +4,7 @@ import MyPlaylists from "../components/user/MyPlaylists"
 import Search from "../components/user/Search"
 import FavoriteArtists from "../components/user/FavoriteArtists"
 import FavoriteSongs from "../components/user/FavoriteSongs"
-import SideNavUser from "../components/ui/SideNavUser"
+import SideNavUser from "../components/user/SideNavUser"
 import type { SideNavUserSections } from "../types/general.types"
 import HeaderPanel from "../components/ui/HeaderPanel"
 import { useState } from "react"
@@ -36,7 +36,7 @@ const UserPanel = () => {
             <i className={`bi ${menuOpen ? "bi-x-lg" : "bi-list"}`} aria-hidden="true" />
           </button>
 
-          <HeaderPanel title="Mi panel" />
+          <HeaderPanel title="Mi panel" icon="bi-headphones" />
         </div>
 
         <main className="flex-1 p-5 md:p-8 xl:p-10">
