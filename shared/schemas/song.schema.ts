@@ -23,7 +23,7 @@ export const songSchema = songBaseSchema.extend({
 
 export const albumWithSongsSchema = albumSchema.extend({
     songs: z.array(songBaseSchema),
-    artist: userSchema
+    artist: userSchema.omit({ email: true })
 })
 
 export type CreateSongInput = z.infer<typeof createSongSchema>

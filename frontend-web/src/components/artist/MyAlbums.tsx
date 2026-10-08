@@ -1,5 +1,7 @@
 import CreateAlbumModal from "../albums/CreateAlbumModal"
 import AlbumCard from "../albums/AlbumCard"
+import AlbumDetail from "../albums/AlbumDetail"
+import Loader from "../ui/Loader"
 import EmptyState from "../ui/EmptyState"
 import { useMyAlbums } from "../../hooks/album/useMyAlbums"
 import { useState } from "react"
@@ -7,7 +9,12 @@ import { useState } from "react"
 const MyAlbums = () => {
 
   const [modalOpen, setModalOpen] = useState(false)
+  const [selectedAlbumId, setSelectedAlbumId] = useState<string | null>(null)
   const { data: albums, isPending, isError, error } = useMyAlbums()
+
+  if (selectedAlbumId) {
+    return <AlbumDetail albumId={selectedAlbumId} onBack={() => setSelectedAlbumId(null)} />
+  }
 
   const createButton = (
     <button
@@ -27,7 +34,7 @@ const MyAlbums = () => {
         {albums && albums.length > 0 && createButton}
       </div>
 
-      {isPending && <p className="text-sm">Cargando álbumes...</p>}
+      {isPending && <div className="py-12"><Loader /></div>}
       {isError && <p role="alert" className="text-sm text-red-600">{error.message}</p>}
 
       {albums?.length === 0 && (
@@ -44,7 +51,7 @@ const MyAlbums = () => {
         <ul className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 xl:grid-cols-5">
           {albums.map(album => (
             <li key={album.id}>
-              <AlbumCard album={album} />
+              <AlbumCard album={album} onClick={() => setSelectedAlbumId(album.id)} />
             </li>
           ))}
         </ul>

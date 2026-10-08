@@ -2,7 +2,7 @@ import { Link } from "react-router-dom"
 import Logo from "../components/ui/Logo.tsx"
 import InputImage from "../components/ui/InputImage.tsx"
 import { useRegister } from "../hooks/auth/useRegister.ts"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { registerSchema, type RegisterInput } from "shared/schemas/auth.schema"
 import { useState } from "react"
@@ -11,10 +11,12 @@ const Register = () => {
 
   const [photo, setPhoto] = useState<File | null>(null)
 
-  const { register, handleSubmit, formState: { errors } } = useForm<RegisterInput>({
+  const { register, handleSubmit, control, formState: { errors } } = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
     defaultValues: { role: "USER" }
   })
+
+  const isArtist = useWatch({ control, name: "role" }) === "ARTIST"
 
   const { mutate: registerUser, isPending, isError, isSuccess, error } = useRegister()
 
@@ -53,24 +55,6 @@ const Register = () => {
               {errors.surname && <p className="text-xs text-red-600">{errors.surname.message}</p>}
             </div>
 
-            <div className="flex flex-col gap-1.5 sm:col-span-2">
-              <label htmlFor="username" className="text-xs font-bold tracking-wide uppercase">Usuario</label>
-              <input id="username" type="text" autoComplete="username" {...register("username")} className="w-full rounded-xl border-2 border-black bg-button px-4 py-2.5 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black" />
-              {errors.username && <p className="text-xs text-red-600">{errors.username.message}</p>}
-            </div>
-
-            <div className="flex flex-col gap-1.5 sm:col-span-2">
-              <label htmlFor="email" className="text-xs font-bold tracking-wide uppercase">Email</label>
-              <input id="email" {...register("email")} type="email" autoComplete="email" className="w-full rounded-xl border-2 border-black bg-button px-4 py-2.5 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black" />
-              {errors.email && <p className="text-xs text-red-600">{errors.email.message}</p>}
-            </div>
-
-            <div className="flex flex-col gap-1.5 sm:col-span-2">
-              <label htmlFor="password" className="text-xs font-bold tracking-wide uppercase">Contraseña</label>
-              <input id="password" {...register("password")} type="password" autoComplete="new-password" className="w-full rounded-xl border-2 border-black bg-button px-4 py-2.5 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black" />
-              {errors.password && <p className="text-xs text-red-600">{errors.password.message}</p>}
-            </div>
-
             <fieldset className="flex flex-col gap-1.5">
               <legend className="text-xs font-bold tracking-wide uppercase">Quiero ser</legend>
               <div className="flex overflow-hidden rounded-xl border-2 border-black bg-button shadow-hard">
@@ -88,7 +72,25 @@ const Register = () => {
             <InputImage id="photo" name="photo" label="Foto de perfil" onChange={setPhoto} />
 
             <div className="flex flex-col gap-1.5 sm:col-span-2">
-              <label htmlFor="bio" className="text-xs font-bold tracking-wide uppercase">Bio</label>
+              <label htmlFor="username" className="text-xs font-bold tracking-wide uppercase">{isArtist ? "Nombre artistico" : "Usuario"}</label>
+              <input id="username" type="text" autoComplete="username" {...register("username")} className="w-full rounded-xl border-2 border-black bg-button px-4 py-2.5 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black" />
+              {errors.username && <p className="text-xs text-red-600">{errors.username.message}</p>}
+            </div>
+
+            <div className="flex flex-col gap-1.5 sm:col-span-2">
+              <label htmlFor="email" className="text-xs font-bold tracking-wide uppercase">Email</label>
+              <input id="email" {...register("email")} type="email" autoComplete="email" className="w-full rounded-xl border-2 border-black bg-button px-4 py-2.5 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black" />
+              {errors.email && <p className="text-xs text-red-600">{errors.email.message}</p>}
+            </div>
+
+            <div className="flex flex-col gap-1.5 sm:col-span-2">
+              <label htmlFor="password" className="text-xs font-bold tracking-wide uppercase">Contraseña</label>
+              <input id="password" {...register("password")} type="password" autoComplete="new-password" className="w-full rounded-xl border-2 border-black bg-button px-4 py-2.5 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black" />
+              {errors.password && <p className="text-xs text-red-600">{errors.password.message}</p>}
+            </div>
+
+            <div className="flex flex-col gap-1.5 sm:col-span-2">
+              <label htmlFor="bio" className="text-xs font-bold tracking-wide uppercase">Bio (opcional)</label>
               <textarea id="bio" rows={3} {...register("bio")} className="w-full resize-none rounded-xl border-2 border-black bg-button px-4 py-2.5 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black" />
               {errors.bio && <p className="text-xs text-red-600">{errors.bio.message}</p>}
             </div>

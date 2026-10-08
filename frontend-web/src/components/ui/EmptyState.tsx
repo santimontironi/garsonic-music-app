@@ -2,8 +2,8 @@ interface EmptyStateProps {
   icon: string
   title: string
   message: string
-  actionLabel: string
-  onAction: () => void
+  actionLabel?: string
+  onAction?: () => void
 }
 
 const EmptyState = ({ icon, title, message, actionLabel, onAction }: EmptyStateProps) => {
@@ -18,15 +18,17 @@ const EmptyState = ({ icon, title, message, actionLabel, onAction }: EmptyStateP
         <p className="text-xs md:text-sm">{message}</p>
       </div>
 
-      <button
-        type="button"
-        onClick={onAction}
-        className="group flex cursor-pointer items-center gap-2 rounded-full border-2 border-black bg-coral px-6 py-3 text-sm font-bold uppercase shadow-hard transition-all duration-150 hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_0_#000] active:translate-x-1 active:translate-y-1 active:shadow-none focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-black md:px-8 md:text-base"
-      >
-        <i className="bi bi-plus-lg" aria-hidden="true"></i>
-        {actionLabel}
-        <i className="bi bi-arrow-right transition-transform duration-150 group-hover:translate-x-1" aria-hidden="true"></i>
-      </button>
+      {actionLabel && onAction && (
+        <button
+          type="button"
+          onClick={onAction}
+          className="group flex cursor-pointer items-center gap-2 rounded-full border-2 border-black bg-coral px-6 py-3 text-sm font-bold uppercase shadow-hard transition-all duration-150 hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_0_#000] active:translate-x-1 active:translate-y-1 active:shadow-none focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-black md:px-8 md:text-base"
+        >
+          <i className="bi bi-plus-lg" aria-hidden="true"></i>
+          {actionLabel}
+          <i className="bi bi-arrow-right transition-transform duration-150 group-hover:translate-x-1" aria-hidden="true"></i>
+        </button>
+      )}
     </div>
   )
 }

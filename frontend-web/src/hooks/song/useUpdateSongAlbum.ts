@@ -10,6 +10,7 @@ export const useUpdateSongAlbum = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["my-songs"] });
             queryClient.invalidateQueries({ queryKey: ["my-albums"] });
+            queryClient.invalidateQueries({ queryKey: ["album"] });
         },
     });
 }
