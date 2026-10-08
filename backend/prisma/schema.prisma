@@ -68,8 +68,8 @@ model Playlist {
   id            String   @id @default(uuid()) @db.Uuid
   ownerId       String   @db.Uuid
   name          String
-  image         String
-  imagePublicId String
+  image         String?
+  imagePublicId String?
   isPublic      Boolean  @default(false)
   createdAt     DateTime @default(now())
 

@@ -5,8 +5,9 @@ import { MailModule } from './mail/mail.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { SongsModule } from './songs/songs.module.js';
 import { AlbumesModule } from './albumes/albumes.module.js';
+import { PlaylistsModule } from './playlists/playlists.module.js';
 
 @Module({
-  imports: [PrismaModule, CloudinaryModule, MailModule, AuthModule, SongsModule, AlbumesModule],
+  imports: [PrismaModule, CloudinaryModule, MailModule, AuthModule, SongsModule, AlbumesModule, PlaylistsModule],
 })
 export class AppModule {}

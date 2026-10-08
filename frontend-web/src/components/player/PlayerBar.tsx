@@ -11,7 +11,7 @@ const PlayerBar = () => {
   const total = Math.floor(duration || 0)
 
   return (
-    <div className="sticky bottom-0 z-30 flex flex-col gap-2 border-t-4 border-black bg-button px-4 py-3 md:flex-row md:items-center md:gap-6 md:px-8 xl:px-10">
+    <div className="sticky bottom-0 z-30 flex flex-col gap-2 border-t-4 border-black bg-button px-4 py-3 md:h-25 md:flex-row md:items-center md:gap-6 md:px-8 md:py-0 xl:px-10">
       {/* key cambia con cada canción: React remonta el bloque y la animación vuelve a correr */}
       <div key={track.id} className="flex min-w-0 items-center gap-3 motion-safe:animate-slide-in md:w-1/4">
         {track.cover ? (

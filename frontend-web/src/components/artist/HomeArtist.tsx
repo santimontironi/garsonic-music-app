@@ -18,7 +18,7 @@ const HomeArtist = ({ setSection }: Props) => {
   const { data: albums } = useMyAlbums()
   const { playQueue } = usePlayer()
 
-  const artistName = user ? `${user.name} ${user.surname}` : ""
+  const artistName = user ? user.username : ""
   const recentTracks = songs?.slice(0, 5).map(song => ({ ...song, artistName })) ?? []
 
   const totalMinutes = Math.round((songs?.reduce((acc, song) => acc + song.durationSec, 0) ?? 0) / 60)

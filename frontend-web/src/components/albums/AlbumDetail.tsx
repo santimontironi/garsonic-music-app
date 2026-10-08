@@ -13,7 +13,7 @@ const AlbumDetail = ({ albumId, onBack }: AlbumDetailProps) => {
   const { data: album, isPending, isError, error } = useAlbum(albumId)
   const { playQueue } = usePlayer()
 
-  const artistName = album ? `${album.artist.name} ${album.artist.surname}` : ""
+  const artistName = album ? album.artist.username : ""
   const tracks = album?.songs.map(song => ({ ...song, cover: song.cover ?? album.cover, artistName })) ?? []
 
   return (

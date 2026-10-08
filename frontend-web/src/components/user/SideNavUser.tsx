@@ -38,9 +38,9 @@ const SideNavUser = ({ section, setSection, open }: Props) => {
         <span className="text-base uppercase md:text-lg">Garsonic</span>
       </Link>
 
-      <div className="flex flex-col gap-5 p-5">
+      <div className="flex flex-col gap-5 p-5 xl:max-2xl:gap-3 xl:max-2xl:p-4">
         {groups.map(group => (
-          <div key={group} className="flex flex-col gap-3 border-t-2 border-black pt-5 first:border-t-0 first:pt-0">
+          <div key={group} className="flex flex-col gap-3 border-t-2 border-black pt-5 first:border-t-0 first:pt-0 xl:max-2xl:gap-2 xl:max-2xl:pt-3">
             <p className="text-[10px] uppercase md:text-xs">{group}</p>
 
             {items.filter(item => item.group === group).map(({ id, label, icon }) => {
@@ -51,7 +51,7 @@ const SideNavUser = ({ section, setSection, open }: Props) => {
                   type="button"
                   onClick={() => setSection(id)}
                   aria-current={active ? "page" : undefined}
-                  className={`flex cursor-pointer items-center gap-3 border-2 border-black px-3 py-3 text-left text-xs leading-tight uppercase transition-transform md:text-[13px] ${
+                  className={`flex cursor-pointer items-center gap-3 border-2 border-black px-3 py-3 text-left text-xs leading-tight uppercase transition-transform md:text-[13px] xl:max-2xl:py-2 ${
                     active
                       ? "bg-black text-button shadow-hard"
                       : "bg-button shadow-hard hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_0_#000] active:translate-x-1 active:translate-y-1 active:shadow-none"
@@ -66,7 +66,7 @@ const SideNavUser = ({ section, setSection, open }: Props) => {
         ))}
       </div>
 
-      <div className="mt-auto border-t-4 border-black p-5">
+      <div className="mt-auto border-t-4 border-black p-5 md:flex md:h-25 md:shrink-0 md:items-center md:py-0 xl:max-2xl:px-4">
         <LogoutButton />
       </div>
     </nav>

@@ -13,7 +13,7 @@ const MySongs = () => {
   const { data: me } = useMe()
   const { playQueue } = usePlayer()
 
-  const artistName = me ? `${me.name} ${me.surname}` : ""
+  const artistName = me ? me.username : ""
   const tracks = songs?.map(song => ({ ...song, artistName })) ?? []
 
   const uploadButton = (
