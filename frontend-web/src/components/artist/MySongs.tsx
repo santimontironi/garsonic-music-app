@@ -4,10 +4,17 @@ import EmptyState from "../ui/EmptyState"
 import Loader from "../ui/Loader"
 import { useMySongs } from "../../hooks/song/useMySongs"
 import { useState } from "react"
+import { useMe } from "../../hooks/auth/useMe"
+import { usePlayer } from "../../context/PlayerContext"
 
 const MySongs = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const { data: songs, isPending, isError, error } = useMySongs()
+  const { data: me } = useMe()
+  const { playQueue } = usePlayer()
+
+  const artistName = me ? `${me.name} ${me.surname}` : ""
+  const tracks = songs?.map(song => ({ ...song, artistName })) ?? []
 
   const uploadButton = (
     <button
@@ -40,7 +47,7 @@ const MySongs = () => {
         />
       )}
 
-      {songs && songs.length > 0 && <SongList songs={songs} />}
+      {songs && songs.length > 0 && <SongList songs={songs} onPlay={i => playQueue(tracks, i)} />}
 
       {isModalOpen && <CreateSongModal closeModal={() => setIsModalOpen(false)} />}
     </section>

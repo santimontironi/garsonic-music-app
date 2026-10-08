@@ -1,4 +1,6 @@
 import { useState } from "react"
+import PlayerProvider from "../context/PlayerContext"
+import PlayerBar from "../components/player/PlayerBar"
 import HeaderPanel from "../components/ui/HeaderPanel"
 import SideNavArtist from "../components/artist/SideNavArtist"
 import HomeArtist from "../components/artist/HomeArtist"
@@ -20,35 +22,39 @@ const ArtistPanel = () => {
   }
 
   return (
-    <div className="min-h-svh bg-background md:flex">
-      <SideNavArtist section={section} setSection={selectSection} open={menuOpen} />
+    <PlayerProvider>
+      <div className="min-h-svh bg-background md:flex">
+        <SideNavArtist section={section} setSection={selectSection} open={menuOpen} />
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <div className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b-4 border-black bg-button px-4 md:h-20 md:px-8 xl:px-10">
-          <button
-            type="button"
-            onClick={() => setMenuOpen(o => !o)}
-            aria-expanded={menuOpen}
-            aria-controls="side-nav-artist"
-            aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
-            className="flex size-10 shrink-0 cursor-pointer items-center justify-center border-2 border-black bg-green text-xl shadow-hard focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-black md:hidden"
-          >
-            <i className={`bi ${menuOpen ? "bi-x-lg" : "bi-list"}`} aria-hidden="true" />
-          </button>
+        <div className="flex min-w-0 flex-1 flex-col">
+          <div className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b-4 border-black bg-button px-4 md:h-20 md:px-8 xl:px-10">
+            <button
+              type="button"
+              onClick={() => setMenuOpen(o => !o)}
+              aria-expanded={menuOpen}
+              aria-controls="side-nav-artist"
+              aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
+              className="flex size-10 shrink-0 cursor-pointer items-center justify-center border-2 border-black bg-green text-xl shadow-hard focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-black md:hidden"
+            >
+              <i className={`bi ${menuOpen ? "bi-x-lg" : "bi-list"}`} aria-hidden="true" />
+            </button>
 
-          <HeaderPanel title="Estudio" icon="bi-mic-fill" />
+            <HeaderPanel title="Estudio" icon="bi-mic-fill" />
+          </div>
+
+          <main className="flex-1 p-5 md:p-8 xl:p-10">
+            {section === "home" && <HomeArtist setSection={selectSection} />}
+            {section === "search" && <SearchArtist />}
+            {section === "my-songs" && <MySongs />}
+            {section === "my-albums" && <MyAlbums />}
+            {section === "stats" && <Stats />}
+            {section === "profile" && <ProfileArtist />}
+          </main>
+
+          <PlayerBar />
         </div>
-
-        <main className="flex-1 p-5 md:p-8 xl:p-10">
-          {section === "home" && <HomeArtist setSection={selectSection} />}
-          {section === "search" && <SearchArtist />}
-          {section === "my-songs" && <MySongs />}
-          {section === "my-albums" && <MyAlbums />}
-          {section === "stats" && <Stats />}
-          {section === "profile" && <ProfileArtist />}
-        </main>
       </div>
-    </div>
+    </PlayerProvider>
   )
 }
 

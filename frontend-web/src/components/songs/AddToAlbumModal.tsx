@@ -1,3 +1,4 @@
+import Loader from "../ui/Loader"
 import type { Song } from "../../types/song.types"
 import { useMyAlbums } from "../../hooks/album/useMyAlbums"
 import { useUpdateSongAlbum } from "../../hooks/song/useUpdateSongAlbum"
@@ -38,7 +39,7 @@ const AddToAlbumModal = ({ song, onClose }: AddToAlbumModalProps) => {
                 <div className="flex flex-col gap-4 overflow-y-auto p-6">
                     <p className="truncate text-xs">Canción: <span className="font-bold">{song.title}</span></p>
 
-                    {loadingAlbums && <p className="text-sm">Cargando álbumes...</p>}
+                    {loadingAlbums && <div className="py-6"><Loader /></div>}
 
                     {options?.length === 0 && (
                         <p className="text-sm">No tenés otros álbumes. Creá uno desde "Mis álbumes".</p>

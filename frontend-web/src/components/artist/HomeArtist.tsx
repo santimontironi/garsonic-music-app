@@ -6,6 +6,7 @@ import Logo from "../ui/Logo"
 import SongList from "../songs/SongList"
 import QuickAccessArtist from "./QuickAccessArtist"
 import HomeArtistStats from "./HomeArtistStats"
+import { usePlayer } from "../../context/PlayerContext"
 
 type Props = {
   setSection: (section: SideNavArtistSections) => void
@@ -15,6 +16,10 @@ const HomeArtist = ({ setSection }: Props) => {
   const { data: user } = useMe()
   const { data: songs } = useMySongs()
   const { data: albums } = useMyAlbums()
+  const { playQueue } = usePlayer()
+
+  const artistName = user ? `${user.name} ${user.surname}` : ""
+  const recentTracks = songs?.slice(0, 5).map(song => ({ ...song, artistName })) ?? []
 
   const totalMinutes = Math.round((songs?.reduce((acc, song) => acc + song.durationSec, 0) ?? 0) / 60)
 
@@ -88,7 +93,7 @@ const HomeArtist = ({ setSection }: Props) => {
               <i className="bi bi-arrow-right transition-transform group-hover:translate-x-1" aria-hidden="true" />
             </button>
           </div>
-          <SongList songs={songs.slice(0, 5)} />
+          <SongList songs={songs.slice(0, 5)} onPlay={i => playQueue(recentTracks, i)} />
         </div>
       )}
     </section>

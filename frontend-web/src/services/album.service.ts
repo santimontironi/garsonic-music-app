@@ -1,5 +1,6 @@
 import api from "./api";
 import { albumSchema } from "shared/schemas/album.schema";
+import { albumWithSongsSchema } from "shared/schemas/song.schema";
 import type { CreateAlbumCredentials } from "../types/album.types";
 
 export const getMyAlbumsService = async () => {
@@ -16,4 +17,9 @@ export const createAlbumService = async ({ data, cover }: CreateAlbumCredentials
 
     const res = await api.post('/albumes', formData)
     return albumSchema.parse(res.data)
+}
+
+export const getAlbumByIdService = async (id: string) => {
+    const res = await api.get(`/albumes/${id}`)
+    return albumWithSongsSchema.parse(res.data)
 }

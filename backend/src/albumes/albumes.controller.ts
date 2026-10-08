@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Post, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common'
+import { BadRequestException, Body, Controller, Get, Param, ParseUUIDPipe, Post, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
 import type { Request } from 'express'
 import { createAlbumSchema, type CreateAlbumInput } from 'shared/schemas/album.schema'
@@ -10,16 +10,22 @@ import { AlbumesService } from './albumes.service.js'
 
 @Controller('albumes')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles('ARTIST')
 export class AlbumesController {
   constructor(private readonly albumesService: AlbumesService) {}
 
   @Get('me')
+  @Roles('ARTIST')
   findMine(@Req() req: Request) {
     return this.albumesService.findByArtist(req.user!.sub)
   }
 
+  @Get(':id')
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return this.albumesService.findOne(id)
+  }
+
   @Post()
+  @Roles('ARTIST')
   @UseInterceptors(
     FileInterceptor('cover', {
       limits: { fileSize: 5 * 1024 * 1024 },

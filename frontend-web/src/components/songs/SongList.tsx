@@ -4,11 +4,12 @@ import SongMenu from "./SongMenu"
 
 interface SongListProps {
   songs: Song[]
+  onPlay: (index: number) => void
 }
 
 const cell = "border-b-2 border-black px-2 py-2.5 group-last:border-b-0 md:px-4 md:py-3"
 
-const SongList = ({ songs }: SongListProps) => {
+const SongList = ({ songs, onPlay }: SongListProps) => {
   return (
     <div className="rounded-2xl border-4 border-black bg-button shadow-hard">
       <table className="w-full table-fixed border-separate border-spacing-0 text-left">
@@ -26,11 +27,12 @@ const SongList = ({ songs }: SongListProps) => {
         </thead>
 
         <tbody>
-          {songs.map(song => (
+          {songs.map((song, i) => (
             <tr key={song.id} className="group hover:bg-green">
               <td className={`${cell} group-last:rounded-bl-xl`}>
                 <button
                   type="button"
+                  onClick={() => onPlay(i)}
                   aria-label={`Reproducir ${song.title}`}
                   className="flex size-9 cursor-pointer items-center justify-center rounded-full border-2 border-black bg-coral shadow-hard hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_0_#000] active:translate-x-1 active:translate-y-1 active:shadow-none focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black md:size-10"
                 >
