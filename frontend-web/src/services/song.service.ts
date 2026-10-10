@@ -12,6 +12,7 @@ export const createSongService = async ({ data, audio, cover }: CreateSongCreden
     const formData = new FormData()
 
     formData.append('title', data.title)
+    formData.append('genreId', data.genreId)
     formData.append('audio', audio)
 
     if (data.albumId) formData.append('albumId', data.albumId)

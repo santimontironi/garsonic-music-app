@@ -27,7 +27,8 @@ export class AlbumesService {
         artist: { select: { id: true, name: true, surname: true, username: true, role: true, bio: true, photo: true, createdAt: true } },
         songs: {
           orderBy: { createdAt: 'asc' },
-          omit: { audioPublicId: true, coverPublicId: true }
+          omit: { audioPublicId: true, coverPublicId: true },
+          include: { genre: true }
         }
       }
     })

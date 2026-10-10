@@ -32,7 +32,7 @@ const SongMenu = ({ song }: SongMenuProps) => {
         aria-label={`Opciones de ${song.title}`}
         aria-haspopup="menu"
         aria-expanded={menuOpen}
-        className="flex size-9 cursor-pointer items-center justify-center rounded-full border-2 border-transparent hover:border-black hover:bg-button focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black"
+        className="flex size-9 cursor-pointer items-center justify-center border-2 border-transparent hover:border-black hover:bg-button focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black"
       >
         <i className="bi bi-three-dots-vertical" aria-hidden="true"></i>
       </button>
@@ -40,7 +40,7 @@ const SongMenu = ({ song }: SongMenuProps) => {
       {menuOpen && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} aria-hidden="true" />
-          <div role="menu" className="absolute top-full right-0 z-50 mt-2 w-56 overflow-hidden rounded-xl border-2 border-black bg-button shadow-hard">
+          <div role="menu" className="absolute top-full right-0 z-50 mt-2 w-56 overflow-hidden border-2 border-black bg-button shadow-hard">
             <button type="button" role="menuitem" onClick={openModal} className={itemClass}>
               <i className="bi bi-plus-lg" aria-hidden="true"></i>
               {song.albumId ? "Mover a otro álbum" : "Agregar a álbum"}

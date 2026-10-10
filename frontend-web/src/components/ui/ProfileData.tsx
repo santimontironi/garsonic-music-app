@@ -9,7 +9,7 @@ const ProfileData = () => {
     <div className="flex items-center gap-3 self-stretch border-l-4 border-black pl-4 md:pl-6">
       <div className="hidden flex-col items-end xl:flex">
         <p className="text-xs leading-tight">{user.name} {user.surname}</p>
-        <p className="text-[10px]">@{user.username}</p>
+        <p className="text-xs">@{user.username}</p>
       </div>
 
       {user.photo ? (

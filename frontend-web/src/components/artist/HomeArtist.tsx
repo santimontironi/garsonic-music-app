@@ -18,7 +18,7 @@ const HomeArtist = ({ setSection }: Props) => {
   const { data: albums } = useMyAlbums()
   const { playQueue } = usePlayer()
 
-  const artistName = user ? `${user.name} ${user.surname}` : ""
+  const artistName = user ? user.username : ""
   const recentTracks = songs?.slice(0, 5).map(song => ({ ...song, artistName })) ?? []
 
   const totalMinutes = Math.round((songs?.reduce((acc, song) => acc + song.durationSec, 0) ?? 0) / 60)
@@ -41,7 +41,7 @@ const HomeArtist = ({ setSection }: Props) => {
             <button
               type="button"
               onClick={() => setSection("my-songs")}
-              className="flex w-fit cursor-pointer items-center gap-3 border-2 border-black bg-coral px-6 py-3 text-sm uppercase shadow-hard hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_0_#000] active:translate-x-1 active:translate-y-1 active:shadow-none focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-black"
+              className="flex w-fit cursor-pointer items-center gap-3 border-2 border-black bg-coral px-6 py-3 text-sm uppercase press focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-black"
             >
               <i className="bi bi-upload" aria-hidden="true" />
               Subir canción
@@ -49,7 +49,7 @@ const HomeArtist = ({ setSection }: Props) => {
             <button
               type="button"
               onClick={() => setSection("my-albums")}
-              className="flex w-fit cursor-pointer items-center gap-3 border-2 border-black bg-button px-6 py-3 text-sm uppercase shadow-hard hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_0_#000] active:translate-x-1 active:translate-y-1 active:shadow-none focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-black"
+              className="flex w-fit cursor-pointer items-center gap-3 border-2 border-black bg-button px-6 py-3 text-sm uppercase press focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-black"
             >
               <i className="bi bi-vinyl" aria-hidden="true" />
               Ver álbumes

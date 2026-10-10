@@ -49,7 +49,7 @@ const Login = () => {
       </header>
 
       <main className="mx-auto w-full max-w-md flex-1">
-        <form className="flex flex-col gap-6 rounded-3xl border-4 border-black bg-background p-6 shadow-hard-lg md:p-10" onSubmit={handleSubmit(formSubmit)}>
+        <form className="flex flex-col gap-6 border-4 border-black bg-background p-6 shadow-hard-lg md:p-10" onSubmit={handleSubmit(formSubmit)}>
           <div className="flex flex-col gap-1 text-center">
             <h1 className="text-2xl font-bold md:text-3xl">Ingresá a tu cuenta</h1>
             <p className="text-sm">Escuchá y publicá tu música en Garsonic</p>
@@ -58,13 +58,13 @@ const Login = () => {
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
               <label htmlFor="email" className="text-xs font-bold tracking-wide uppercase">Email</label>
-              <input id="email" type="email" autoComplete="email" {...register('email')} className="w-full rounded-xl border-2 border-black bg-button px-4 py-2.5 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black" />
+              <input id="email" type="email" autoComplete="email" {...register('email')} className="w-full border-2 border-black bg-button px-4 py-2.5 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black" />
               {errors.email && <p className="text-xs text-red-600">{errors.email.message}</p>}
             </div>
 
             <div className="flex flex-col gap-1.5">
               <label htmlFor="password" className="text-xs font-bold tracking-wide uppercase">Contraseña</label>
-              <input id="password" type="password" autoComplete="current-password" {...register('password')} className="w-full rounded-xl border-2 border-black bg-button px-4 py-2.5 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black" />
+              <input id="password" type="password" autoComplete="current-password" {...register('password')} className="w-full border-2 border-black bg-button px-4 py-2.5 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black" />
               {errors.password && <p className="text-xs text-red-600">{errors.password.message}</p>}
             </div>
 
@@ -82,7 +82,7 @@ const Login = () => {
           <button
             type="submit"
             disabled={isPending}
-            className="rounded-full cursor-pointer border-2 border-black bg-coral px-6 py-3 text-sm font-bold shadow-hard hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_0_#000] active:translate-x-1 active:translate-y-1 active:shadow-none focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-black disabled:pointer-events-none disabled:opacity-60 md:text-base"
+            className="cursor-pointer border-2 border-black bg-coral px-6 py-3 text-sm font-bold press focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-black disabled:pointer-events-none disabled:opacity-60 md:text-base"
           >
             {isPending ? 'Ingresando...' : 'Ingresar'}
           </button>

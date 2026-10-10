@@ -9,7 +9,7 @@ type InputImageProps = {
   onChange?: (file: File | null) => void
 }
 
-const btn = "cursor-pointer rounded-full border-2 border-black bg-green px-3 py-1 text-xs font-bold focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black"
+const btn = "cursor-pointer border-2 border-black bg-green px-3 py-1 text-xs font-bold focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black"
 
 const InputImage = ({ id, name, label, maxSizeMB = 5, error, onChange }: InputImageProps) => {
   const inputRef = useRef<HTMLInputElement>(null)
@@ -50,10 +50,10 @@ const InputImage = ({ id, name, label, maxSizeMB = 5, error, onChange }: InputIm
   return (
     <div className="flex flex-col gap-1.5">
       <label htmlFor={id} className="text-xs font-bold tracking-wide uppercase">{label}</label>
-      <div className="flex items-center gap-3 rounded-xl border-2 border-black bg-button px-3 py-2 shadow-hard">
+      <div className="flex items-center gap-3 border-2 border-black bg-button px-3 py-2 shadow-hard">
         <input ref={inputRef} id={id} name={name} type="file" accept="image/*" tabIndex={-1} onChange={handleChange} className="sr-only" />
         {preview
-          ? <img src={preview} alt="Vista previa" className="size-10 shrink-0 rounded-full border-2 border-black object-cover" />
+          ? <img src={preview} alt="Vista previa" className="size-10 shrink-0 border-2 border-black object-cover" />
           : <span className="text-xs">Ninguna imagen</span>}
         <div className="ml-auto flex gap-2">
           <button type="button" onClick={() => inputRef.current?.click()} className={btn}>{preview ? "Cambiar" : "Elegir"}</button>

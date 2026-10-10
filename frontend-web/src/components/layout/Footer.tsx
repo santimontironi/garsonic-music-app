@@ -15,13 +15,13 @@ const Footer = () => {
         Garsonic
       </Link>
 
-      <p className="order-last flex w-full items-center justify-center border-t-4 border-black px-3 py-3 text-center text-[10px] md:order-0 md:w-auto md:flex-1 md:border-t-0 md:text-xs">
+      <p className="order-last flex w-full items-center justify-center border-t-4 border-black px-3 py-3 text-center text-xs md:order-0 md:w-auto md:flex-1 md:border-t-0">
         © {new Date().getFullYear()} Garsonic. Todos los derechos reservados.
       </p>
 
       <a
         href="#inicio"
-        className="ml-auto flex items-center gap-2 border-l-4 border-black bg-coral px-3 text-[10px] uppercase hover:bg-background focus-visible:outline-4 focus-visible:-outline-offset-8 focus-visible:outline-black md:ml-0 md:px-5 md:text-xs"
+        className="ml-auto flex items-center gap-2 border-l-4 border-black bg-coral px-3 text-xs uppercase hover:bg-background focus-visible:outline-4 focus-visible:-outline-offset-8 focus-visible:outline-black md:ml-0 md:px-5"
       >
         Volver arriba
         <i className="bi bi-arrow-up" aria-hidden="true" />

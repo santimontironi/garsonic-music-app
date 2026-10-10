@@ -16,14 +16,14 @@ const Hero = () => {
         <div className="flex flex-wrap gap-4">
           <Link
             to="/ingreso"
-            className="flex items-center gap-2 border-2 border-black bg-green px-5 py-3 text-xs uppercase shadow-hard hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_0_#000] active:translate-x-1 active:translate-y-1 active:shadow-none focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-black md:text-sm"
+            className="flex items-center gap-2 border-2 border-black bg-green px-5 py-3 text-xs uppercase press focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-black md:text-sm"
           >
             Empezá a escuchar
             <i className="bi bi-arrow-up-right" aria-hidden="true" />
           </Link>
           <a
             href="#sobre-garsonic"
-            className="flex items-center gap-2 border-2 border-black bg-button px-5 py-3 text-xs uppercase shadow-hard hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_0_#000] active:translate-x-1 active:translate-y-1 active:shadow-none focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-black md:text-sm"
+            className="flex items-center gap-2 border-2 border-black bg-button px-5 py-3 text-xs uppercase press focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-black md:text-sm"
           >
             Conocé más
             <i className="bi bi-arrow-down" aria-hidden="true" />

@@ -13,7 +13,7 @@ const AlbumDetail = ({ albumId, onBack }: AlbumDetailProps) => {
   const { data: album, isPending, isError, error } = useAlbum(albumId)
   const { playQueue } = usePlayer()
 
-  const artistName = album ? `${album.artist.name} ${album.artist.surname}` : ""
+  const artistName = album ? album.artist.username : ""
   const tracks = album?.songs.map(song => ({ ...song, cover: song.cover ?? album.cover, artistName })) ?? []
 
   return (
@@ -21,7 +21,7 @@ const AlbumDetail = ({ albumId, onBack }: AlbumDetailProps) => {
       <button
         type="button"
         onClick={onBack}
-        className="flex w-fit cursor-pointer items-center gap-2 rounded-full border-2 border-black bg-button px-4 py-2 text-sm font-bold uppercase shadow-hard hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_0_#000] active:translate-x-1 active:translate-y-1 active:shadow-none focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-black"
+        className="flex w-fit cursor-pointer items-center gap-2 border-2 border-black bg-button px-4 py-2 text-sm font-bold uppercase press focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-black"
       >
         <i className="bi bi-arrow-left" aria-hidden="true"></i>
         Volver
@@ -34,9 +34,9 @@ const AlbumDetail = ({ albumId, onBack }: AlbumDetailProps) => {
         <>
           <header className="flex flex-col gap-4 md:flex-row md:items-end md:gap-6">
             {album.cover ? (
-              <img src={album.cover} alt="" className="size-40 rounded-2xl border-4 border-black object-cover shadow-hard md:size-52" />
+              <img src={album.cover} alt="" className="size-40 border-4 border-black object-cover shadow-hard md:size-52" />
             ) : (
-              <div className="flex size-40 items-center justify-center rounded-2xl border-4 border-black bg-green text-6xl shadow-hard md:size-52" aria-hidden="true">
+              <div className="flex size-40 items-center justify-center border-4 border-black bg-green text-6xl shadow-hard md:size-52" aria-hidden="true">
                 <i className="bi bi-vinyl-fill"></i>
               </div>
             )}

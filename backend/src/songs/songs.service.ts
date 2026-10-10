@@ -15,7 +15,7 @@ export class SongsService {
       where: { artistId },
       orderBy: { createdAt: 'desc' },
       omit: { audioPublicId: true, coverPublicId: true },
-      include: { album: { omit: { coverPublicId: true } } }
+      include: { album: { omit: { coverPublicId: true } }, genre: true }
     })
   }
 
@@ -32,15 +32,18 @@ export class SongsService {
       where: { id: songId },
       data: { albumId },
       omit: { audioPublicId: true, coverPublicId: true },
-      include: { album: { omit: { coverPublicId: true } } }
+      include: { album: { omit: { coverPublicId: true } }, genre: true }
     })
   }
 
-  async create(artistId: string, { title, albumId }: CreateSongInput, audio: Express.Multer.File, cover?: Express.Multer.File) {
+  async create(artistId: string, { title, albumId, genreId }: CreateSongInput, audio: Express.Multer.File, cover?: Express.Multer.File) {
     if (albumId) {
       const album = await this.prisma.album.findFirst({ where: { id: albumId, artistId } })
       if (!album) throw new NotFoundException('Álbum no encontrado')
     }
+
+    const genre = await this.prisma.genre.findUnique({ where: { id: genreId } })
+    if (!genre) throw new NotFoundException('Género no encontrado')
 
     // Audio y portada suben en paralelo; allSettled permite limpiar la que sí subió si la otra falla
     const [audioResult, coverResult] = await Promise.allSettled([
@@ -61,6 +64,7 @@ export class SongsService {
         data: {
           artistId,
           albumId,
+          genreId,
           title,
           durationSec: Math.round(uploadedAudio.duration),
           audioUrl: uploadedAudio.url,
@@ -69,7 +73,7 @@ export class SongsService {
           coverPublicId: uploadedCover?.publicId
         },
         omit: { audioPublicId: true, coverPublicId: true },
-        include: { album: { omit: { coverPublicId: true } } }
+        include: { album: { omit: { coverPublicId: true } }, genre: true }
       })
     } catch (error) {
       await Promise.allSettled([

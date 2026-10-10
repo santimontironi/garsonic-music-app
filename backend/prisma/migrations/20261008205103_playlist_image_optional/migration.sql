@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Playlist" ALTER COLUMN "image" DROP NOT NULL,
+ALTER COLUMN "imagePublicId" DROP NOT NULL;

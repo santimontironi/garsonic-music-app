@@ -18,7 +18,8 @@ El schema está en `backend/prisma/schema.prisma`.
 |---|---|
 | `User` | Cuenta de usuarios y artistas: `name`, `surname`, `username` (único), `email` (único), `emailVerified` (arranca en `false`), `password`, `role` (`USER` / `ARTIST`), `photo` + `photoPublicId`, `bio` (opcional, pensada para artistas). |
 | `Album` | Pertenece a un artista (`artistId` → `User`) y agrupa canciones. `cover` + `coverPublicId` (opcionales). |
-| `Song` | Pertenece a un artista (`artistId` → `User`) y, opcionalmente, a un álbum. `cover` + `coverPublicId` (opcionales). |
+| `Song` | Pertenece a un artista (`artistId` → `User`) y, opcionalmente, a un álbum. Tiene un género obligatorio (`genreId` → `Genre`). `cover` + `coverPublicId` (opcionales). |
+| `Genre` | Catálogo de géneros. `name` es el enum `GenreName` (único), así solo existen los géneros definidos en el schema. |
 | `Playlist` | Pertenece a un usuario (`ownerId`). Puede ser pública o privada. `image` + `imagePublicId` (obligatorios). |
 | `SongPlaylist` | Tabla intermedia playlist ↔ canción, con `position` para ordenarlas. |
 | `FavArtist` | Artistas favoritos de un usuario (`userId` y `artistId` apuntan a `User`). |
@@ -32,6 +33,7 @@ Decisiones:
 - Las tablas intermedias (`SongPlaylist`, `FavArtist`, `FavSong`) usan clave primaria compuesta, así no hay duplicados.
 - No hay `@@index` en el schema: solo existen los índices implícitos de `@id` y `@unique`. Si alguna consulta se vuelve lenta, se agregan con una migración.
 - Al borrar un `User` o una `Playlist` se borran en cascada sus dependencias (un artista borrado se lleva sus álbumes y canciones). Al borrar un `Album`, sus canciones quedan sin álbum (`albumId = null`).
+- Los géneros son una tabla (`Genre`) cuyo `name` es el enum `GenreName`: la tabla permite sumarle datos propios a futuro y el enum limita los valores posibles. Agregar un género requiere una migración (nuevo valor del enum) y su fila en `Genre`. La lista se repite en `shared/schemas/genre.schema.ts` (Zod + etiquetas en español para la interfaz); al cambiar el enum hay que actualizar ambos. Un `Song` tiene un solo género y no se puede borrar un `Genre` que tenga canciones (`onDelete: Restrict`).
 - Un `Song` tiene un solo artista. Si hicieran falta colaboraciones (feats), habría que reemplazar `Song.artistId` por una tabla `SongArtist`.
 - Todos los `id` (y las FK que apuntan a ellos) son `String @default(uuid()) @db.Uuid`, no autoincrement: evita exponer IDs secuenciales/adivinables en la API.
 
@@ -67,6 +69,33 @@ Todos los endpoints tienen rate limit.
 
 - Endpoints de auth (login, register, cambiar clave): **5 requests por minuto**.
 - Resto de los endpoints: **70 requests por minuto**.
+
+## Deploy
+
+- **Plataforma:** Vercel, con dos proyectos separados sobre el mismo repo (Root Directory `backend` y `frontend-web`). Base de datos en Neon.
+
+### Base de datos (Neon)
+
+1. Crear las tablas con las migraciones, nunca a mano: `npx prisma migrate deploy`. Prisma registra lo aplicado en `_prisma_migrations`; si una tabla o enum se crea a mano, la próxima migración falla porque ya existe.
+2. Cargar los géneros desde el editor SQL de Neon. Toma todos los valores del enum `GenreName` y se puede correr varias veces sin duplicar (al agregar un género al enum, se vuelve a correr):
+
+```sql
+INSERT INTO "Genre" (id, name)
+SELECT gen_random_uuid(), unnest(enum_range(NULL::"GenreName"))
+ON CONFLICT (name) DO NOTHING;
+```
+
+### Build del backend
+
+El backend consume `shared` compilado (`shared/dist`, en `.gitignore`) y el cliente de Prisma generado (`src/generated/prisma`, en `.gitignore`). Los scripts `pre*` de `backend/package.json` los generan automáticamente:
+
+- `prebuild` (antes de `npm run build`, el que corre Vercel): compila `shared` y corre `prisma generate`.
+- `prestart:dev` (antes de `npm run start:dev`): compila `shared`. Si se cambia un schema de `shared` con el backend corriendo, hay que reiniciarlo.
+
+### Pendientes antes del deploy
+
+- **Renombrar el paquete `shared` a `@garsonic/shared`:** existe un paquete público `shared` en npm; si la instalación se hiciera desde la subcarpeta sin workspaces, se bajaría ese (dependency confusion).
+- **Vercel:** verificar que esté activo "Include files outside the root directory in the Build Step", para que el build acceda a `shared/`.
 
 ## Estado actual
 
