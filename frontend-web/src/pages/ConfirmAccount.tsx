@@ -26,7 +26,7 @@ const ConfirmAccount = () => {
       </header>
 
       <main className="mx-auto w-full max-w-md flex-1">
-        <div className="flex flex-col items-center gap-6 rounded-3xl border-4 border-black bg-background p-6 text-center shadow-hard-lg md:p-10">
+        <div className="flex flex-col items-center gap-6 border-4 border-black bg-background p-6 text-center shadow-hard-lg md:p-10">
           {(isPending || (!isError && !isSuccess)) && token && (
             <>
               <h1 className="text-2xl font-bold md:text-3xl">Confirmando tu cuenta</h1>
@@ -38,7 +38,7 @@ const ConfirmAccount = () => {
             <>
               <h1 className="text-2xl font-bold md:text-3xl">¡Cuenta confirmada!</h1>
               <p className="text-sm">Ya podés ingresar a Garsonic.</p>
-              <Link to="/ingreso" className="rounded-full border-2 border-black bg-coral px-6 py-3 text-sm font-bold shadow-hard hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_0_#000] active:translate-x-1 active:translate-y-1 active:shadow-none focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-black md:text-base">
+              <Link to="/ingreso" className="border-2 border-black bg-coral px-6 py-3 text-sm font-bold press focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-black md:text-base">
                 Ingresar
               </Link>
             </>

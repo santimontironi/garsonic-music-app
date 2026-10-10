@@ -36,7 +36,7 @@ const Register = () => {
       </header>
 
       <main className="mx-auto w-full max-w-2xl flex-1">
-        <form className="flex flex-col gap-6 rounded-3xl border-4 border-black bg-background p-6 shadow-hard-lg md:p-10" onSubmit={handleSubmit(formSubmit)}>
+        <form className="flex flex-col gap-6 border-4 border-black bg-background p-6 shadow-hard-lg md:p-10" onSubmit={handleSubmit(formSubmit)}>
           <div className="flex flex-col gap-1 text-center">
             <h1 className="text-2xl font-bold md:text-3xl">Creá tu cuenta</h1>
             <p className="text-sm">Sumate a Garsonic para escuchar y publicar música</p>
@@ -45,19 +45,19 @@ const Register = () => {
           <div className="grid gap-4 sm:grid-cols-2 sm:gap-5">
             <div className="flex flex-col gap-1.5">
               <label htmlFor="name" className="text-xs font-bold tracking-wide uppercase">Nombre</label>
-              <input id="name" {...register("name")} type="text" autoComplete="given-name" className="w-full rounded-xl border-2 border-black bg-button px-4 py-2.5 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black" />
+              <input id="name" {...register("name")} type="text" autoComplete="given-name" className="w-full border-2 border-black bg-button px-4 py-2.5 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black" />
               {errors.name && <p className="text-xs text-red-600">{errors.name.message}</p>}
             </div>
 
             <div className="flex flex-col gap-1.5">
               <label htmlFor="surname" className="text-xs font-bold tracking-wide uppercase">Apellido</label>
-              <input id="surname" {...register("surname")} type="text" autoComplete="family-name" className="w-full rounded-xl border-2 border-black bg-button px-4 py-2.5 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black" />
+              <input id="surname" {...register("surname")} type="text" autoComplete="family-name" className="w-full border-2 border-black bg-button px-4 py-2.5 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black" />
               {errors.surname && <p className="text-xs text-red-600">{errors.surname.message}</p>}
             </div>
 
             <fieldset className="flex flex-col gap-1.5">
               <legend className="text-xs font-bold tracking-wide uppercase">Quiero ser</legend>
-              <div className="flex overflow-hidden rounded-xl border-2 border-black bg-button shadow-hard">
+              <div className="flex overflow-hidden border-2 border-black bg-button shadow-hard">
                 <label className="flex-1 cursor-pointer px-3 py-2.5 text-center text-sm has-checked:bg-coral">
                   <input type="radio" value="USER" {...register("role")} className="sr-only" />
                   Oyente
@@ -73,25 +73,25 @@ const Register = () => {
 
             <div className="flex flex-col gap-1.5 sm:col-span-2">
               <label htmlFor="username" className="text-xs font-bold tracking-wide uppercase">{isArtist ? "Nombre artistico" : "Usuario"}</label>
-              <input id="username" type="text" autoComplete="username" {...register("username")} className="w-full rounded-xl border-2 border-black bg-button px-4 py-2.5 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black" />
+              <input id="username" type="text" autoComplete="username" {...register("username")} className="w-full border-2 border-black bg-button px-4 py-2.5 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black" />
               {errors.username && <p className="text-xs text-red-600">{errors.username.message}</p>}
             </div>
 
             <div className="flex flex-col gap-1.5 sm:col-span-2">
               <label htmlFor="email" className="text-xs font-bold tracking-wide uppercase">Email</label>
-              <input id="email" {...register("email")} type="email" autoComplete="email" className="w-full rounded-xl border-2 border-black bg-button px-4 py-2.5 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black" />
+              <input id="email" {...register("email")} type="email" autoComplete="email" className="w-full border-2 border-black bg-button px-4 py-2.5 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black" />
               {errors.email && <p className="text-xs text-red-600">{errors.email.message}</p>}
             </div>
 
             <div className="flex flex-col gap-1.5 sm:col-span-2">
               <label htmlFor="password" className="text-xs font-bold tracking-wide uppercase">Contraseña</label>
-              <input id="password" {...register("password")} type="password" autoComplete="new-password" className="w-full rounded-xl border-2 border-black bg-button px-4 py-2.5 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black" />
+              <input id="password" {...register("password")} type="password" autoComplete="new-password" className="w-full border-2 border-black bg-button px-4 py-2.5 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black" />
               {errors.password && <p className="text-xs text-red-600">{errors.password.message}</p>}
             </div>
 
             <div className="flex flex-col gap-1.5 sm:col-span-2">
               <label htmlFor="bio" className="text-xs font-bold tracking-wide uppercase">Bio (opcional)</label>
-              <textarea id="bio" rows={3} {...register("bio")} className="w-full resize-none rounded-xl border-2 border-black bg-button px-4 py-2.5 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black" />
+              <textarea id="bio" rows={3} {...register("bio")} className="w-full resize-none border-2 border-black bg-button px-4 py-2.5 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black" />
               {errors.bio && <p className="text-xs text-red-600">{errors.bio.message}</p>}
             </div>
           </div>
@@ -102,7 +102,7 @@ const Register = () => {
           <button
             type="submit"
             disabled={isPending}
-            className="rounded-full border-2 cursor-pointer border-black bg-coral px-6 py-3 text-sm font-bold shadow-hard hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_0_#000] active:translate-x-1 active:translate-y-1 active:shadow-none focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-black disabled:pointer-events-none disabled:opacity-60 md:text-base"
+            className="border-2 cursor-pointer border-black bg-coral px-6 py-3 text-sm font-bold press focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-black disabled:pointer-events-none disabled:opacity-60 md:text-base"
           >
             {isPending ? "Creando..." : "Crear cuenta"}
           </button>

@@ -23,14 +23,17 @@ No usar otros colores.
 Rasgos del estilo:
 
 - Bordes negros gruesos (`border-2` o `border-4`) en tarjetas, botones e inputs.
-- Sombras duras, sin blur y desplazadas, por ejemplo `shadow-[4px_4px_0_0_#000]`.
+- Sombras duras, sin blur y desplazadas. Usar los tokens de `index.css`: `shadow-hard-sm` (2px), `shadow-hard` (4px) y `shadow-hard-lg` (8px).
 - Sin bordes redondeados, sin degradados y sin transparencias.
 - Colores planos.
-- Tipografía gruesa y contundente; los títulos van en mayúsculas.
-- Los botones responden al hover y al click "hundiéndose": se trasladan hacia su sombra y la sombra se reduce o desaparece.
-- Todo elemento interactivo debe tener foco visible y contraste suficiente. El texto va en negro sobre cualquiera de los colores de la paleta.
+- Tipografía gruesa y contundente; los títulos van en mayúsculas. Fuente única: Krona One. Tamaño mínimo de texto: `text-xs` (12px), nunca `text-[10px]`.
+- Todo lo clickeable (botones, links con forma de botón y tarjetas clickeables) responde al hover y al click "hundiéndose" con la utility `press` de `index.css`, que ya incluye la sombra `shadow-hard`. No copiar a mano las clases `hover:translate-*`/`active:*` ni usar otros gestos (elevarse, escalar). Lo que no es clickeable no reacciona al hover. Las filas de listas y los ítems de menú pueden resaltarse con `hover:bg-green`.
+- Todo elemento interactivo debe tener foco visible y contraste suficiente. El texto va en negro sobre cualquiera de los colores de la paleta. Los botones táctiles miden como mínimo 44px (`size-11`).
 
 Excepciones pactadas:
+
+- Los botones de reproducir/pausar son circulares (`rounded-full`), al igual que el logo (vinilo). Son los únicos elementos redondeados.
+- La barra de progreso del reproductor pinta el avance en coral con un corte duro (`linear-gradient` sin transición) a partir de la variable `--progress`. Los estilos están en `index.css`.
 
 - La cuadrícula de fondo del Hero usa líneas negras al 15% (`#00000026`) para que no sea invasiva. Es la única transparencia permitida.
 - Sobre fondo negro el texto va en `#FFFEFD` (ítem activo del SideNav, cuadrados de íconos).

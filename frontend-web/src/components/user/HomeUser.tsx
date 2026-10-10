@@ -27,7 +27,7 @@ const HomeUser = ({ setSection }: Props) => {
           <button
             type="button"
             onClick={() => setSection("search")}
-            className="mt-2 flex w-fit cursor-pointer items-center gap-3 border-2 border-black bg-button px-6 py-3 text-sm uppercase shadow-hard hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_0_#000] active:translate-x-1 active:translate-y-1 active:shadow-none focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-black"
+            className="mt-2 flex w-fit cursor-pointer items-center gap-3 border-2 border-black bg-button px-6 py-3 text-sm uppercase press focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-black"
           >
             <i className="bi bi-search" aria-hidden="true" />
             Buscar música

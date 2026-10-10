@@ -22,7 +22,7 @@ const AddToAlbumModal = ({ song, onClose }: AddToAlbumModalProps) => {
                 aria-modal="true"
                 aria-labelledby="add-to-album-title"
                 onClick={(e) => e.stopPropagation()}
-                className="flex max-h-full w-full max-w-md flex-col overflow-hidden rounded-3xl border-4 border-black bg-background shadow-hard-lg"
+                className="flex max-h-full w-full max-w-md flex-col overflow-hidden border-4 border-black bg-background shadow-hard-lg"
             >
                 <div className="flex items-center justify-between gap-4 border-b-4 border-black bg-coral px-6 py-4">
                     <h2 id="add-to-album-title" className="truncate text-lg font-bold uppercase">Agregar a álbum</h2>
@@ -30,7 +30,7 @@ const AddToAlbumModal = ({ song, onClose }: AddToAlbumModalProps) => {
                         type="button"
                         onClick={onClose}
                         aria-label="Cerrar"
-                        className="flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 border-black bg-button shadow-hard hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_0_#000] active:translate-x-1 active:translate-y-1 active:shadow-none focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black"
+                        className="flex size-10 shrink-0 cursor-pointer items-center justify-center border-2 border-black bg-button press focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black"
                     >
                         <i className="bi bi-x-lg"></i>
                     </button>
@@ -53,12 +53,12 @@ const AddToAlbumModal = ({ song, onClose }: AddToAlbumModalProps) => {
                                         type="button"
                                         disabled={isPending}
                                         onClick={() => updateAlbum({ songId: song.id, albumId: album.id }, { onSuccess: onClose })}
-                                        className="flex w-full cursor-pointer items-center gap-3 rounded-xl border-2 border-black bg-button p-2 text-left shadow-hard hover:translate-x-0.5 hover:translate-y-0.5 hover:bg-green hover:shadow-[2px_2px_0_0_#000] focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black disabled:pointer-events-none disabled:opacity-60"
+                                        className="flex w-full cursor-pointer items-center gap-3 border-2 border-black bg-button p-2 text-left press hover:bg-green focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black disabled:pointer-events-none disabled:opacity-60"
                                     >
                                         {album.cover ? (
-                                            <img src={album.cover} alt="" className="size-11 shrink-0 rounded-lg border-2 border-black object-cover" />
+                                            <img src={album.cover} alt="" className="size-11 shrink-0 border-2 border-black object-cover" />
                                         ) : (
-                                            <span className="flex size-11 shrink-0 items-center justify-center rounded-lg border-2 border-black bg-green" aria-hidden="true">
+                                            <span className="flex size-11 shrink-0 items-center justify-center border-2 border-black bg-green" aria-hidden="true">
                                                 <i className="bi bi-vinyl-fill"></i>
                                             </span>
                                         )}

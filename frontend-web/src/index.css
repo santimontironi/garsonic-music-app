@@ -6,6 +6,7 @@
     --color-button: #FFFEFD;
     --color-green: #BAFCA2;
     --color-coral: #FC7B5E;
+    --shadow-hard-sm: 2px 2px 0 0 #000;
     --shadow-hard:4px 4px 0 0 #000;
     --shadow-hard-lg: 8px 8px 0 0 #000;
     --animate-slide-in: slide-in 0.35s ease-out;
@@ -16,12 +17,65 @@
     }
 }
 
-html{
-    scroll-behavior: smooth;
+/* Botón brutalista: se hunde hacia su sombra en hover y click */
+@utility press {
+    box-shadow: var(--shadow-hard);
+    transition: translate 120ms ease-out, box-shadow 120ms ease-out;
+
+    @media (hover: hover) {
+        &:hover {
+            translate: 2px 2px;
+            box-shadow: var(--shadow-hard-sm);
+        }
+    }
+
+    &:active {
+        translate: 4px 4px;
+        box-shadow: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        transition: none;
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    html {
+        scroll-behavior: smooth;
+    }
 }
 
 body {
     font-family: "Krona One", sans-serif;
     background-color: var(--color-background);
     color: #000;
+}
+
+/* Barra de progreso del reproductor: --progress lo setea PlayerBar */
+input[type="range"] {
+    appearance: none;
+    height: 0.75rem;
+    border: 2px solid #000;
+    background: linear-gradient(to right, var(--color-coral) var(--progress, 0%), var(--color-button) 0);
+    cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    width: 0.75rem;
+    height: 1.5rem;
+    background: #000;
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 0.75rem;
+    height: 1.5rem;
+    border: 0;
+    border-radius: 0;
+    background: #000;
+}
+
+input[type="range"]:focus-visible {
+    outline: 4px solid #000;
+    outline-offset: 2px;
 }

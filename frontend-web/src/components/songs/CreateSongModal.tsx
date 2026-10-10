@@ -4,6 +4,9 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { createSongSchema, type CreateSongInput } from "shared/schemas/song.schema"
 import { useCreateSong } from "../../hooks/song/useCreateSong"
 import { useMyAlbums } from "../../hooks/album/useMyAlbums"
+import { useGenres } from "../../hooks/genre/useGenres"
+import { genreLabels } from "shared/schemas/genre.schema"
+import GenreChip from "./GenreChip"
 import InputImage from "../ui/InputImage"
 
 type CreateSongModalProps = {
@@ -22,6 +25,7 @@ const CreateSongModal = ({ closeModal }: CreateSongModalProps) => {
 
     const { mutate: createSong, isPending, isError, error } = useCreateSong()
     const { data: albums } = useMyAlbums()
+    const { data: genres } = useGenres()
 
     const handleAudio = (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0] ?? null
@@ -51,7 +55,7 @@ const CreateSongModal = ({ closeModal }: CreateSongModalProps) => {
                 aria-labelledby="create-song-title"
                 onSubmit={handleSubmit(formSubmit)}
                 onClick={(e) => e.stopPropagation()}
-                className="flex max-h-full w-full max-w-lg flex-col overflow-y-auto rounded-3xl border-4 border-black bg-background shadow-hard-lg"
+                className="flex max-h-full w-full max-w-lg flex-col overflow-y-auto border-4 border-black bg-background shadow-hard-lg"
             >
                 <div className="flex items-center justify-between gap-4 border-b-4 border-black bg-coral px-6 py-4 md:px-8">
                     <h2 id="create-song-title" className="text-lg font-bold uppercase md:text-2xl">Subir canción</h2>
@@ -59,7 +63,7 @@ const CreateSongModal = ({ closeModal }: CreateSongModalProps) => {
                         type="button"
                         onClick={closeModal}
                         aria-label="Cerrar"
-                        className="flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 border-black bg-button shadow-hard hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_0_#000] active:translate-x-1 active:translate-y-1 active:shadow-none focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black"
+                        className="flex size-10 shrink-0 cursor-pointer items-center justify-center border-2 border-black bg-button press focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black"
                     >
                         <i className="bi bi-x-lg"></i>
                     </button>
@@ -69,10 +73,10 @@ const CreateSongModal = ({ closeModal }: CreateSongModalProps) => {
                     <div className="flex flex-col gap-1.5">
                         <label
                             htmlFor="audio"
-                            className="flex cursor-pointer flex-col items-center gap-3 rounded-2xl border-4 border-dashed border-black bg-green px-4 py-8 text-center has-focus-visible:outline-4 has-focus-visible:outline-offset-2 has-focus-visible:outline-black md:py-10"
+                            className="flex cursor-pointer flex-col items-center gap-3 border-4 border-dashed border-black bg-green px-4 py-8 text-center has-focus-visible:outline-4 has-focus-visible:outline-offset-2 has-focus-visible:outline-black md:py-10"
                         >
                             <input id="audio" type="file" accept="audio/*" onChange={handleAudio} className="sr-only" />
-                            <span className="flex size-16 items-center justify-center rounded-full border-2 border-black bg-button text-3xl shadow-hard md:size-20 md:text-4xl">
+                            <span className="flex size-16 items-center justify-center border-2 border-black bg-button text-3xl shadow-hard md:size-20 md:text-4xl">
                                 <i className={audio ? "bi bi-check-lg" : "bi bi-music-note-beamed"}></i>
                             </span>
                             <span className="max-w-full truncate text-sm font-bold md:text-base">
@@ -85,14 +89,24 @@ const CreateSongModal = ({ closeModal }: CreateSongModalProps) => {
 
                     <div className="flex flex-col gap-1.5">
                         <label htmlFor="title" className="text-xs font-bold tracking-wide uppercase">Título</label>
-                        <input id="title" type="text" {...register("title")} className="w-full rounded-xl border-2 border-black bg-button px-4 py-2.5 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black" />
+                        <input id="title" type="text" {...register("title")} className="w-full border-2 border-black bg-button px-4 py-2.5 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black" />
                         {errors.title && <p className="text-xs text-red-600">{errors.title.message}</p>}
                     </div>
+
+                    <fieldset className="flex flex-col gap-1.5">
+                        <legend className="mb-1.5 text-xs font-bold tracking-wide uppercase">Género</legend>
+                        <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
+                            {genres?.map(genre => (
+                                <GenreChip key={genre.id} label={genreLabels[genre.name]} value={genre.id} registration={register("genreId")} />
+                            ))}
+                        </div>
+                        {errors.genreId && <p className="text-xs text-red-600">{errors.genreId.message}</p>}
+                    </fieldset>
 
                     <div className="flex flex-col gap-1.5">
                         <label htmlFor="albumId" className="text-xs font-bold tracking-wide uppercase">Álbum</label>
                         <div className="relative">
-                            <select id="albumId" {...register("albumId", { setValueAs: (v) => v || undefined })} className="w-full cursor-pointer appearance-none rounded-xl border-2 border-black bg-button py-2.5 pr-10 pl-4 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black">
+                            <select id="albumId" {...register("albumId", { setValueAs: (v) => v || undefined })} className="w-full cursor-pointer appearance-none border-2 border-black bg-button py-2.5 pr-10 pl-4 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black">
                                 <option value="">Sin álbum (single)</option>
                                 {albums?.map(album => (
                                     <option key={album.id} value={album.id}>{album.title}</option>
@@ -110,14 +124,14 @@ const CreateSongModal = ({ closeModal }: CreateSongModalProps) => {
                         <button
                             type="button"
                             onClick={closeModal}
-                            className="cursor-pointer rounded-full border-2 border-black bg-button px-6 py-3 text-sm font-bold shadow-hard hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_0_#000] active:translate-x-1 active:translate-y-1 active:shadow-none focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-black md:flex-1 md:text-base"
+                            className="cursor-pointer border-2 border-black bg-button px-6 py-3 text-sm font-bold press focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-black md:flex-1 md:text-base"
                         >
                             Cancelar
                         </button>
                         <button
                             type="submit"
                             disabled={isPending}
-                            className="cursor-pointer rounded-full border-2 border-black bg-coral px-6 py-3 text-sm font-bold shadow-hard hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_0_#000] active:translate-x-1 active:translate-y-1 active:shadow-none focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-black disabled:pointer-events-none disabled:opacity-60 md:flex-1 md:text-base"
+                            className="cursor-pointer border-2 border-black bg-coral px-6 py-3 text-sm font-bold press focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-black disabled:pointer-events-none disabled:opacity-60 md:flex-1 md:text-base"
                         >
                             {isPending ? "Subiendo..." : "Subir canción"}
                         </button>

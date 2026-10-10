@@ -1,10 +1,12 @@
 import { z } from "zod";
 import { albumSchema } from "./album.schema.js";
 import { userSchema } from "./auth.schema.js";
+import { genreSchema } from "./genre.schema.js";
 
 export const createSongSchema = z.object({
     title: z.string().trim().min(1, { message: 'El título es obligatorio' }).max(100, { message: 'El título no puede superar los 100 caracteres' }),
     albumId: z.uuid({ message: 'El álbum es inválido' }).optional(),
+    genreId: z.uuid({ message: 'Elegí un género' }),
 })
 
 const songBaseSchema = createSongSchema.extend({
@@ -15,6 +17,7 @@ const songBaseSchema = createSongSchema.extend({
     audioUrl: z.string(),
     cover: z.string().nullish(),
     createdAt: z.coerce.date(),
+    genre: genreSchema,
 })
 
 export const songSchema = songBaseSchema.extend({

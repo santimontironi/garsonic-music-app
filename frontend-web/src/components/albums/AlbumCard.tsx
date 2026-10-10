@@ -9,7 +9,7 @@ const AlbumCard = ({ album, onClick }: AlbumCardProps) => {
   const songs = album._count?.songs ?? 0
 
   return (
-    <button type="button" onClick={onClick} className="flex w-full cursor-pointer flex-col overflow-hidden text-left focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-black rounded-2xl border-4 border-black bg-button shadow-hard transition-all duration-150 hover:-translate-x-1 hover:-translate-y-1 hover:shadow-hard-lg">
+    <button type="button" onClick={onClick} className="flex w-full cursor-pointer flex-col overflow-hidden text-left focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-black border-4 border-black bg-button press">
       {album.cover ? (
         <img src={album.cover} alt="" className="aspect-square w-full border-b-4 border-black object-cover" />
       ) : (

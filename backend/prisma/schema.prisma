@@ -12,6 +12,30 @@ enum Role {
   ARTIST
 }
 
+enum GenreName {
+  ROCK
+  POP
+  HIP_HOP
+  TRAP
+  REGGAETON
+  CUMBIA
+  CUARTETO
+  TANGO
+  FOLK
+  ELECTRONIC
+  JAZZ
+  BLUES
+  RNB
+  SOUL
+  FUNK
+  METAL
+  PUNK
+  INDIE
+  CLASSICAL
+  REGGAE
+  OTHER
+}
+
 model User {
   id            String   @id @default(uuid()) @db.Uuid
   name          String
@@ -50,18 +74,27 @@ model Song {
   id            String   @id @default(uuid()) @db.Uuid
   artistId      String   @db.Uuid
   albumId       String?  @db.Uuid
+  genreId       String   @db.Uuid
   title         String
   durationSec   Int
   audioUrl      String
   audioPublicId String
-  cover        String?
+  cover         String?
   coverPublicId String?
   createdAt     DateTime @default(now())
 
   artist    User           @relation(fields: [artistId], references: [id], onDelete: Cascade)
   album     Album?         @relation(fields: [albumId], references: [id], onDelete: SetNull)
+  genre     Genre          @relation(fields: [genreId], references: [id], onDelete: Restrict)
   playlists SongPlaylist[]
   fans      FavSong[]
+}
+
+model Genre {
+  id   String    @id @default(uuid()) @db.Uuid
+  name GenreName @unique
+
+  songs Song[]
 }
 
 model Playlist {
