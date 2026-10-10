@@ -85,9 +85,15 @@ SELECT gen_random_uuid(), unnest(enum_range(NULL::"GenreName"))
 ON CONFLICT (name) DO NOTHING;
 ```
 
+### Build del backend
+
+El backend consume `shared` compilado (`shared/dist`, en `.gitignore`) y el cliente de Prisma generado (`src/generated/prisma`, en `.gitignore`). Los scripts `pre*` de `backend/package.json` los generan automáticamente:
+
+- `prebuild` (antes de `npm run build`, el que corre Vercel): compila `shared` y corre `prisma generate`.
+- `prestart:dev` (antes de `npm run start:dev`): compila `shared`. Si se cambia un schema de `shared` con el backend corriendo, hay que reiniciarlo.
+
 ### Pendientes antes del deploy
 
-- **Build del backend:** el backend consume `shared` compilado (`shared/dist`, que está en `.gitignore`). El script `build` de `backend/package.json` tiene que compilar `shared` y generar el cliente de Prisma antes de `nest build` (por ejemplo, `tsc -p ../shared && npx prisma generate && nest build`).
 - **Renombrar el paquete `shared` a `@garsonic/shared`:** existe un paquete público `shared` en npm; si la instalación se hiciera desde la subcarpeta sin workspaces, se bajaría ese (dependency confusion).
 - **Vercel:** verificar que esté activo "Include files outside the root directory in the Build Step", para que el build acceda a `shared/`.
 
