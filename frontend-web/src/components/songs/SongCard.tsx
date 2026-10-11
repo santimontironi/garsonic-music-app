@@ -35,8 +35,10 @@ const SongCard = ({ song, artistName, fallbackCover, onPlay }: SongCardProps) =>
 
       <div className="flex min-w-0 flex-col gap-1">
         <h3 title={song.title} className="line-clamp-2 text-sm font-bold wrap-break-word md:text-base">{song.title}</h3>
-        <p className="truncate text-xs">
-          {artistName} · {genreLabels[song.genre.name]} · <span className="tabular-nums">{formatDuration(song.durationSec)}</span>
+        <p title={artistName} className="truncate text-xs">{artistName}</p>
+        <p className="flex justify-between gap-2 text-xs">
+          <span className="truncate">{genreLabels[song.genre.name]}</span>
+          <span className="shrink-0 tabular-nums">{formatDuration(song.durationSec)}</span>
         </p>
       </div>
     </article>

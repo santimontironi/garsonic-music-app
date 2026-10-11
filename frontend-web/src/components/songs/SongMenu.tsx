@@ -2,6 +2,8 @@ import { useState } from "react"
 import type { Song } from "../../types/song.types"
 import { useUpdateSongAlbum } from "../../hooks/song/useUpdateSongAlbum"
 import AddToAlbumModal from "./AddToAlbumModal"
+import ConfirmDeleteModal from "../ui/ConfirmDeleteModal"
+import { useDeleteSong } from "../../hooks/song/useDeleteSong"
 
 interface SongMenuProps {
   song: Song
@@ -12,12 +14,13 @@ const itemClass = "flex w-full cursor-pointer items-center gap-2 px-4 py-2.5 tex
 const SongMenu = ({ song }: SongMenuProps) => {
 
   const [menuOpen, setMenuOpen] = useState(false)
-  const [modalOpen, setModalOpen] = useState(false)
+  const [modal, setModal] = useState<"album" | "delete" | null>(null)
   const { mutate: updateAlbum, isPending } = useUpdateSongAlbum()
+  const deleteSong = useDeleteSong()
 
-  const openModal = () => {
+  const openModal = (type: "album" | "delete") => {
     setMenuOpen(false)
-    setModalOpen(true)
+    setModal(type)
   }
 
   const removeFromAlbum = () => {
@@ -41,7 +44,7 @@ const SongMenu = ({ song }: SongMenuProps) => {
         <>
           <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} aria-hidden="true" />
           <div role="menu" className="absolute top-full right-0 z-50 mt-2 w-56 overflow-hidden border-2 border-black bg-button shadow-hard">
-            <button type="button" role="menuitem" onClick={openModal} className={itemClass}>
+            <button type="button" role="menuitem" onClick={() => openModal("album")} className={itemClass}>
               <i className="bi bi-plus-lg" aria-hidden="true"></i>
               {song.albumId ? "Mover a otro álbum" : "Agregar a álbum"}
             </button>
@@ -51,11 +54,25 @@ const SongMenu = ({ song }: SongMenuProps) => {
                 {isPending ? "Quitando..." : "Quitar del álbum"}
               </button>
             )}
+            <button type="button" role="menuitem" onClick={() => openModal("delete")} className={`${itemClass} border-t-2 border-black text-red-600`}>
+              <i className="bi bi-trash" aria-hidden="true"></i>
+              Eliminar canción
+            </button>
           </div>
         </>
       )}
 
-      {modalOpen && <AddToAlbumModal song={song} onClose={() => setModalOpen(false)} />}
+      {modal === "album" && <AddToAlbumModal song={song} onClose={() => setModal(null)} />}
+      {modal === "delete" && (
+        <ConfirmDeleteModal
+          title="Eliminar canción"
+          message={<>¿Eliminar <span className="font-bold break-words">{song.title}</span>? También se quita de las playlists y no se puede deshacer.</>}
+          isPending={deleteSong.isPending}
+          error={deleteSong.error}
+          onConfirm={() => deleteSong.mutate(song.id, { onSuccess: () => setModal(null) })}
+          onClose={() => setModal(null)}
+        />
+      )}
     </div>
   )
 }

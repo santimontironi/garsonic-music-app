@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Req, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common'
+import { BadRequestException, Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Req, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common'
 import { FileFieldsInterceptor } from '@nestjs/platform-express'
 import type { Request } from 'express'
 import { createSongSchema, updateSongAlbumSchema, type CreateSongInput, type UpdateSongAlbumInput } from 'shared/schemas/song.schema'
@@ -26,6 +26,11 @@ export class SongsController {
     @Body(new ZodValidationPipe(updateSongAlbumSchema)) body: UpdateSongAlbumInput
   ) {
     return this.songsService.updateAlbum(req.user!.sub, id, body)
+  }
+
+  @Delete(':id')
+  remove(@Req() req: Request, @Param('id', ParseUUIDPipe) id: string) {
+    return this.songsService.remove(req.user!.sub, id)
   }
 
   @Post()

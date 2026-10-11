@@ -23,3 +23,7 @@ export const getAlbumByIdService = async (id: string) => {
     const res = await api.get(`/albumes/${id}`)
     return albumWithSongsSchema.parse(res.data)
 }
+
+export const deleteAlbumService = async (id: string) => {
+    await api.delete(`/albumes/${id}`)
+}

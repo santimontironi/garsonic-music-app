@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom"
 import type { SideNavUserSections } from "../../types/general.types"
-import Logo from "../ui/Logo"
 import LogoutButton from "../ui/LogoutButton"
 
 type Props = {
@@ -33,7 +32,7 @@ const SideNavUser = ({ section, setSection, open }: Props) => {
         className="flex h-16 shrink-0 items-center gap-3 border-b-4 border-black bg-coral px-5 focus-visible:outline-4 focus-visible:-outline-offset-8 focus-visible:outline-black md:h-20"
       >
         <span className="size-9 shrink-0 md:size-10">
-          <Logo />
+          <img src="/images/logo.png" alt="" className="size-full scale-150 object-contain" />
         </span>
         <span className="text-base uppercase md:text-lg">Garsonic</span>
       </Link>

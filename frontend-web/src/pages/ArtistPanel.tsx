@@ -8,7 +8,7 @@ import SearchArtist from "../components/artist/SearchArtist"
 import MySongs from "../components/artist/MySongs"
 import MyAlbums from "../components/artist/MyAlbums"
 import Stats from "../components/artist/Stats"
-import ProfileArtist from "../components/artist/ProfileArtist"
+import Profile from "../components/ui/Profile"
 import type { SideNavArtistSections } from "../types/general.types"
 
 const ArtistPanel = () => {
@@ -25,6 +25,11 @@ const ArtistPanel = () => {
     <PlayerProvider>
       <div className="min-h-svh bg-background md:flex">
         <SideNavArtist section={section} setSection={selectSection} open={menuOpen} />
+        <div
+          onClick={() => setMenuOpen(false)}
+          aria-hidden="true"
+          className={`fixed inset-x-0 top-16 bottom-0 z-35 bg-black/50 transition-opacity duration-300 md:hidden ${menuOpen ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        />
 
         <div className="flex min-w-0 flex-1 flex-col">
           <div className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b-4 border-black bg-button px-4 md:h-20 md:px-8 xl:px-10">
@@ -48,7 +53,7 @@ const ArtistPanel = () => {
             {section === "my-songs" && <MySongs />}
             {section === "my-albums" && <MyAlbums />}
             {section === "stats" && <Stats />}
-            {section === "profile" && <ProfileArtist />}
+            {section === "profile" && <Profile />}
           </main>
 
           <PlayerBar />
