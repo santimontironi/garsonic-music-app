@@ -27,7 +27,7 @@ const HomeArtist = ({ setSection }: Props) => {
     <section className="flex flex-col gap-8 md:gap-12">
       <header className="flex flex-col gap-4">
         <h1 className="text-3xl leading-[1.05] font-bold wrap-break-word uppercase text-shadow-[4px_4px_0_#FC7B5E] md:text-5xl md:text-shadow-[6px_6px_0_#FC7B5E] xl:text-6xl">
-          Hola, {user?.name}
+          Hola, {user?.username}
         </h1>
       </header>
 

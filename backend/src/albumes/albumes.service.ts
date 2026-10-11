@@ -36,6 +36,15 @@ export class AlbumesService {
     return album
   }
 
+  async remove(artistId: string, albumId: string) {
+    const album = await this.prisma.album.findFirst({ where: { id: albumId, artistId } })
+    if (!album) throw new NotFoundException('Álbum no encontrado')
+
+    // Las canciones quedan como singles (onDelete: SetNull); la portada se borra después de la fila
+    await this.prisma.album.delete({ where: { id: albumId } })
+    if (album.coverPublicId) await this.cloudinary.remove(album.coverPublicId).catch(() => undefined)
+  }
+
   async create(artistId: string, { title }: CreateAlbumInput, cover?: Express.Multer.File) {
     const uploaded = cover ? await this.cloudinary.upload(cover.buffer, 'albums/covers') : null
 

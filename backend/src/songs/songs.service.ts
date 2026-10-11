@@ -36,6 +36,18 @@ export class SongsService {
     })
   }
 
+  async remove(artistId: string, songId: string) {
+    const song = await this.prisma.song.findFirst({ where: { id: songId, artistId } })
+    if (!song) throw new NotFoundException('Canción no encontrada')
+
+    // Primero la fila: si falla Cloudinary, quedan archivos huérfanos pero no una canción sin audio
+    await this.prisma.song.delete({ where: { id: songId } })
+    await Promise.allSettled([
+      this.cloudinary.remove(song.audioPublicId, 'video'),
+      song.coverPublicId && this.cloudinary.remove(song.coverPublicId)
+    ])
+  }
+
   async create(artistId: string, { title, albumId, genreId }: CreateSongInput, audio: Express.Multer.File, cover?: Express.Multer.File) {
     if (albumId) {
       const album = await this.prisma.album.findFirst({ where: { id: albumId, artistId } })

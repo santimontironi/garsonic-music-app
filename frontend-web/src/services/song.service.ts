@@ -26,3 +26,7 @@ export const updateSongAlbumService = async (songId: string, { albumId }: Update
     const res = await api.patch(`/songs/${songId}/album`, { albumId })
     return songSchema.parse(res.data)
 }
+
+export const deleteSongService = async (songId: string) => {
+    await api.delete(`/songs/${songId}`)
+}

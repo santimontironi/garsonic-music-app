@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Param, ParseUUIDPipe, Post, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common'
+import { BadRequestException, Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
 import type { Request } from 'express'
 import { createAlbumSchema, type CreateAlbumInput } from 'shared/schemas/album.schema'
@@ -22,6 +22,12 @@ export class AlbumesController {
   @Get(':id')
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.albumesService.findOne(id)
+  }
+
+  @Delete(':id')
+  @Roles('ARTIST')
+  remove(@Req() req: Request, @Param('id', ParseUUIDPipe) id: string) {
+    return this.albumesService.remove(req.user!.sub, id)
   }
 
   @Post()

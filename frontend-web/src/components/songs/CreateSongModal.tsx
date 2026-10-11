@@ -55,7 +55,7 @@ const CreateSongModal = ({ closeModal }: CreateSongModalProps) => {
                 aria-labelledby="create-song-title"
                 onSubmit={handleSubmit(formSubmit)}
                 onClick={(e) => e.stopPropagation()}
-                className="flex max-h-full w-full max-w-lg flex-col overflow-y-auto border-4 border-black bg-background shadow-hard-lg"
+                className="flex max-h-full w-full max-w-lg xl:max-w-2xl 2xl:max-w-4xl flex-col overflow-y-auto border-4 border-black bg-background shadow-hard-lg"
             >
                 <div className="flex items-center justify-between gap-4 border-b-4 border-black bg-coral px-6 py-4 md:px-8">
                     <h2 id="create-song-title" className="text-lg font-bold uppercase md:text-2xl">Subir canción</h2>
