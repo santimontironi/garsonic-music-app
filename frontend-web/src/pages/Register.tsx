@@ -11,7 +11,7 @@ const Register = () => {
 
   const [photo, setPhoto] = useState<File | null>(null)
 
-  const { register, handleSubmit, control, formState: { errors } } = useForm<RegisterInput>({
+  const { register, handleSubmit, control, formState: { errors }, reset } = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
     defaultValues: { role: "USER" }
   })
@@ -20,8 +20,7 @@ const Register = () => {
 
   const { mutate: registerUser, isPending, isError, isSuccess, error } = useRegister()
 
-  const formSubmit = (data: RegisterInput) => registerUser({ data, photo })
-
+  const formSubmit = (data: RegisterInput) => registerUser({ data, photo }, { onSuccess: () => reset() })
 
   return (
     <div className="flex min-h-svh flex-col gap-8 bg-green p-4 md:gap-12 md:p-8 xl:px-16 xl:py-10">
