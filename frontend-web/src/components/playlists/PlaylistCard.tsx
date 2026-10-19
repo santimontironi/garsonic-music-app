@@ -2,13 +2,14 @@ import type { Playlist } from "../../types/playlist.types";
 
 interface PlaylistCardProps {
   playlist: Playlist;
+  onClick: () => void;
 }
 
-const PlaylistCard = ({ playlist }: PlaylistCardProps) => {
+const PlaylistCard = ({ playlist, onClick }: PlaylistCardProps) => {
   const songs = playlist._count?.songs ?? 0
 
   return (
-    <article className="flex w-full flex-col overflow-hidden border-4 border-black bg-button shadow-hard">
+    <button type="button" onClick={onClick} className="flex w-full cursor-pointer flex-col overflow-hidden border-4 border-black bg-button text-left press focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-black">
       {playlist.image ? (
         <img src={playlist.image} alt="" className="aspect-square w-full border-b-4 border-black object-cover" />
       ) : (
@@ -24,7 +25,7 @@ const PlaylistCard = ({ playlist }: PlaylistCardProps) => {
           {playlist.isPublic ? "Pública" : "Privada"}
         </p>
       </div>
-    </article>
+    </button>
   )
 }
 

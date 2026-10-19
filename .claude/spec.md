@@ -32,7 +32,7 @@ Decisiones:
 - `FavArtist` tiene dos relaciones a `User`, por eso están nombradas: `UserFavArtists` (el que marca el favorito) y `ArtistFans` (el artista marcado).
 - Las tablas intermedias (`SongPlaylist`, `FavArtist`, `FavSong`) usan clave primaria compuesta, así no hay duplicados.
 - No hay `@@index` en el schema: solo existen los índices implícitos de `@id` y `@unique`. Si alguna consulta se vuelve lenta, se agregan con una migración.
-- Al borrar un `User` o una `Playlist` se borran en cascada sus dependencias (un artista borrado se lleva sus álbumes y canciones). Al borrar un `Album`, sus canciones quedan sin álbum (`albumId = null`) y su portada se borra de Cloudinary. Al borrar un `Song` se borran sus `SongPlaylist` y `FavSong`, y después su audio y portada de Cloudinary (si Cloudinary falla, los archivos quedan huérfanos pero la canción ya no existe).
+- Al borrar un `User` o una `Playlist` se borran en cascada sus dependencias (un artista borrado se lleva sus álbumes y canciones). Al borrar un `Album`, sus canciones quedan sin álbum (`albumId = null`) y su portada se borra de Cloudinary. Al borrar una `Playlist` se borran sus `SongPlaylist` (las canciones no) y después su imagen de Cloudinary. Al borrar un `Song` se borran sus `SongPlaylist` y `FavSong`, y después su audio y portada de Cloudinary (si Cloudinary falla, los archivos quedan huérfanos pero la canción ya no existe).
 - Los géneros son una tabla (`Genre`) cuyo `name` es el enum `GenreName`: la tabla permite sumarle datos propios a futuro y el enum limita los valores posibles. Agregar un género requiere una migración (nuevo valor del enum) y su fila en `Genre`. La lista se repite en `shared/schemas/genre.schema.ts` (Zod + etiquetas en español para la interfaz); al cambiar el enum hay que actualizar ambos. Un `Song` tiene un solo género y no se puede borrar un `Genre` que tenga canciones (`onDelete: Restrict`).
 - Un `Song` tiene un solo artista. Si hicieran falta colaboraciones (feats), habría que reemplazar `Song.artistId` por una tabla `SongArtist`.
 - Todos los `id` (y las FK que apuntan a ellos) son `String @default(uuid()) @db.Uuid`, no autoincrement: evita exponer IDs secuenciales/adivinables en la API.
@@ -69,6 +69,41 @@ Todos los endpoints tienen rate limit.
 
 - Endpoints de auth (login, register, cambiar clave): **5 requests por minuto**.
 - Resto de los endpoints: **70 requests por minuto**.
+
+## Búsqueda
+
+- Un único endpoint `GET /search?q=` para ambos roles (requiere login, sin restricción de rol).
+- `q` obligatorio, entre 1 y 50 caracteres (trim).
+- Busca con `contains` case-insensitive en:
+  - **Artistas:** usuarios con rol ARTIST por `username`, `name` o `surname`.
+  - **Usuarios:** usuarios con rol USER por `username`, `name` o `surname`.
+  - **Canciones:** por `title`.
+  - **Álbumes:** por `title`.
+  - **Playlists:** por `name`, solo las públicas.
+- Sin `type`: devuelve un objeto con las 5 entidades, cada una limitada a 5 resultados: `{ artists, users, songs, albums, playlists }`.
+- **Ver más por categoría:** con `type` (`artists | users | songs | albums | playlists`) y `page` (entero ≥ 1, por defecto 1) devuelve solo esa entidad, paginada de a 20: `{ [type]: [...] }`.
+- En el front, cada categoría con 5 resultados muestra un botón "Ver más" que abre la vista de esa categoría (con "Volver" y "Cargar más" mientras lleguen páginas completas de 20).
+- Nunca se exponen `email`, `password` ni los `*PublicId`.
+- En el front se busca mientras se escribe, con debounce de ~300 ms. Un solo componente de búsqueda para ambos roles.
+
+## Perfil público
+
+- `GET /users/:id` (requiere login, ambos roles).
+- Devuelve `id, username, name, surname, photo, bio, role, createdAt`.
+- Si es ARTIST, incluye sus álbumes y canciones.
+- Si es USER, incluye sus playlists públicas.
+
+## Visibilidad de playlist
+
+- `PATCH /playlists/:id` (solo USER, dueño de la playlist) con `{ isPublic: boolean }`: recibe el estado final, no alterna. Así es idempotente (doble click o reintento no la dan vuelta).
+- Playlist inexistente o de otro usuario → 404. Devuelve `{ isPublic }`.
+
+## Editar perfil
+
+- `PATCH /users/me` (requiere login, ambos roles), multipart con `username` y/o `photo` (imagen, máx. 5 MB). Sin ninguno de los dos → 400.
+- `username` repetido → 409. La foto nueva se sube a Cloudinary (`users`) y, guardado el cambio, se borra la anterior.
+- Devuelve el mismo usuario que `/auth/me`; el front lo usa para actualizar la sesión.
+- En "Perfil", el botón de cámara abre el selector de archivos y sube la foto al elegirla; el lápiz edita el nombre de usuario en línea.
 
 ## Deploy
 

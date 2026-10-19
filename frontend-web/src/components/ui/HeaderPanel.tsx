@@ -1,4 +1,4 @@
-import ProfileData from "./ProfileData"
+import HeaderPanelData from './HeaderPanelData'
 
 type Props = {
   title: string
@@ -14,7 +14,7 @@ const HeaderPanel = ({ title, icon }: Props) => {
         </span>
         <p className="truncate text-sm font-bold uppercase md:text-lg">{title}</p>
       </div>
-      <ProfileData />
+      <HeaderPanelData />
     </header>
   )
 }

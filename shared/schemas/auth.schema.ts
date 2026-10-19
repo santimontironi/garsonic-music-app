@@ -23,5 +23,7 @@ export const userSchema = registerSchema.omit({ password: true }).extend({
     photo: z.string().nullish()
 })
 
+export const userRefSchema = z.object({ id: z.uuid(), username: z.string() })
+
 export type RegisterInput = z.infer<typeof registerSchema>
 export type LoginInput = z.infer<typeof loginSchema>

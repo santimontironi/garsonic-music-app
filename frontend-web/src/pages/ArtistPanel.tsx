@@ -4,11 +4,11 @@ import PlayerBar from "../components/player/PlayerBar"
 import HeaderPanel from "../components/ui/HeaderPanel"
 import SideNavArtist from "../components/artist/SideNavArtist"
 import HomeArtist from "../components/artist/HomeArtist"
-import SearchArtist from "../components/artist/SearchArtist"
+import Search from "../components/search/Search"
 import MySongs from "../components/artist/MySongs"
 import MyAlbums from "../components/artist/MyAlbums"
 import Stats from "../components/artist/Stats"
-import Profile from "../components/ui/Profile"
+import MyProfile from "../components/profile/MyProfile"
 import type { SideNavArtistSections } from "../types/general.types"
 
 const ArtistPanel = () => {
@@ -31,7 +31,7 @@ const ArtistPanel = () => {
           className={`fixed inset-x-0 top-16 bottom-0 z-35 bg-black/50 transition-opacity duration-300 md:hidden ${menuOpen ? "opacity-100" : "pointer-events-none opacity-0"}`}
         />
 
-        <div className="flex min-w-0 flex-1 flex-col">
+        <div className="flex min-h-svh min-w-0 flex-1 flex-col">
           <div className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b-4 border-black bg-button px-4 md:h-20 md:px-8 xl:px-10">
             <button
               type="button"
@@ -49,11 +49,11 @@ const ArtistPanel = () => {
 
           <main className="flex-1 p-5 md:p-8 xl:p-10">
             {section === "home" && <HomeArtist setSection={selectSection} />}
-            {section === "search" && <SearchArtist />}
+            {section === "search" && <Search />}
             {section === "my-songs" && <MySongs />}
             {section === "my-albums" && <MyAlbums />}
             {section === "stats" && <Stats />}
-            {section === "profile" && <Profile />}
+            {section === "profile" && <MyProfile />}
           </main>
 
           <PlayerBar />

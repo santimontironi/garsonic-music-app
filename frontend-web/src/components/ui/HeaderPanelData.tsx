@@ -1,6 +1,6 @@
 import { useMe } from "../../hooks/auth/useMe"
 
-const ProfileData = () => {
+const HeaderPanelData = () => {
   const { data: user } = useMe()
 
   if (!user) return null
@@ -31,4 +31,4 @@ const ProfileData = () => {
   )
 }
 
-export default ProfileData
+export default HeaderPanelData
