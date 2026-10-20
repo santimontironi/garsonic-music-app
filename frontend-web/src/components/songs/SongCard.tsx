@@ -7,9 +7,11 @@ interface SongCardProps {
   artistName: string
   fallbackCover?: string | null
   onPlay: () => void
+  onRemove?: () => void
+  onAddToPlaylist?: () => void
 }
 
-const SongCard = ({ song, artistName, fallbackCover, onPlay }: SongCardProps) => {
+const SongCard = ({ song, artistName, fallbackCover, onPlay, onRemove, onAddToPlaylist }: SongCardProps) => {
   const cover = song.cover ?? fallbackCover
 
   return (
@@ -31,6 +33,30 @@ const SongCard = ({ song, artistName, fallbackCover, onPlay }: SongCardProps) =>
         >
           <i className="bi bi-play-fill text-2xl" aria-hidden="true"></i>
         </button>
+
+        {onAddToPlaylist && (
+          <button
+            type="button"
+            onClick={onAddToPlaylist}
+            aria-label={`Agregar ${song.title} a una playlist`}
+            title="Agregar a playlist"
+            className="absolute top-2 right-2 flex size-9 cursor-pointer items-center justify-center border-2 border-black bg-button press hover:bg-green focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black"
+          >
+            <i className="bi bi-plus-lg" aria-hidden="true"></i>
+          </button>
+        )}
+
+        {onRemove && (
+          <button
+            type="button"
+            onClick={onRemove}
+            aria-label={`Quitar ${song.title} de la playlist`}
+            title="Quitar de la playlist"
+            className="absolute top-2 right-2 flex size-9 cursor-pointer items-center justify-center border-2 border-black bg-button text-red-600 press hover:bg-red-600 hover:text-white focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black md:opacity-0 md:transition-opacity md:group-focus-within:opacity-100 md:group-hover:opacity-100"
+          >
+            <i className="bi bi-x-lg" aria-hidden="true"></i>
+          </button>
+        )}
       </div>
 
       <div className="flex min-w-0 flex-col gap-1">

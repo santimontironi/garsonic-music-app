@@ -1,5 +1,5 @@
 import type { CreatePlaylistInput } from "shared/schemas/playlist.schema";
-import { playlistSchema } from "shared/schemas/playlist.schema";
+import { myPlaylistSchema, playlistSchema } from "shared/schemas/playlist.schema";
 import { z } from "zod";
 
 export type PlaylistCredentials = {
@@ -8,3 +8,5 @@ export type PlaylistCredentials = {
 }
 
 export type Playlist = z.infer<typeof playlistSchema>
+
+export type MyPlaylist = z.infer<typeof myPlaylistSchema>

@@ -8,6 +8,8 @@ import { useState } from "react"
 import { useMe } from "../../hooks/auth/useMe"
 import { useDeleteAlbum } from "../../hooks/album/useDeleteAlbum"
 import ConfirmDeleteModal from "../ui/ConfirmDeleteModal"
+import AddToPlaylistModal from "../playlists/AddToPlaylistModal"
+import type { Song } from "../../types/song.types"
 
 interface AlbumDetailProps {
   albumId: string
@@ -20,6 +22,7 @@ const AlbumDetail = ({ albumId, onBack }: AlbumDetailProps) => {
   const { data: me } = useMe()
   const deleteAlbum = useDeleteAlbum()
   const [confirmOpen, setConfirmOpen] = useState(false)
+  const [songToAdd, setSongToAdd] = useState<Pick<Song, "id" | "title"> | null>(null)
 
   const artistName = album ? album.artist.username : ""
   const tracks = album?.songs.map(song => ({ ...song, cover: song.cover ?? album.cover, artistName })) ?? []
@@ -93,7 +96,13 @@ const AlbumDetail = ({ albumId, onBack }: AlbumDetailProps) => {
             <ul className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 xl:grid-cols-5">
               {album.songs.map((song, i) => (
                 <li key={song.id}>
-                  <SongCard song={song} artistName={artistName} fallbackCover={album.cover} onPlay={() => playQueue(tracks, i)} />
+                  <SongCard
+                    song={song}
+                    artistName={artistName}
+                    fallbackCover={album.cover}
+                    onPlay={() => playQueue(tracks, i)}
+                    onAddToPlaylist={me?.role === "USER" ? () => setSongToAdd(song) : undefined}
+                  />
                 </li>
               ))}
             </ul>
@@ -104,13 +113,15 @@ const AlbumDetail = ({ albumId, onBack }: AlbumDetailProps) => {
       {album && confirmOpen && (
         <ConfirmDeleteModal
           title="Eliminar álbum"
-          message={<>¿Eliminar <span className="font-bold break-words">{album.title}</span>? Sus canciones no se borran: quedan como singles. No se puede deshacer.</>}
+          message={<>¿Eliminar <span className="font-bold wrap-break-words">{album.title}</span>? Sus canciones no se borran: quedan como singles. No se puede deshacer.</>}
           isPending={deleteAlbum.isPending}
           error={deleteAlbum.error}
           onConfirm={() => deleteAlbum.mutate(album.id, { onSuccess: onBack })}
           onClose={() => setConfirmOpen(false)}
         />
       )}
+
+      {songToAdd && <AddToPlaylistModal song={songToAdd} onClose={() => setSongToAdd(null)} />}
     </section>
   )
 }

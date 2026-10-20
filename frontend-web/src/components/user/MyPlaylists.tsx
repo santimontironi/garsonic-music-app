@@ -1,5 +1,6 @@
 import CreatePlaylistModal from "../playlists/CreatePlaylistModal"
 import PlaylistCard from "../playlists/PlaylistCard"
+import PlaylistDetail from "../playlists/PlaylistDetail"
 import Loader from "../ui/Loader"
 import EmptyState from "../ui/EmptyState"
 import { useMyPlaylists } from "../../hooks/playlist/useMyPlaylists"
@@ -8,7 +9,12 @@ import { useState } from "react"
 const MyPlaylists = () => {
 
   const [modalOpen, setModalOpen] = useState(false)
+  const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(null)
   const { data: playlists, isPending, isError, error } = useMyPlaylists()
+
+  if (selectedPlaylistId) {
+    return <PlaylistDetail playlistId={selectedPlaylistId} onBack={() => setSelectedPlaylistId(null)} />
+  }
 
   const createButton = (
     <button
@@ -45,7 +51,7 @@ const MyPlaylists = () => {
         <ul className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 xl:grid-cols-5">
           {playlists.map(playlist => (
             <li key={playlist.id}>
-              <PlaylistCard playlist={playlist} />
+              <PlaylistCard playlist={playlist} onClick={() => setSelectedPlaylistId(playlist.id)} />
             </li>
           ))}
         </ul>
