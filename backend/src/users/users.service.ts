@@ -11,8 +11,8 @@ export class UsersService {
   ) {}
 
   // Un artista no tiene playlists y un usuario no tiene álbumes ni canciones: lo que no aplica llega vacío
-  async findById(userId: string) {
-    const user = await this.prisma.user.findUnique({
+  async findById(viewerId: string, userId: string) {
+    const found = await this.prisma.user.findUnique({
       where: { id: userId },
       select: {
         id: true,
@@ -38,13 +38,36 @@ export class UsersService {
           orderBy: { createdAt: 'desc' },
           omit: { imagePublicId: true },
           include: { _count: { select: { songs: true } } }
-        }
+        },
+        fans: { where: { userId: viewerId }, select: { userId: true } }
       }
     })
 
-    if (!user) throw new NotFoundException('Usuario no encontrado')
+    if (!found) throw new NotFoundException('Usuario no encontrado')
 
-    return user
+    const { fans, ...user } = found
+    return { ...user, isFav: fans.length > 0 }
+  }
+
+  async findFavArtists(userId: string) {
+    const favs = await this.prisma.favArtist.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      select: { artist: { select: { id: true, username: true, name: true, surname: true, photo: true } } }
+    })
+
+    return favs.map(({ artist }) => artist)
+  }
+
+  async toggleFavArtist(userId: string, artistId: string) {
+    const artist = await this.prisma.user.findUnique({ where: { id: artistId }, select: { role: true } })
+    if (artist?.role !== 'ARTIST') throw new NotFoundException('Artista no encontrado')
+
+    const where = { userId_artistId: { userId, artistId } }
+    const fav = await this.prisma.favArtist.findUnique({ where })
+
+    if (fav) await this.prisma.favArtist.delete({ where })
+    else await this.prisma.favArtist.create({ data: { userId, artistId } })
   }
 
   async update(userId: string, { username }: UpdateUserInput, photo?: Express.Multer.File) {

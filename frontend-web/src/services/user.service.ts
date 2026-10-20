@@ -1,5 +1,5 @@
 import api from "./api";
-import { userSchema } from "shared/schemas/auth.schema";
+import { userSchema, userSummarySchema } from "shared/schemas/auth.schema";
 import { userProfileSchema } from "shared/schemas/user.schema";
 import type { UpdateUserPayload } from "../types/user.types";
 
@@ -16,4 +16,13 @@ export const updateUserService = async ({ username, photo }: UpdateUserPayload) 
 
     const res = await api.patch('/users/me', formData)
     return userSchema.parse(res.data)
+}
+
+export const getFavArtistsService = async () => {
+    const res = await api.get('/users/me/fav-artists')
+    return userSummarySchema.array().parse(res.data)
+}
+
+export const toggleFavArtistService = async (artistId: string) => {
+    await api.post(`/users/${artistId}/fav`)
 }

@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { useUser } from "../../hooks/user/useUser"
 import { useMe } from "../../hooks/auth/useMe"
+import { useToggleFavArtist } from "../../hooks/user/useToggleFavArtist"
 import { usePlayer } from "../../context/PlayerContext"
 import AlbumCard from "../albums/AlbumCard"
 import AlbumDetail from "../albums/AlbumDetail"
@@ -22,6 +23,7 @@ const PublicProfile = ({ userId, onBack }: PublicProfileProps) => {
   const { data: user, isPending, isError, error } = useUser(userId)
   const { playQueue } = usePlayer()
   const { data: me } = useMe()
+  const { mutate: toggleFav, isPending: isTogglingFav } = useToggleFavArtist()
   const [songToAdd, setSongToAdd] = useState<Pick<Song, "id" | "title"> | null>(null)
   const [selected, setSelected] = useState<{ type: "album" | "playlist"; id: string } | null>(null)
 
@@ -44,6 +46,19 @@ const PublicProfile = ({ userId, onBack }: PublicProfileProps) => {
       {user && (
         <>
           <ProfileHeader user={user} />
+
+          {user.role === "ARTIST" && me?.role === "USER" && (
+            <button
+              type="button"
+              onClick={() => toggleFav(user.id)}
+              disabled={isTogglingFav}
+              aria-pressed={user.isFav}
+              className="flex w-fit cursor-pointer items-center gap-2 border-2 border-black bg-button px-4 py-2 text-sm font-bold uppercase press disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-black"
+            >
+              <i className={`bi ${user.isFav ? "bi-heart-fill text-red-600" : "bi-heart"}`} aria-hidden="true"></i>
+              {user.isFav ? "Quitar de favoritos" : "Agregar a favoritos"}
+            </button>
+          )}
 
           {user.albums.length > 0 && (
             <section className="flex flex-col gap-4">

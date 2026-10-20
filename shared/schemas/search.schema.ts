@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { albumSchema } from './album.schema.js';
-import { userRefSchema, userSchema } from './auth.schema.js';
+import { userRefSchema, userSummarySchema } from './auth.schema.js';
 import { playlistSchema } from './playlist.schema.js';
 import { songSchema } from './song.schema.js';
 
@@ -9,8 +9,6 @@ export const searchQuerySchema = z.object({
 })
 
 export type SearchQueryInput = z.infer<typeof searchQuerySchema>
-
-const userSummarySchema = userSchema.pick({ id: true, username: true, name: true, surname: true, photo: true })
 
 export const searchResultSchema = z.object({
     artists: z.array(userSummarySchema),

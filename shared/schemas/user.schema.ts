@@ -8,6 +8,7 @@ export const userProfileSchema = userSchema.omit({ email: true }).extend({
     albums: z.array(albumSchema),
     songs: z.array(songSchema),
     playlists: z.array(playlistSchema),
+    isFav: z.boolean(),
 })
 
 // la foto llega como archivo aparte (multipart): acá solo los campos de texto

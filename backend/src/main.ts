@@ -13,7 +13,7 @@ async function bootstrap() {
   // header X-Forwarded-For. Va 1 y no true: se confía solo en el proxy de Vercel,
   // para que nadie pueda inventar IPs en el header y saltearse el límite.
   // En local no hay proxy y no cambia nada.
-  app.set('trust proxy', 1);
+  app.set('trust proxy', 1); //Express entiende que ese primer salto (Vercel) es confiable y le cree el header. Entonces req.ip = 181.x.x.x, la IP pública del usuario.
 
   app.setGlobalPrefix('api');
 

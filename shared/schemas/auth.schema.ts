@@ -25,5 +25,7 @@ export const userSchema = registerSchema.omit({ password: true }).extend({
 
 export const userRefSchema = z.object({ id: z.uuid(), username: z.string() })
 
+export const userSummarySchema = userSchema.pick({ id: true, username: true, name: true, surname: true, photo: true })
+
 export type RegisterInput = z.infer<typeof registerSchema>
 export type LoginInput = z.infer<typeof loginSchema>

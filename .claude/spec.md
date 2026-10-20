@@ -96,6 +96,14 @@ Todos los endpoints tienen rate limit, contado por IP con `@nestjs/throttler`.
 - Devuelve `id, username, name, surname, photo, bio, role, createdAt`.
 - Si es ARTIST, incluye sus álbumes y canciones.
 - Si es USER, incluye sus playlists públicas.
+- Incluye `isFav` (si quien mira lo tiene de favorito).
+
+## Artistas favoritos
+
+- Solo USER marca favoritos, y solo a usuarios con `role = ARTIST`.
+- `POST /users/:id/fav`: alterna. Si ya es favorito lo saca, si no lo marca. Si no existe o no es ARTIST → 404. No es idempotente: el botón queda deshabilitado mientras se guarda para que un doble click no lo dé vuelta.
+- `GET /users/me/fav-artists`: lista `id, username, name, surname, photo` de mis artistas favoritos, del más reciente al más viejo.
+- Se listan en la sección "Artistas favoritos" del panel de USER; al tocar uno se abre su perfil público.
 
 ## Visibilidad de playlist
 
