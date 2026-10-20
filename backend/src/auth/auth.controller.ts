@@ -1,5 +1,6 @@
 import { BadRequestException, Body, Controller, Get, Param, Post, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
+import { Throttle } from '@nestjs/throttler'
 import type { Request, Response } from 'express'
 import { loginSchema, registerSchema, type LoginInput, type RegisterInput } from 'shared/schemas/auth.schema'
 import { ZodValidationPipe } from '../common/pipes/zod.validation.pipe.js'
@@ -10,6 +11,7 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard.js'
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Throttle({ default: { ttl: 60_000, limit: 5 } })
   @Post('register')
   @UseInterceptors(
     FileInterceptor('photo', {
@@ -34,6 +36,7 @@ export class AuthController {
     return this.authService.confirm(token)
   }
 
+  @Throttle({ default: { ttl: 60_000, limit: 5 } })
   @Post('login')
   async login(
     @Body(new ZodValidationPipe(loginSchema)) body: LoginInput,

@@ -65,10 +65,14 @@ Las reproducciones quedan afuera hasta que exista el reproductor: no hay tabla n
 
 ## Rate limiting
 
-Todos los endpoints tienen rate limit.
+Todos los endpoints tienen rate limit, contado por IP con `@nestjs/throttler`.
 
-- Endpoints de auth (login, register, cambiar clave): **5 requests por minuto**.
-- Resto de los endpoints: **70 requests por minuto**.
+- Endpoints de auth (login, register, cambiar clave): **5 requests por minuto**, con contador propio por endpoint.
+- Resto de los endpoints: **70 requests por minuto** (guard global en `AppModule`).
+- Al pasarse del límite responde **429** con el mensaje `Demasiadas solicitudes, probá de nuevo en un minuto`.
+- El backend usa `trust proxy = 1` para tomar la IP real del cliente detrás del proxy de Vercel.
+- El contador vive en memoria: en Vercel cada instancia lleva el suyo, así que el límite es por instancia. Si hace falta un límite exacto, se conecta Redis como storage.
+- Pendiente: cuando exista el endpoint de cambiar clave, lleva `@Throttle` con 5/min como login y register.
 
 ## Búsqueda
 
