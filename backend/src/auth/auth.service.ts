@@ -2,10 +2,12 @@ import { BadRequestException, ConflictException, ForbiddenException, Injectable,
 import { JwtService } from '@nestjs/jwt'
 import bcrypt from 'bcrypt'
 import { CloudinaryService } from '../cloudinary/cloudinary.service.js'
+import type { User } from '../generated/prisma/client.js'
 import { MailService } from '../mail/mail.service.js'
 import { confirmTemplate } from '../mail/templates/confirm.template.js'
+import { forgotTemplate } from '../mail/templates/forgot.template.js'
 import { PrismaService } from '../prisma/prisma.service.js'
-import type { LoginInput, RegisterInput } from 'shared/schemas/auth.schema'
+import type { ForgotPasswordInput, LoginInput, RegisterInput, ResetPasswordInput } from 'shared/schemas/auth.schema'
 
 @Injectable()
 export class AuthService {
@@ -57,6 +59,37 @@ export class AuthService {
     await this.prisma.user.update({ where: { id: sub }, data: { emailVerified: true } })
 
     return { message: 'Email confirmado correctamente' }
+  }
+
+  async forgotPassword({ email }: ForgotPasswordInput) {
+    const user = await this.prisma.user.findUnique({ where: { email } })
+
+    if (user) {
+      // el hash de la clave en el secret hace que el link muera al cambiarla: uso único
+      const token = await this.jwt.signAsync({ sub: user.id }, { secret: process.env.JWT_FORGOT_SECRET + user.password, expiresIn: '20m' })
+      const { subject, html } = forgotTemplate(user.name, token)
+      await this.mail.send(user.email, subject, html)
+    }
+
+    // mismo mensaje exista o no, para no revelar qué emails están registrados
+    return { message: 'Si el email está registrado, te enviamos las instrucciones para recuperar tu contraseña' }
+  }
+
+  async resetPassword(token: string, { password }: ResetPasswordInput) {
+    let user: User
+    try {
+      // el secret depende del usuario: se lee el sub sin verificar y recién después se verifica con su secret
+      const { sub } = this.jwt.decode<{ sub: string }>(token)
+      // un sub que no es uuid hace fallar a Prisma: también cae en el catch como token inválido
+      user = await this.prisma.user.findUniqueOrThrow({ where: { id: sub } })
+      await this.jwt.verifyAsync(token, { secret: process.env.JWT_FORGOT_SECRET + user.password })
+    } catch {
+      throw new BadRequestException('El enlace para recuperar la contraseña es inválido o venció')
+    }
+
+    await this.prisma.user.update({ where: { id: user.id }, data: { password: await bcrypt.hash(password, 10) } })
+
+    return { message: 'Contraseña actualizada correctamente' }
   }
 
   async login({ email, password }: LoginInput) {

@@ -223,9 +223,8 @@ Todo lo que entra a `master` se deploya a producción en Vercel, tanto `backend`
 ## Estado actual
 
 - **Backend:** módulos `auth`, `users` (perfil público, editar perfil, artistas favoritos), `albumes`, `songs` (incluye canciones favoritas), `genres`, `playlists`, `search` y `contact`, con Prisma, Cloudinary, mails y rate limiting.
-- **Frontend web:** landing (con formulario de contacto), login, registro, confirmación de cuenta y los paneles de USER y ARTIST (búsqueda, perfiles, playlists, álbumes, canciones, reproductor, artistas favoritos y canciones favoritas).
+- **Frontend web:** landing (con formulario de contacto), login, registro, confirmación de cuenta, olvidé mi contraseña y los paneles de USER y ARTIST (búsqueda, perfiles, playlists, álbumes, canciones, reproductor, artistas favoritos y canciones favoritas).
 - **Pendiente:**
-  - Olvidé mi contraseña: el `ForgotPasswordModal` existe, pero no hay endpoints ni mail (ver Olvidé mi contraseña).
   - Estadísticas del artista (`Stats` es un stub).
   - Endpoint de cambiar clave (con su `@Throttle`, ver Rate limiting).
   - Frontend mobile (ver Reutilización en mobile). Antes, el backend tiene que aceptar el JWT también por `Authorization: Bearer`, porque hoy solo lo lee de la cookie.

@@ -23,9 +23,21 @@ export const userSchema = registerSchema.omit({ password: true }).extend({
     photo: z.string().nullish()
 })
 
+export const forgotPasswordSchema = loginSchema.pick({ email: true })
+
+export const resetPasswordSchema = loginSchema.pick({ password: true })
+
+// solo para el formulario del front: la confirmación no viaja a la API
+export const resetPasswordFormSchema = resetPasswordSchema
+    .extend({ confirmPassword: z.string() })
+    .refine((data) => data.password === data.confirmPassword, { message: 'Las contraseñas no coinciden', path: ['confirmPassword'] })
+
 export const userRefSchema = z.object({ id: z.uuid(), username: z.string() })
 
 export const userSummarySchema = userSchema.pick({ id: true, username: true, name: true, surname: true, photo: true })
 
 export type RegisterInput = z.infer<typeof registerSchema>
 export type LoginInput = z.infer<typeof loginSchema>
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>
+export type ResetPasswordFormInput = z.infer<typeof resetPasswordFormSchema>

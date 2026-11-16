@@ -1,5 +1,5 @@
 import api from "./api";
-import { userSchema, type LoginInput } from "shared/schemas/auth.schema";
+import { userSchema, type ForgotPasswordInput, type LoginInput, type ResetPasswordInput } from "shared/schemas/auth.schema";
 import type { RegisterPayload } from "../types/auth.types";
 
 export const loginService = async (body: LoginInput) => {
@@ -14,10 +14,6 @@ export const meService = async () => {
 
 export const logoutService = async () => {
     await api.post('/auth/logout');
-}
-
-export const confirmService = async (token: string) => {
-    await api.get(`/auth/confirm/${token}`);
 }
 
 export const registerService = async ({ data, photo }: RegisterPayload) => {
@@ -38,4 +34,13 @@ export const registerService = async ({ data, photo }: RegisterPayload) => {
 
 export const confirmAccountService = async (token: string) => {
     await api.post(`/auth/confirm/${token}`)
+}
+
+export const forgotPasswordService = async (body: ForgotPasswordInput) => {
+    const res = await api.post<{ message: string }>('/auth/forgot-password', body)
+    return res.data.message
+}
+
+export const resetPasswordService = async ({ token, password }: ResetPasswordInput & { token: string }) => {
+    await api.post(`/auth/forgot-password/${token}`, { password })
 }

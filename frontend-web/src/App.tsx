@@ -5,6 +5,7 @@ import Home from "./pages/Home.tsx"
 import ArtistPanel from "./pages/ArtistPanel.tsx"
 import ConfirmAccount from "./pages/ConfirmAccount.tsx"
 import UserPanel from "./pages/UserPanel.tsx"
+import ResetPassword from "./pages/ResetPassword.tsx"
 import { QueryClientProvider } from '@tanstack/react-query'
 import queryClient from "./queryClient.ts"
 import VerifyRole from "./components/auth/VerifyRole.tsx"
@@ -18,6 +19,7 @@ const App = () => {
           <Route path="/ingreso" element={<Login />} />
           <Route path="/registro" element={<Register />} />
           <Route path="/confirmar-cuenta/:token" element={<ConfirmAccount />} />
+          <Route path="/recuperar-clave/:token" element={<ResetPassword />} />
           <Route path="/panel-artista" element={ <VerifyRole allowed={["ARTIST"]}><ArtistPanel /></VerifyRole>} />
           <Route path="/panel-usuario" element={ <VerifyRole allowed={["USER"]}><UserPanel /></VerifyRole>} />
         </Routes>
