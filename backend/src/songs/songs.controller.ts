@@ -19,6 +19,12 @@ export class SongsController {
     return this.songsService.findSongsByArtist(req.user!.sub)
   }
 
+  @Get('fav')
+  @Roles('USER')
+  findFavs(@Req() req: Request) {
+    return this.songsService.findFavs(req.user!.sub)
+  }
+
   @Patch(':id/album')
   updateAlbum(
     @Req() req: Request,
@@ -26,6 +32,12 @@ export class SongsController {
     @Body(new ZodValidationPipe(updateSongAlbumSchema)) body: UpdateSongAlbumInput
   ) {
     return this.songsService.updateAlbum(req.user!.sub, id, body)
+  }
+
+  @Post(':id/fav')
+  @Roles('USER')
+  toggleFav(@Req() req: Request, @Param('id', ParseUUIDPipe) id: string) {
+    return this.songsService.toggleFav(req.user!.sub, id)
   }
 
   @Delete(':id')

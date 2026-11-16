@@ -48,7 +48,7 @@ const MyPlaylists = () => {
       )}
 
       {playlists && playlists.length > 0 && (
-        <ul className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 xl:grid-cols-5">
+        <ul className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 xl:grid-cols-4 2xl:grid-cols-5">
           {playlists.map(playlist => (
             <li key={playlist.id}>
               <PlaylistCard playlist={playlist} onClick={() => setSelectedPlaylistId(playlist.id)} />

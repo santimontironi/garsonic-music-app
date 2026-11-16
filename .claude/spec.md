@@ -54,7 +54,18 @@ Decisiones:
 - **Autenticación:** JWT guardado en cookies.
 - **Envío de mails:** Nodemailer, para dos casos:
   - Confirmar la cuenta del usuario: al confirmarla, `User.emailVerified` pasa a `true`.
-  - Resetear la clave.
+  - Recuperar la clave (ver Olvidé mi contraseña).
+
+## Olvidé mi contraseña
+
+Usa el mismo patrón que la confirmación de cuenta: un JWT con secret propio, sin guardar nada en la base y sin migración.
+
+- `POST /auth/forgot-password` con `{ email }`: si existe un usuario con ese email, le manda un mail con el link `${FRONTEND_URL}/recuperar-clave/:token`. Responde siempre el mismo mensaje, exista o no el email, para no revelar qué cuentas están registradas.
+- `POST /auth/forgot-password/:token` con `{ password }`: valida el token, hashea la clave nueva y la guarda. Token inválido o vencido → 400.
+- **Token:** JWT de 20 minutos con `{ sub: user.id }`, firmado con `JWT_FORGOT_SECRET` concatenado con el hash de la clave actual del usuario. Al cambiar la clave cambia el hash y el link deja de servir, así que es de uso único. Para verificarlo, primero se lee el `sub` con `decode` (sin verificar), se busca el usuario y después se verifica con su secret.
+- Los dos endpoints llevan `@Throttle` de 5 por minuto, como login y register.
+- **Front:** el `ForgotPasswordModal` del login llama al primer endpoint y muestra el mensaje. La página `/recuperar-clave/:token` tiene el formulario de la clave nueva (con confirmación) y, si sale bien, redirige al login.
+- Es distinto de "cambiar clave", que se hace con la sesión iniciada desde el perfil.
 
 ## Imágenes
 
@@ -79,7 +90,7 @@ Las reproducciones quedan afuera hasta que exista el reproductor: no hay tabla n
 
 Todos los endpoints tienen rate limit, contado por IP con `@nestjs/throttler`.
 
-- Endpoints de auth (login, register, cambiar clave): **5 requests por minuto**, con contador propio por endpoint.
+- Endpoints de auth (login, register, forgot password, cambiar clave) y contacto: **5 requests por minuto**, con contador propio por endpoint.
 - Resto de los endpoints: **70 requests por minuto** (guard global en `AppModule`).
 - Al pasarse del límite responde **429** con el mensaje `Demasiadas solicitudes, probá de nuevo en un minuto`.
 - El backend usa `trust proxy = 1` para tomar la IP real del cliente detrás del proxy de Vercel.
@@ -117,6 +128,23 @@ Todos los endpoints tienen rate limit, contado por IP con `@nestjs/throttler`.
 - `GET /users/me/fav-artists`: lista `id, username, name, surname, photo` de mis artistas favoritos, del más reciente al más viejo.
 - Se listan en la sección "Artistas favoritos" del panel de USER; al tocar uno se abre su perfil público.
 
+## Canciones favoritas
+
+- Solo USER marca canciones como favoritas, igual que los artistas favoritos.
+- `POST /songs/:id/fav`: alterna. Si ya es favorita la saca, si no la marca. Canción inexistente → 404. Como no es idempotente, el botón queda deshabilitado mientras se guarda.
+- `GET /songs/fav`: lista mis canciones favoritas, de la más reciente a la más vieja. Cada una trae `artist` (`id`, `username`) y `album` (`id`, `title`, `cover`; `null` en los singles), sin `*PublicId`. El contrato es `favSongSchema` de `shared`.
+- Los dos endpoints están en el módulo `songs` con `@Roles('USER')` a nivel de método, que pisa el `ARTIST` del controller.
+- **Corazón en `SongCard`:** con `showFav` (solo si el que mira es USER) aparece arriba a la izquierda de la portada, en álbum, playlist, perfil público, búsqueda y la sección de favoritas. Lo dibuja `FavSongButton`, que es un componente aparte para que sus hooks corran solo para USER (al ARTIST, `GET /songs/fav` le daría 403).
+- **Cómo se sabe si es favorita:** las respuestas de álbum, playlist, perfil y búsqueda no traen `isFav`. Cada corazón busca la canción en la lista de `useFavSongs`, que está cacheada con la key `fav-songs`, así que hay un solo pedido por pantalla. Al alternar se invalida esa key y la mutación sigue pendiente hasta que llega la lista nueva, para que un doble click no la dé vuelta.
+- **Sección "Canciones favoritas"** del panel de USER: grilla de `SongCard`. Al tocar una se reproduce con todas las favoritas como cola, y la portada cae a la del álbum si la canción no tiene una propia.
+
+## Contacto
+
+- `POST /contact`: público, sin login. El body se valida con `contactSchema` de `shared` (`name`, `email`, `message`).
+- Rate limit de 5 por minuto con `@Throttle`, igual que login y register, porque es público y se puede usar para spam.
+- Nodemailer manda el mensaje al mail del equipo, que se configura con la variable `CONTACT_EMAIL`. El `email` de quien escribe va como `replyTo`, para poder responderle directo.
+- El formulario de la landing (`Contact`) llama al endpoint, muestra un mensaje de éxito o de error y se limpia solo si el envío salió bien.
+
 ## Visibilidad de playlist
 
 - `PATCH /playlists/:id` (solo USER, dueño de la playlist) con `{ isPublic: boolean }`: recibe el estado final, no alterna. Así es idempotente (doble click o reintento no la dan vuelta).
@@ -151,6 +179,21 @@ El backend consume `shared` compilado (`shared/dist`, en `.gitignore`) y el clie
 - `prebuild` (antes de `npm run build`, el que corre Vercel): compila `shared` y corre `prisma generate`.
 - `prestart:dev` (antes de `npm run start:dev`): compila `shared`. Si se cambia un schema de `shared` con el backend corriendo, hay que reiniciarlo.
 
+### Rutas del frontend (SPA)
+
+El frontend es una SPA con React Router: en Vercel, recargar o entrar directo a una ruta interna (`/login`, `/user/...`) da 404 porque no existe un archivo con ese nombre. Se resuelve con `frontend-web/vercel.json`, que reescribe toda ruta a `index.html`:
+
+```json
+{ "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }] }
+```
+
+### Cookies entre front y back
+
+El front y el back quedan en subdominios distintos de `vercel.app`, que está en la Public Suffix List: para el navegador son sitios distintos y la cookie del JWT es de terceros. Con `sameSite: 'none'` y `secure` funciona en Chrome, pero Safari y los navegadores que bloquean cookies de terceros la rechazan y el login no anda. Opciones:
+
+- **Proxy por rewrite:** el `vercel.json` del front reescribe `/api/(.*)` al backend y `VITE_BACKEND_URL` pasa a ser `/api`. Todo queda en el mismo origen: la cookie es propia y no hace falta CORS en producción.
+- **Dominio propio:** front y back en subdominios del mismo dominio (por ejemplo `app.` y `api.`), y la cookie pasa a ser del mismo sitio.
+
 ### CD (deploy continuo)
 
 Todo lo que entra a `master` se deploya a producción en Vercel, tanto `backend` como `frontend-web`. No se usa la integración de Git de Vercel: el CD lo hace GitHub Actions con la CLI de Vercel (es a propósito, para practicar el flujo por terminal).
@@ -172,13 +215,17 @@ Todo lo que entra a `master` se deploya a producción en Vercel, tanto `backend`
 - **Vercel:** verificar que esté activo "Include files outside the root directory in the Build Step", para que el build acceda a `shared/`.
 - **CD:** crear los proyectos con `vercel link`, cargar los secretos en GitHub y sumar los jobs de deploy a `ci.yml` (ver CD).
 - **Tests en el CI:** agregar `npm run test -w backend`; hoy el CI solo hace lint y typecheck.
+- **SPA:** crear `frontend-web/vercel.json` con el rewrite a `index.html` (ver Rutas del frontend).
+- **Cookies:** elegir entre proxy por rewrite y dominio propio (ver Cookies entre front y back).
+- **`.gitignore`:** agregar `.vercel` al de la raíz (lo crea `vercel link` ahí, con los IDs del proyecto).
 
 ## Estado actual
 
-- **Backend:** módulos `auth`, `users` (perfil público, editar perfil, artistas favoritos), `albumes`, `songs`, `genres`, `playlists` y `search`, con Prisma, Cloudinary, mails y rate limiting.
-- **Frontend web:** landing, login, registro, confirmación de cuenta y los paneles de USER y ARTIST (búsqueda, perfiles, playlists, álbumes, canciones, reproductor y artistas favoritos).
+- **Backend:** módulos `auth`, `users` (perfil público, editar perfil, artistas favoritos), `albumes`, `songs` (incluye canciones favoritas), `genres`, `playlists` y `search`, con Prisma, Cloudinary, mails y rate limiting.
+- **Frontend web:** landing, login, registro, confirmación de cuenta y los paneles de USER y ARTIST (búsqueda, perfiles, playlists, álbumes, canciones, reproductor, artistas favoritos y canciones favoritas).
 - **Pendiente:**
-  - Canciones favoritas (`FavSong`): ni endpoints ni sección (`FavoriteSongs` es un stub).
+  - Formulario de contacto: hoy valida y se limpia sin enviar nada (ver Contacto).
+  - Olvidé mi contraseña: el `ForgotPasswordModal` existe, pero no hay endpoints ni mail (ver Olvidé mi contraseña).
   - Estadísticas del artista (`Stats` es un stub).
   - Endpoint de cambiar clave (con su `@Throttle`, ver Rate limiting).
   - Frontend mobile (ver Reutilización en mobile). Antes, el backend tiene que aceptar el JWT también por `Authorization: Bearer`, porque hoy solo lo lee de la cookie.

@@ -36,6 +36,36 @@ export class SongsService {
     })
   }
 
+  async findFavs(userId: string) {
+    const favs = await this.prisma.favSong.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        song: {
+          omit: { audioPublicId: true, coverPublicId: true },
+          include: {
+            artist: { select: { id: true, username: true } },
+            album: { select: { id: true, title: true, cover: true } },
+            genre: true
+          }
+        }
+      }
+    })
+
+    return favs.map(({ song }) => song)
+  }
+
+  async toggleFav(userId: string, songId: string) {
+    const song = await this.prisma.song.findUnique({ where: { id: songId }, select: { id: true } })
+    if (!song) throw new NotFoundException('Canción no encontrada')
+
+    const where = { userId_songId: { userId, songId } }
+    const fav = await this.prisma.favSong.findUnique({ where })
+
+    if (fav) await this.prisma.favSong.delete({ where })
+    else await this.prisma.favSong.create({ data: { userId, songId } })
+  }
+
   async remove(artistId: string, songId: string) {
     const song = await this.prisma.song.findFirst({ where: { id: songId, artistId } })
     if (!song) throw new NotFoundException('Canción no encontrada')

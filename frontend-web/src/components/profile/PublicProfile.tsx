@@ -63,7 +63,7 @@ const PublicProfile = ({ userId, onBack }: PublicProfileProps) => {
           {user.albums.length > 0 && (
             <section className="flex flex-col gap-4">
               <h3 className="text-lg font-bold uppercase md:text-xl">Álbumes</h3>
-              <ul className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 xl:grid-cols-5">
+              <ul className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 xl:grid-cols-4 2xl:grid-cols-5">
                 {user.albums.map(album => (
                   <li key={album.id}><AlbumCard album={album} onClick={() => setSelected({ type: "album", id: album.id })} /></li>
                 ))}
@@ -74,7 +74,7 @@ const PublicProfile = ({ userId, onBack }: PublicProfileProps) => {
           {user.songs.length > 0 && (
             <section className="flex flex-col gap-4">
               <h3 className="text-lg font-bold uppercase md:text-xl">Canciones</h3>
-              <ul className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 xl:grid-cols-5">
+              <ul className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 xl:grid-cols-4 2xl:grid-cols-5">
                 {user.songs.map((song, i) => (
                   <li key={song.id}>
                     <SongCard
@@ -82,6 +82,7 @@ const PublicProfile = ({ userId, onBack }: PublicProfileProps) => {
                       artistName={user.username}
                       fallbackCover={song.album?.cover}
                       onPlay={() => playQueue(tracks, i)}
+                      showFav={me?.role === "USER"}
                       onAddToPlaylist={me?.role === "USER" ? () => setSongToAdd(song) : undefined}
                     />
                   </li>
@@ -93,7 +94,7 @@ const PublicProfile = ({ userId, onBack }: PublicProfileProps) => {
           {user.playlists.length > 0 && (
             <section className="flex flex-col gap-4">
               <h3 className="text-lg font-bold uppercase md:text-xl">Playlists públicas</h3>
-              <ul className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 xl:grid-cols-5">
+              <ul className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 xl:grid-cols-4 2xl:grid-cols-5">
                 {user.playlists.map(playlist => (
                   <li key={playlist.id}><PlaylistCard playlist={playlist} onClick={() => setSelected({ type: "playlist", id: playlist.id })} /></li>
                 ))}

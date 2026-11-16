@@ -93,7 +93,7 @@ const AlbumDetail = ({ albumId, onBack }: AlbumDetailProps) => {
               message="Todavía no hay canciones en este álbum."
             />
           ) : (
-            <ul className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 xl:grid-cols-5">
+            <ul className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 xl:grid-cols-4 2xl:grid-cols-5">
               {album.songs.map((song, i) => (
                 <li key={song.id}>
                   <SongCard
@@ -101,6 +101,7 @@ const AlbumDetail = ({ albumId, onBack }: AlbumDetailProps) => {
                     artistName={artistName}
                     fallbackCover={album.cover}
                     onPlay={() => playQueue(tracks, i)}
+                    showFav={me?.role === "USER"}
                     onAddToPlaylist={me?.role === "USER" ? () => setSongToAdd(song) : undefined}
                   />
                 </li>
@@ -113,7 +114,7 @@ const AlbumDetail = ({ albumId, onBack }: AlbumDetailProps) => {
       {album && confirmOpen && (
         <ConfirmDeleteModal
           title="Eliminar álbum"
-          message={<>¿Eliminar <span className="font-bold wrap-break-words">{album.title}</span>? Sus canciones no se borran: quedan como singles. No se puede deshacer.</>}
+          message={<>¿Eliminar <span className="font-bold wrap-break-word">{album.title}</span>? Sus canciones no se borran: quedan como singles. No se puede deshacer.</>}
           isPending={deleteAlbum.isPending}
           error={deleteAlbum.error}
           onConfirm={() => deleteAlbum.mutate(album.id, { onSuccess: onBack })}

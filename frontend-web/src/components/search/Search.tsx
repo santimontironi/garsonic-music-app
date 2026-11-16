@@ -92,6 +92,7 @@ const Search = () => {
                       artistName={song.artist.username}
                       fallbackCover={song.album?.cover}
                       onPlay={() => playQueue(tracks, i)}
+                      showFav={me?.role === "USER"}
                       onAddToPlaylist={me?.role === "USER" ? () => setSongToAdd(song) : undefined}
                     />
                   </li>

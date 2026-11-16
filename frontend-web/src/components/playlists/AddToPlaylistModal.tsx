@@ -69,7 +69,7 @@ const AddToPlaylistModal = ({ song, onClose }: AddToPlaylistModalProps) => {
         {playlistToRemove && (
             <ConfirmDeleteModal
                 title="Quitar canción"
-                message={<>¿Quitar <span className="font-bold wrap-break-words">{song.title}</span> de <span className="font-bold wrap-break-words">{playlistToRemove.name}</span>?</>}
+                message={<>¿Quitar <span className="font-bold wrap-break-word">{song.title}</span> de <span className="font-bold wrap-break-word">{playlistToRemove.name}</span>?</>}
                 isPending={removeSong.isPending}
                 error={removeSong.error}
                 onConfirm={() => removeSong.mutate({ playlistId: playlistToRemove.id, songId: song.id }, { onSuccess: () => setPlaylistToRemove(null) })}

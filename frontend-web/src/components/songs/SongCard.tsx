@@ -1,21 +1,23 @@
 import type { AlbumWithSongs } from "../../types/album.types"
 import { genreLabels } from "shared/schemas/genre.schema"
 import { formatDuration } from "../../utils/formatDuration"
+import FavSongButton from "./FavSongButton"
 
 interface SongCardProps {
   song: AlbumWithSongs["songs"][number]
   artistName: string
   fallbackCover?: string | null
+  showFav?: boolean
   onPlay: () => void
   onRemove?: () => void
   onAddToPlaylist?: () => void
 }
 
-const SongCard = ({ song, artistName, fallbackCover, onPlay, onRemove, onAddToPlaylist }: SongCardProps) => {
+const SongCard = ({ song, artistName, fallbackCover, showFav, onPlay, onRemove, onAddToPlaylist }: SongCardProps) => {
   const cover = song.cover ?? fallbackCover
 
   return (
-    <article className="group flex flex-col gap-3 border-4 border-black bg-button p-3 shadow-hard md:p-4">
+    <article className="group flex h-full flex-col gap-3 border-4 border-black bg-button p-3 shadow-hard md:p-4 xl:p-5">
       <div className="relative">
         {cover ? (
           <img src={cover} alt="" className="aspect-square w-full border-2 border-black object-cover" />
@@ -33,6 +35,8 @@ const SongCard = ({ song, artistName, fallbackCover, onPlay, onRemove, onAddToPl
         >
           <i className="bi bi-play-fill text-2xl" aria-hidden="true"></i>
         </button>
+
+        {showFav && <FavSongButton songId={song.id} title={song.title} />}
 
         {onAddToPlaylist && (
           <button
@@ -60,9 +64,9 @@ const SongCard = ({ song, artistName, fallbackCover, onPlay, onRemove, onAddToPl
       </div>
 
       <div className="flex min-w-0 flex-col gap-1">
-        <h3 title={song.title} className="line-clamp-2 text-sm font-bold wrap-break-word md:text-base">{song.title}</h3>
-        <p title={artistName} className="truncate text-xs">{artistName}</p>
-        <p className="flex justify-between gap-2 text-xs">
+        <h3 className="text-sm font-bold wrap-break-word md:text-base xl:text-lg">{song.title}</h3>
+        <p title={artistName} className="truncate text-xs xl:text-sm">{artistName}</p>
+        <p className="flex justify-between gap-2 text-xs xl:text-sm">
           <span className="truncate">{genreLabels[song.genre.name]}</span>
           <span className="shrink-0 tabular-nums">{formatDuration(song.durationSec)}</span>
         </p>

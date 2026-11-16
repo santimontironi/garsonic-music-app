@@ -1,5 +1,5 @@
 import api from "./api";
-import { songSchema } from "shared/schemas/song.schema";
+import { favSongSchema, songSchema } from "shared/schemas/song.schema";
 import type { CreateSongCredentials } from "../types/song.types";
 import type { UpdateSongAlbumInput } from "shared/schemas/song.schema";
 
@@ -29,4 +29,13 @@ export const updateSongAlbumService = async (songId: string, { albumId }: Update
 
 export const deleteSongService = async (songId: string) => {
     await api.delete(`/songs/${songId}`)
+}
+
+export const getFavSongsService = async () => {
+    const res = await api.get('/songs/fav')
+    return favSongSchema.array().parse(res.data)
+}
+
+export const toggleFavSongService = async (songId: string) => {
+    await api.post(`/songs/${songId}/fav`)
 }
