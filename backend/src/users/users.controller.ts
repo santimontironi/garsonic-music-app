@@ -19,6 +19,12 @@ export class UsersController {
     return this.usersService.findFavArtists(req.user!.sub)
   }
 
+  @Get('me/stats')
+  @Roles('ARTIST')
+  findStats(@Req() req: Request) {
+    return this.usersService.findStats(req.user!.sub)
+  }
+
   @Get(':id')
   findOne(@Req() req: Request, @Param('id', ParseUUIDPipe) id: string) {
     return this.usersService.findById(req.user!.sub, id)

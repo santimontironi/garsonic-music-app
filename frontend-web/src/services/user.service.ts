@@ -1,6 +1,6 @@
 import api from "./api";
 import { userSchema, userSummarySchema } from "shared/schemas/auth.schema";
-import { userProfileSchema } from "shared/schemas/user.schema";
+import { artistStatsSchema, userProfileSchema } from "shared/schemas/user.schema";
 import type { UpdateUserPayload } from "../types/user.types";
 
 export const getUserByIdService = async (id: string) => {
@@ -25,4 +25,9 @@ export const getFavArtistsService = async () => {
 
 export const toggleFavArtistService = async (artistId: string) => {
     await api.post(`/users/${artistId}/fav`)
+}
+
+export const getArtistStatsService = async () => {
+    const res = await api.get('/users/me/stats')
+    return artistStatsSchema.parse(res.data)
 }

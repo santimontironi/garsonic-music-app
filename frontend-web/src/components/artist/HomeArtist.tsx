@@ -1,11 +1,9 @@
 import { useMe } from "../../hooks/auth/useMe"
 import { useMySongs } from "../../hooks/song/useMySongs"
-import { useMyAlbums } from "../../hooks/album/useMyAlbums"
 import type { SideNavArtistSections } from "../../types/general.types"
 import Logo from "../ui/Logo"
 import SongList from "../songs/SongList"
 import QuickAccessArtist from "./QuickAccessArtist"
-import HomeArtistStats from "./HomeArtistStats"
 import { usePlayer } from "../../context/PlayerContext"
 
 type Props = {
@@ -15,13 +13,10 @@ type Props = {
 const HomeArtist = ({ setSection }: Props) => {
   const { data: user } = useMe()
   const { data: songs } = useMySongs()
-  const { data: albums } = useMyAlbums()
   const { playQueue } = usePlayer()
 
   const artistName = user ? user.username : ""
   const recentTracks = songs?.slice(0, 5).map(song => ({ ...song, artistName })) ?? []
-
-  const totalMinutes = Math.round((songs?.reduce((acc, song) => acc + song.durationSec, 0) ?? 0) / 60)
 
   return (
     <section className="flex flex-col gap-8 md:gap-12">
@@ -62,12 +57,6 @@ const HomeArtist = ({ setSection }: Props) => {
             <Logo />
           </div>
         </div>
-      </div>
-
-      <div className="grid gap-5 sm:grid-cols-3">
-        <HomeArtistStats label="Canciones" value={songs?.length ?? 0} icon="bi-music-note-beamed" bg="bg-coral" />
-        <HomeArtistStats label="Álbumes" value={albums?.length ?? 0} icon="bi-vinyl-fill" bg="bg-green" />
-        <HomeArtistStats label="Minutos de música" value={totalMinutes} icon="bi-clock-fill" bg="bg-button" />
       </div>
 
       <div className="flex flex-col gap-5">

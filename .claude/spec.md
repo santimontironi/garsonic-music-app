@@ -52,9 +52,10 @@ Decisiones:
 ## Autenticación y mails
 
 - **Autenticación:** JWT guardado en cookies.
-- **Envío de mails:** Nodemailer, para dos casos:
+- **Envío de mails:** Nodemailer, para tres casos:
   - Confirmar la cuenta del usuario: al confirmarla, `User.emailVerified` pasa a `true`.
   - Recuperar la clave (ver Olvidé mi contraseña).
+  - Avisar que se cambió la clave (ver Cambiar clave).
 
 ## Olvidé mi contraseña
 
@@ -65,7 +66,21 @@ Usa el mismo patrón que la confirmación de cuenta: un JWT con secret propio, s
 - **Token:** JWT de 20 minutos con `{ sub: user.id }`, firmado con `JWT_FORGOT_SECRET` concatenado con el hash de la clave actual del usuario. Al cambiar la clave cambia el hash y el link deja de servir, así que es de uso único. Para verificarlo, primero se lee el `sub` con `decode` (sin verificar), se busca el usuario y después se verifica con su secret.
 - Los dos endpoints llevan `@Throttle` de 5 por minuto, como login y register.
 - **Front:** el `ForgotPasswordModal` del login llama al primer endpoint y muestra el mensaje. La página `/recuperar-clave/:token` tiene el formulario de la clave nueva (con confirmación) y, si sale bien, redirige al login.
-- Es distinto de "cambiar clave", que se hace con la sesión iniciada desde el perfil.
+- Es distinto de "cambiar clave", que se hace con la sesión iniciada desde el perfil (ver Cambiar clave).
+
+## Cambiar clave
+
+Para ambos roles (USER y ARTIST), con la sesión iniciada.
+
+- `PATCH /auth/password` con `{ currentPassword, newPassword }`, requiere login y no tiene restricción de rol.
+- **Validaciones:**
+  - `newPassword` sigue las mismas reglas que la clave del registro y tiene que ser distinta de `currentPassword`.
+  - Si `currentPassword` no coincide con la clave guardada → 400 con un mensaje claro.
+- **Si sale bien:** hashea y guarda la clave nueva y le manda al usuario un mail de aviso ("tu contraseña se cambió. Si no fuiste vos, recuperá tu cuenta desde 'Olvidé mi contraseña'"). La sesión **no** se cierra: el usuario sigue logueado.
+- Lleva `@Throttle` de 5 por minuto, como login y register.
+- Efecto secundario buscado: los links de "Olvidé mi contraseña" pedidos antes del cambio dejan de servir, porque su firma depende del hash de la clave.
+- Las otras sesiones abiertas (otros navegadores) siguen válidas hasta que vence su JWT: el backend no guarda sesiones.
+- **Front:** el botón "Cambiar clave" y el modal con el formulario están dentro de la sección del perfil, en el panel de los dos roles. El formulario tiene clave actual, clave nueva y confirmación de la clave nueva; la confirmación se valida solo en el front. Si sale bien, muestra un mensaje de éxito y cierra el modal.
 
 ## Imágenes
 
@@ -83,6 +98,9 @@ La sección "Estadísticas" del panel de artista muestra, por ahora, solo lo que
 | Favoritos por canción y canciones más guardadas | Cantidad de `FavSong` por canción. |
 | En cuántas playlists aparece cada canción | Cantidad de `SongPlaylist` por canción. |
 | Total de canciones, álbumes y singles | `Song` y `Album` del artista; los singles son las canciones con `albumId = null`. |
+| Minutos de música | Suma de `durationSec` de las canciones del artista, redondeada a minutos. |
+
+Todo sale de un único endpoint `GET /users/me/stats` (solo ARTIST). Las tarjetas de totales viven solo en esta sección, no en el home del artista. La tabla de canciones muestra solo las que tienen al menos un favorito o una playlist.
 
 Las reproducciones quedan afuera hasta que exista el reproductor: no hay tabla ni campo que las cuente. A futuro se evaluará agregar una tabla `Play` (canción, usuario y fecha) para tener reproducciones por período y oyentes únicos.
 
@@ -95,7 +113,6 @@ Todos los endpoints tienen rate limit, contado por IP con `@nestjs/throttler`.
 - Al pasarse del límite responde **429** con el mensaje `Demasiadas solicitudes, probá de nuevo en un minuto`.
 - El backend usa `trust proxy = 1` para tomar la IP real del cliente detrás del proxy de Vercel.
 - El contador vive en memoria: en Vercel cada instancia lleva el suyo, así que el límite es por instancia. Si hace falta un límite exacto, se conecta Redis como storage.
-- Pendiente: cuando exista el endpoint de cambiar clave, lleva `@Throttle` con 5/min como login y register.
 
 ## Búsqueda
 
@@ -222,10 +239,10 @@ Todo lo que entra a `master` se deploya a producción en Vercel, tanto `backend`
 
 ## Estado actual
 
-- **Backend:** módulos `auth`, `users` (perfil público, editar perfil, artistas favoritos), `albumes`, `songs` (incluye canciones favoritas), `genres`, `playlists`, `search` y `contact`, con Prisma, Cloudinary, mails y rate limiting.
-- **Frontend web:** landing (con formulario de contacto), login, registro, confirmación de cuenta, olvidé mi contraseña y los paneles de USER y ARTIST (búsqueda, perfiles, playlists, álbumes, canciones, reproductor, artistas favoritos y canciones favoritas).
+- **Backend:** módulos `auth`, `users` (perfil público, editar perfil, artistas favoritos, estadísticas del artista), `albumes`, `songs` (incluye canciones favoritas), `genres`, `playlists`, `search` y `contact`, con Prisma, Cloudinary, mails y rate limiting.
+- **Frontend web:** landing (con formulario de contacto), login, registro, confirmación de cuenta, olvidé mi contraseña y los paneles de USER y ARTIST (búsqueda, perfiles, playlists, álbumes, canciones, reproductor, artistas favoritos, canciones favoritas y estadísticas del artista).
 - **Pendiente:**
-  - Estadísticas del artista (`Stats` es un stub).
-  - Endpoint de cambiar clave (con su `@Throttle`, ver Rate limiting).
+  - ~~Estadísticas del artista (`Stats` era un stub).~~ Hecho. Falta evaluar la tabla `Play` para sumar reproducciones (ver Estadísticas del artista).
+  - Cambiar clave (ver Cambiar clave).
   - Frontend mobile (ver Reutilización en mobile). Antes, el backend tiene que aceptar el JWT también por `Authorization: Bearer`, porque hoy solo lo lee de la cookie.
   - Pendientes del deploy (ver Pendientes antes del deploy).
