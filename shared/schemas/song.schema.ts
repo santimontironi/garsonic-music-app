@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { albumSchema } from "./album.schema.js";
-import { userSchema } from "./auth.schema.js";
+import { userRefSchema, userSchema } from "./auth.schema.js";
 import { genreSchema } from "./genre.schema.js";
 
 export const createSongSchema = z.object({
@@ -22,6 +22,12 @@ const songBaseSchema = createSongSchema.extend({
 
 export const songSchema = songBaseSchema.extend({
     album: albumSchema.nullish()
+})
+
+// el álbum trae su portada para usarla cuando la canción no tiene una propia
+export const favSongSchema = songBaseSchema.extend({
+    artist: userRefSchema,
+    album: albumSchema.pick({ id: true, title: true, cover: true }).nullish(),
 })
 
 export const albumWithSongsSchema = albumSchema.extend({

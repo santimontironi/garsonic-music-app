@@ -66,7 +66,7 @@ const SongMenu = ({ song }: SongMenuProps) => {
       {modal === "delete" && (
         <ConfirmDeleteModal
           title="Eliminar canción"
-          message={<>¿Eliminar <span className="font-bold break-words">{song.title}</span>? También se quita de las playlists y no se puede deshacer.</>}
+          message={<>¿Eliminar <span className="font-bold wrap-break-word">{song.title}</span>? También se quita de las playlists y no se puede deshacer.</>}
           isPending={deleteSong.isPending}
           error={deleteSong.error}
           onConfirm={() => deleteSong.mutate(song.id, { onSuccess: () => setModal(null) })}

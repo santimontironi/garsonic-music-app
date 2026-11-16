@@ -115,13 +115,14 @@ const PlaylistDetail = ({ playlistId, onBack }: PlaylistDetailProps) => {
               message="Todavía no agregaste canciones a esta playlist."
             />
           ) : (
-            <ul className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 xl:grid-cols-5">
+            <ul className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 xl:grid-cols-4 2xl:grid-cols-5">
               {songs.map((song, i) => (
                 <li key={song.id}>
                   <SongCard
                     song={song}
                     artistName={song.artist.username}
                     onPlay={() => playQueue(tracks, i)}
+                    showFav={me?.role === "USER"}
                     onRemove={isOwner ? () => setSongToRemove(song) : undefined}
                   />
                 </li>
@@ -134,7 +135,7 @@ const PlaylistDetail = ({ playlistId, onBack }: PlaylistDetailProps) => {
       {playlist && songToRemove && (
         <ConfirmDeleteModal
           title="Quitar canción"
-          message={<>¿Quitar <span className="font-bold wrap-break-words">{songToRemove.title}</span> de la playlist?</>}
+          message={<>¿Quitar <span className="font-bold wrap-break-word">{songToRemove.title}</span> de la playlist?</>}
           isPending={removeSong.isPending}
           error={removeSong.error}
           onConfirm={() => removeSong.mutate({ playlistId: playlist.id, songId: songToRemove.id }, { onSuccess: () => setSongToRemove(null) })}
@@ -145,7 +146,7 @@ const PlaylistDetail = ({ playlistId, onBack }: PlaylistDetailProps) => {
       {playlist && confirmOpen && (
         <ConfirmDeleteModal
           title="Eliminar playlist"
-          message={<>¿Eliminar <span className="font-bold wrap-break-words">{playlist.name}</span>? No se puede deshacer.</>}
+          message={<>¿Eliminar <span className="font-bold wrap-break-word">{playlist.name}</span>? No se puede deshacer.</>}
           isPending={deletePlaylist.isPending}
           error={deletePlaylist.error}
           onConfirm={() => deletePlaylist.mutate(playlist.id, { onSuccess: onBack })}

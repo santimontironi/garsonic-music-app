@@ -2,7 +2,7 @@ import { BadRequestException, Body, Controller, Get, Param, Post, Req, Res, Uplo
 import { FileInterceptor } from '@nestjs/platform-express'
 import { Throttle } from '@nestjs/throttler'
 import type { Request, Response } from 'express'
-import { loginSchema, registerSchema, type LoginInput, type RegisterInput } from 'shared/schemas/auth.schema'
+import { forgotPasswordSchema, loginSchema, registerSchema, resetPasswordSchema, type ForgotPasswordInput, type LoginInput, type RegisterInput, type ResetPasswordInput } from 'shared/schemas/auth.schema'
 import { ZodValidationPipe } from '../common/pipes/zod.validation.pipe.js'
 import { AuthService } from './auth.service.js'
 import { JwtAuthGuard } from './guards/jwt-auth.guard.js'
@@ -34,6 +34,21 @@ export class AuthController {
   @Post('confirm/:token')
   confirm(@Param('token') token: string) {
     return this.authService.confirm(token)
+  }
+
+  @Throttle({ default: { ttl: 60_000, limit: 5 } })
+  @Post('forgot-password')
+  forgotPassword(@Body(new ZodValidationPipe(forgotPasswordSchema)) body: ForgotPasswordInput) {
+    return this.authService.forgotPassword(body)
+  }
+
+  @Throttle({ default: { ttl: 60_000, limit: 5 } })
+  @Post('forgot-password/:token')
+  resetPassword(
+    @Param('token') token: string,
+    @Body(new ZodValidationPipe(resetPasswordSchema)) body: ResetPasswordInput
+  ) {
+    return this.authService.resetPassword(token, body)
   }
 
   @Throttle({ default: { ttl: 60_000, limit: 5 } })

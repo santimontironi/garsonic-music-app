@@ -48,7 +48,7 @@ const MyAlbums = () => {
       )}
 
       {albums && albums.length > 0 && (
-        <ul className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 xl:grid-cols-5">
+        <ul className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 xl:grid-cols-4 2xl:grid-cols-5">
           {albums.map(album => (
             <li key={album.id}>
               <AlbumCard album={album} onClick={() => setSelectedAlbumId(album.id)} />
