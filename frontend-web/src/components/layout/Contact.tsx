@@ -2,16 +2,16 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { contactSchema, type ContactInput } from "shared/schemas/contact.schema"
 import SectionLabel from "../ui/SectionLabel.tsx"
+import { useSendContact } from "../../hooks/contact/useSendContact"
 
 const Contact = () => {
   const { register, handleSubmit, formState: { errors }, reset } = useForm<ContactInput>({
     resolver: zodResolver(contactSchema),
   })
 
-  // todavía no envía nada: valida y limpia el formulario
-  function formSubmit() {
-    reset()
-  }
+  const { mutate: sendContact, isPending, isError, isSuccess, error } = useSendContact()
+
+  const formSubmit = (data: ContactInput) => sendContact(data, { onSuccess: () => reset() })
 
   return (
     <div className="grid border-t-4 border-black xl:grid-cols-[20rem_1fr]">
@@ -70,11 +70,15 @@ const Contact = () => {
             {errors.message && <p className="w-fit bg-coral px-2 py-1 text-xs">{errors.message.message}</p>}
           </div>
 
+          {isError && <p role="alert" className="w-fit bg-coral px-2 py-1 text-xs md:col-span-2">{error.message}</p>}
+          {isSuccess && <p role="status" className="w-fit bg-green px-2 py-1 text-xs md:col-span-2">¡Mensaje enviado! Te respondemos en pocos días.</p>}
+
           <button
             type="submit"
-            className="flex w-fit cursor-pointer items-center gap-2 border-2 border-black bg-green px-6 py-3 text-xs uppercase press focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-black md:text-sm"
+            disabled={isPending}
+            className="flex w-fit cursor-pointer items-center gap-2 border-2 border-black bg-green px-6 py-3 text-xs uppercase press focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-black disabled:pointer-events-none disabled:opacity-60 md:text-sm"
           >
-            Enviar mensaje
+            {isPending ? "Enviando..." : "Enviar mensaje"}
           </button>
         </form>
       </div>

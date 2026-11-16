@@ -142,7 +142,8 @@ Todos los endpoints tienen rate limit, contado por IP con `@nestjs/throttler`.
 
 - `POST /contact`: público, sin login. El body se valida con `contactSchema` de `shared` (`name`, `email`, `message`).
 - Rate limit de 5 por minuto con `@Throttle`, igual que login y register, porque es público y se puede usar para spam.
-- Nodemailer manda el mensaje al mail del equipo, que se configura con la variable `CONTACT_EMAIL`. El `email` de quien escribe va como `replyTo`, para poder responderle directo.
+- Nodemailer manda el mensaje a la misma cuenta que envía los mails (`EMAIL_USER`), así que no hace falta otra variable. El `email` de quien escribe va como `replyTo`, para poder responderle directo. Lo que escribe el usuario se escapa antes de meterlo en el HTML del mail.
+- Si el mail no sale, responde 503 y el front muestra el error.
 - El formulario de la landing (`Contact`) llama al endpoint, muestra un mensaje de éxito o de error y se limpia solo si el envío salió bien.
 
 ## Visibilidad de playlist
@@ -221,10 +222,9 @@ Todo lo que entra a `master` se deploya a producción en Vercel, tanto `backend`
 
 ## Estado actual
 
-- **Backend:** módulos `auth`, `users` (perfil público, editar perfil, artistas favoritos), `albumes`, `songs` (incluye canciones favoritas), `genres`, `playlists` y `search`, con Prisma, Cloudinary, mails y rate limiting.
-- **Frontend web:** landing, login, registro, confirmación de cuenta y los paneles de USER y ARTIST (búsqueda, perfiles, playlists, álbumes, canciones, reproductor, artistas favoritos y canciones favoritas).
+- **Backend:** módulos `auth`, `users` (perfil público, editar perfil, artistas favoritos), `albumes`, `songs` (incluye canciones favoritas), `genres`, `playlists`, `search` y `contact`, con Prisma, Cloudinary, mails y rate limiting.
+- **Frontend web:** landing (con formulario de contacto), login, registro, confirmación de cuenta y los paneles de USER y ARTIST (búsqueda, perfiles, playlists, álbumes, canciones, reproductor, artistas favoritos y canciones favoritas).
 - **Pendiente:**
-  - Formulario de contacto: hoy valida y se limpia sin enviar nada (ver Contacto).
   - Olvidé mi contraseña: el `ForgotPasswordModal` existe, pero no hay endpoints ni mail (ver Olvidé mi contraseña).
   - Estadísticas del artista (`Stats` es un stub).
   - Endpoint de cambiar clave (con su `@Throttle`, ver Rate limiting).

@@ -11,6 +11,7 @@ import { PlaylistsModule } from './playlists/playlists.module.js';
 import { GenresModule } from './genres/genres.module.js';
 import { UsersModule } from './users/users.module.js';
 import { SearchModule } from './search/search.module.js';
+import { ContactModule } from './contact/contact.module.js';
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import { SearchModule } from './search/search.module.js';
       throttlers: [{ ttl: 60_000, limit: 70 }],
       errorMessage: 'Demasiadas solicitudes, probá de nuevo en un minuto',
     }),
-    PrismaModule, CloudinaryModule, MailModule, AuthModule, SongsModule, AlbumesModule, PlaylistsModule, GenresModule, UsersModule, SearchModule,
+    PrismaModule, CloudinaryModule, MailModule, AuthModule, SongsModule, AlbumesModule, PlaylistsModule, GenresModule, UsersModule, SearchModule, ContactModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
