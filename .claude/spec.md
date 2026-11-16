@@ -5,10 +5,22 @@
 | Carpeta | Contenido |
 |---|---|
 | `backend/` | API en NestJS (TypeScript, ESM) con Prisma y PostgreSQL. Tests con Vitest. |
-| `frontend-web/` | Web en React 19 + Vite + Tailwind 4, con `react-router-dom` y `axios`. |
-| `shared/` | Paquete compartido entre front y back (todavía vacío). |
+| `frontend-web/` | Web en React 19 + Vite + Tailwind 4, con `react-router-dom`, `axios`, TanStack Query y `react-hook-form` + Zod. |
+| `shared/` | Paquete compartido entre front y back: schemas de Zod en `shared/schemas` (validan los bodies en el backend y las respuestas y formularios en el front; los tipos salen con `z.infer`). |
 
 Cuando el frontend web esté terminado, se empieza el frontend Android/iOS en React Native, que consume la misma API del backend.
+
+### Reutilización en mobile
+
+Lo único compartido son los schemas de `shared/schemas`, que son el contrato de datos (los tipos salen de ahí con `z.infer`). Los `services`, `types` y `hooks` de `frontend-web/src` **se copian** a `frontend-mobile/src` y no se mueven a un paquete compartido:
+
+- Son pocos y finos (cada service es una llamada de axios más un `parse` contra el schema). Compartirlos obligaría a inyectar la instancia de axios de cada app (un `setApi()` en el paquete), y esa complejidad no se justifica al arrancar.
+- Si el backend cambia la forma de una respuesta, el `parse()` falla en las dos apps, así que esa divergencia se detecta sola. Lo que **no** se detecta es un cambio de ruta o de parámetros: al tocar un endpoint hay que actualizar los services de las dos apps.
+- Si mantener las dos copias sincronizadas se vuelve frecuente, se pasan los services a `shared` con el patrón `setApi()`.
+- Cada app tiene su propio `api.ts` y sus services adaptados, porque cambian tres cosas:
+  1. **URL del backend:** la web usa `import.meta.env.VITE_BACKEND_URL` (propio de Vite); mobile usa las variables de su entorno (por ejemplo Expo).
+  2. **Autenticación:** en React Native las cookies no son confiables. Mobile guarda el JWT en `SecureStore` y lo manda en `Authorization: Bearer ...`, así que el backend tiene que aceptar el token también por header, no solo por cookie.
+  3. **Archivos:** la web manda un `File` en el `FormData`; en React Native no existe `File` y se manda `{ uri, name, type }`.
 
 ## Modelo de datos
 
@@ -139,12 +151,35 @@ El backend consume `shared` compilado (`shared/dist`, en `.gitignore`) y el clie
 - `prebuild` (antes de `npm run build`, el que corre Vercel): compila `shared` y corre `prisma generate`.
 - `prestart:dev` (antes de `npm run start:dev`): compila `shared`. Si se cambia un schema de `shared` con el backend corriendo, hay que reiniciarlo.
 
+### CD (deploy continuo)
+
+Todo lo que entra a `master` se deploya a producción en Vercel, tanto `backend` como `frontend-web`. No se usa la integración de Git de Vercel: el CD lo hace GitHub Actions con la CLI de Vercel (es a propósito, para practicar el flujo por terminal).
+
+- **Proyectos:** dos proyectos en Vercel creados con `vercel link`, con Root Directory `backend` y `frontend-web`. Ninguno está conectado al repo de GitHub, así que Vercel no se entera de los pushes y no deploya por su cuenta. Si `vercel link` ofrece conectar el repo, hay que rechazarlo.
+- **Workflow:** se extiende `.github/workflows/ci.yml` para que también corra en los push a `master`. Los jobs de deploy corren solo en ese caso y dependen de los jobs de lint y typecheck (`needs`), así que no se deploya un commit que no pasa los checks. `master` tiene branch protection: para mergear hay que pasar el CI y no se puede pushear directo.
+- **Pasos de cada deploy**, desde la raíz del repo (la CLI toma el Root Directory de los settings que baja `vercel pull`; correrlos desde la subcarpeta duplica la ruta):
+  1. `vercel pull --yes --environment=production --token=...`
+  2. `vercel build --prod --token=...` (el build se hace en el runner de GitHub)
+  3. `vercel deploy --prebuilt --prod --token=...`
+- **Migraciones:** el job del backend corre `prisma migrate deploy` contra la base de producción antes de deployar. Si la migración falla, no se deploya nada.
+- **Orden:** el deploy del frontend espera al del backend (`needs: [deploy-backend]`), para que un front nuevo nunca le pegue a un backend viejo.
+- **Secretos en GitHub:** `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID_BACKEND`, `VERCEL_PROJECT_ID_FRONTEND` y `DATABASE_URL` (producción).
+- **Limitaciones aceptadas:** se deployan los dos proyectos en cada merge aunque haya cambiado uno solo (se puede filtrar por paths más adelante), y no hay deploys de preview (serían otro job con `vercel deploy` sin `--prod`).
+
 ### Pendientes antes del deploy
 
 - **Renombrar el paquete `shared` a `@garsonic/shared`:** existe un paquete público `shared` en npm; si la instalación se hiciera desde la subcarpeta sin workspaces, se bajaría ese (dependency confusion).
 - **Vercel:** verificar que esté activo "Include files outside the root directory in the Build Step", para que el build acceda a `shared/`.
+- **CD:** crear los proyectos con `vercel link`, cargar los secretos en GitHub y sumar los jobs de deploy a `ci.yml` (ver CD).
+- **Tests en el CI:** agregar `npm run test -w backend`; hoy el CI solo hace lint y typecheck.
 
 ## Estado actual
 
-- Backend: NestJS recién inicializado (solo `main.ts` y `app.module.ts`). Prisma todavía no está instalado, y falta el `prisma.config.ts` con la URL de la base.
-- Frontend: Vite + React inicializado, sin pantallas todavía.
+- **Backend:** módulos `auth`, `users` (perfil público, editar perfil, artistas favoritos), `albumes`, `songs`, `genres`, `playlists` y `search`, con Prisma, Cloudinary, mails y rate limiting.
+- **Frontend web:** landing, login, registro, confirmación de cuenta y los paneles de USER y ARTIST (búsqueda, perfiles, playlists, álbumes, canciones, reproductor y artistas favoritos).
+- **Pendiente:**
+  - Canciones favoritas (`FavSong`): ni endpoints ni sección (`FavoriteSongs` es un stub).
+  - Estadísticas del artista (`Stats` es un stub).
+  - Endpoint de cambiar clave (con su `@Throttle`, ver Rate limiting).
+  - Frontend mobile (ver Reutilización en mobile). Antes, el backend tiene que aceptar el JWT también por `Authorization: Bearer`, porque hoy solo lo lee de la cookie.
+  - Pendientes del deploy (ver Pendientes antes del deploy).
