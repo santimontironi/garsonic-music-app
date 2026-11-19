@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
-import type { CreateSongInput, UpdateSongAlbumInput } from 'shared/schemas/song.schema'
+import type { CreateSongBody, UpdateSongAlbumInput } from 'shared/schemas/song.schema'
 import { CloudinaryService } from '../cloudinary/cloudinary.service.js'
 import { PrismaService } from '../prisma/prisma.service.js'
 
@@ -78,29 +78,53 @@ export class SongsService {
     ])
   }
 
-  async create(artistId: string, { title, albumId, genreId }: CreateSongInput, audio: Express.Multer.File, cover?: Express.Multer.File) {
-    if (albumId) {
-      const album = await this.prisma.album.findFirst({ where: { id: albumId, artistId } })
-      if (!album) throw new NotFoundException('Álbum no encontrado')
+  // Cada artista sube a su propia subcarpeta, así create() puede comprobar que los archivos son suyos
+  getUploadSignature(artistId: string) {
+    const timestamp = Math.round(Date.now() / 1000)
+    const audioFolder = `songs/audio/${artistId}`
+    const coverFolder = `songs/covers/${artistId}`
+
+    return {
+      cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+      apiKey: process.env.CLOUDINARY_API_KEY,
+      timestamp,
+      audio: { folder: audioFolder, signature: this.cloudinary.sign(audioFolder, timestamp) },
+      cover: { folder: coverFolder, signature: this.cloudinary.sign(coverFolder, timestamp) }
+    }
+  }
+
+  async create(artistId: string, { title, albumId, genreId, audioPublicId, coverPublicId }: CreateSongBody) {
+    // Antes de tocar nada: si los archivos no son de este artista o ya los usa otra canción, no se borran al fallar
+    if (!audioPublicId.startsWith(`songs/audio/${artistId}/`) || (coverPublicId && !coverPublicId.startsWith(`songs/covers/${artistId}/`))) {
+      throw new BadRequestException('Los archivos no corresponden a tu cuenta')
     }
 
-    const genre = await this.prisma.genre.findUnique({ where: { id: genreId } })
-    if (!genre) throw new NotFoundException('Género no encontrado')
+    const usedFile = await this.prisma.song.findFirst({
+      where: { OR: [{ audioPublicId }, ...(coverPublicId ? [{ coverPublicId }] : [])] }
+    })
+    if (usedFile) throw new BadRequestException('Los archivos ya pertenecen a otra canción')
 
-    // Audio y portada suben en paralelo; allSettled permite limpiar la que sí subió si la otra falla
-    const [audioResult, coverResult] = await Promise.allSettled([
-      this.cloudinary.upload(audio.buffer, 'songs/audio', 'video'),
-      cover ? this.cloudinary.upload(cover.buffer, 'songs/covers') : Promise.resolve(null)
-    ])
-
+    // Desde acá, si algo falla se borran los archivos que el front subió, para no dejarlos huérfanos
     try {
-      if (audioResult.status === 'rejected') throw audioResult.reason
-      if (coverResult.status === 'rejected') throw coverResult.reason
+      if (albumId) {
+        const album = await this.prisma.album.findFirst({ where: { id: albumId, artistId } })
+        if (!album) throw new NotFoundException('Álbum no encontrado')
+      }
 
-      const uploadedAudio = audioResult.value
-      const uploadedCover = coverResult.value
+      const genre = await this.prisma.genre.findUnique({ where: { id: genreId } })
+      if (!genre) throw new NotFoundException('Género no encontrado')
 
-      if (!uploadedAudio.duration) throw new BadRequestException('No se pudo leer la duración del audio')
+      // El front ya subió los archivos: se piden a Cloudinary para validar tipo, tamaño y duración (lo que mande el front no es confiable)
+      const [audio, cover] = await Promise.all([
+        this.cloudinary.find(audioPublicId, 'video'),
+        coverPublicId ? this.cloudinary.find(coverPublicId) : null
+      ]).catch(() => {
+        throw new BadRequestException('No se encontraron los archivos subidos')
+      })
+
+      if (!audio.isAudio || !audio.duration) throw new BadRequestException('El archivo de la canción debe ser un audio')
+      if (audio.bytes > 20 * 1024 * 1024) throw new BadRequestException('El audio no puede pesar más de 20 MB')
+      if (cover && cover.bytes > 4 * 1024 * 1024) throw new BadRequestException('La portada no puede pesar más de 4 MB')
 
       return await this.prisma.song.create({
         data: {
@@ -108,19 +132,19 @@ export class SongsService {
           albumId,
           genreId,
           title,
-          durationSec: Math.round(uploadedAudio.duration),
-          audioUrl: uploadedAudio.url,
-          audioPublicId: uploadedAudio.publicId,
-          cover: uploadedCover?.url,
-          coverPublicId: uploadedCover?.publicId
+          durationSec: Math.round(audio.duration),
+          audioUrl: audio.url,
+          audioPublicId,
+          cover: cover?.url,
+          coverPublicId
         },
         omit: { audioPublicId: true, coverPublicId: true },
         include: { album: { omit: { coverPublicId: true } }, genre: true }
       })
     } catch (error) {
       await Promise.allSettled([
-        audioResult.status === 'fulfilled' && this.cloudinary.remove(audioResult.value.publicId, 'video'),
-        coverResult.status === 'fulfilled' && coverResult.value && this.cloudinary.remove(coverResult.value.publicId)
+        this.cloudinary.remove(audioPublicId, 'video'),
+        coverPublicId && this.cloudinary.remove(coverPublicId)
       ])
       throw error
     }
