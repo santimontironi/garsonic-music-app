@@ -1,8 +1,8 @@
-import { BadRequestException, Body, Controller, Get, Param, Post, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common'
+import { BadRequestException, Body, Controller, Get, Param, Patch, Post, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
 import { Throttle } from '@nestjs/throttler'
 import type { Request, Response } from 'express'
-import { forgotPasswordSchema, loginSchema, registerSchema, resetPasswordSchema, type ForgotPasswordInput, type LoginInput, type RegisterInput, type ResetPasswordInput } from 'shared/schemas/auth.schema'
+import { changePasswordSchema, forgotPasswordSchema, loginSchema, registerSchema, resetPasswordSchema, type ChangePasswordInput, type ForgotPasswordInput, type LoginInput, type RegisterInput, type ResetPasswordInput } from 'shared/schemas/auth.schema'
 import { ZodValidationPipe } from '../common/pipes/zod.validation.pipe.js'
 import { AuthService } from './auth.service.js'
 import { JwtAuthGuard } from './guards/jwt-auth.guard.js'
@@ -73,6 +73,16 @@ export class AuthController {
   @Get('me')
   async me(@Req() req: Request) {
     return this.authService.me(req.user!.sub)
+  }
+
+  @Throttle({ default: { ttl: 60_000, limit: 5 } })
+  @UseGuards(JwtAuthGuard)
+  @Patch('password')
+  changePassword(
+    @Req() req: Request,
+    @Body(new ZodValidationPipe(changePasswordSchema)) body: ChangePasswordInput
+  ) {
+    return this.authService.changePassword(req.user!.sub, body)
   }
 
   @Post('logout')

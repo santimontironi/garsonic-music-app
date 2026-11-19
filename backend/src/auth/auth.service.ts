@@ -6,8 +6,9 @@ import type { User } from '../generated/prisma/client.js'
 import { MailService } from '../mail/mail.service.js'
 import { confirmTemplate } from '../mail/templates/confirm.template.js'
 import { forgotTemplate } from '../mail/templates/forgot.template.js'
+import { passwordChangedTemplate } from '../mail/templates/password-changed.template.js'
 import { PrismaService } from '../prisma/prisma.service.js'
-import type { ForgotPasswordInput, LoginInput, RegisterInput, ResetPasswordInput } from 'shared/schemas/auth.schema'
+import type { ChangePasswordInput, ForgotPasswordInput, LoginInput, RegisterInput, ResetPasswordInput } from 'shared/schemas/auth.schema'
 
 @Injectable()
 export class AuthService {
@@ -88,6 +89,24 @@ export class AuthService {
     }
 
     await this.prisma.user.update({ where: { id: user.id }, data: { password: await bcrypt.hash(password, 10) } })
+
+    return { message: 'Contraseña actualizada correctamente' }
+  }
+
+  async changePassword(id: string, { currentPassword, newPassword }: ChangePasswordInput) {
+    const user = await this.prisma.user.findUnique({ where: { id } })
+    if (!user) throw new NotFoundException('Usuario no encontrado')
+
+    if (!(await bcrypt.compare(currentPassword, user.password))) {
+      throw new BadRequestException('La contraseña actual es incorrecta')
+    }
+
+    // al cambiar el hash, los links de "Olvidé mi contraseña" pedidos antes dejan de servir
+    await this.prisma.user.update({ where: { id }, data: { password: await bcrypt.hash(newPassword, 10) } })
+
+    // si el mail falla, la clave igual queda cambiada
+    const { subject, html } = passwordChangedTemplate(user.name)
+    await this.mail.send(user.email, subject, html)
 
     return { message: 'Contraseña actualizada correctamente' }
   }
