@@ -9,9 +9,9 @@ type InputImageProps = {
   onChange?: (file: File | null) => void
 }
 
-const btn = "cursor-pointer border-2 border-black bg-green px-3 py-1 text-xs font-bold focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black"
+const btn = "cursor-pointer border-2 border-black bg-green px-3 py-1 text-xs focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black"
 
-const InputImage = ({ id, name, label, maxSizeMB = 5, error, onChange }: InputImageProps) => {
+const InputImage = ({ id, name, label, maxSizeMB = 4, error, onChange }: InputImageProps) => {
   const inputRef = useRef<HTMLInputElement>(null)
   const [preview, setPreview] = useState<string | null>(null)
   const [localError, setLocalError] = useState("")

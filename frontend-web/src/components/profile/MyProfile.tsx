@@ -6,10 +6,13 @@ import { useMe } from "../../hooks/auth/useMe"
 import { useUpdateUser } from "../../hooks/user/useUpdateUser"
 import Loader from "../ui/Loader"
 import ProfileHeader from "./ProfileHeader"
+import ChangePasswordModal from "./ChangePasswordModal"
 
 const MyProfile = () => {
   const { data: user, isPending: isLoading } = useMe()
   const [isEditingUsername, setIsEditingUsername] = useState(false)
+  const [showChangePassword, setShowChangePassword] = useState(false)
+  const [passwordMessage, setPasswordMessage] = useState<string | null>(null)
   const { mutate: updateUser, isPending, isError, error, reset: resetMutation } = useUpdateUser()
 
   const { register, handleSubmit, reset: resetForm, formState: { errors } } = useForm({
@@ -106,8 +109,8 @@ const MyProfile = () => {
               </div>
             )}
 
-            {errors.username && <p className="text-xs text-red-600">{errors.username.message}</p>}
-            {isError && <p className="text-xs text-red-600">{error.message}</p>}
+            {errors.username && <p className="w-fit border-2 border-black bg-coral px-2 py-0.5 text-xs">{errors.username.message}</p>}
+            {isError && <p className="w-fit border-2 border-black bg-coral px-2 py-0.5 text-xs">{error.message}</p>}
           </>
         }
       />
@@ -125,6 +128,28 @@ const MyProfile = () => {
           </div>
         ))}
       </dl>
+
+      <div className="flex flex-col gap-2">
+        <button
+          type="button"
+          onClick={() => setShowChangePassword(true)}
+          className="flex w-fit cursor-pointer items-center gap-2 border-2 border-black bg-button px-5 py-2.5 text-sm font-bold press focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-black md:text-base"
+        >
+          <i className="bi bi-key-fill" aria-hidden="true"></i>
+          Cambiar clave
+        </button>
+        {passwordMessage && <p role="status" className="text-sm">{passwordMessage}</p>}
+      </div>
+
+      {showChangePassword && (
+        <ChangePasswordModal
+          onClose={() => setShowChangePassword(false)}
+          onSuccess={(message) => {
+            setPasswordMessage(message)
+            setShowChangePassword(false)
+          }}
+        />
+      )}
     </section>
   )
 }

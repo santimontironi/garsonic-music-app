@@ -1,5 +1,5 @@
 import api from "./api";
-import { userSchema, type ForgotPasswordInput, type LoginInput, type ResetPasswordInput } from "shared/schemas/auth.schema";
+import { userSchema, type ChangePasswordInput, type ForgotPasswordInput, type LoginInput, type ResetPasswordInput } from "shared/schemas/auth.schema";
 import type { RegisterPayload } from "../types/auth.types";
 
 export const loginService = async (body: LoginInput) => {
@@ -43,4 +43,9 @@ export const forgotPasswordService = async (body: ForgotPasswordInput) => {
 
 export const resetPasswordService = async ({ token, password }: ResetPasswordInput & { token: string }) => {
     await api.post(`/auth/forgot-password/${token}`, { password })
+}
+
+export const changePasswordService = async (body: ChangePasswordInput) => {
+    const res = await api.patch<{ message: string }>('/auth/password', body)
+    return res.data.message
 }

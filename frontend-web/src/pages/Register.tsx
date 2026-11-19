@@ -41,17 +41,17 @@ const Register = () => {
             <p className="text-sm">Sumate a Garsonic para escuchar y publicar música</p>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 sm:gap-5">
+          <div className="grid gap-4 md:grid-cols-2 md:gap-5">
             <div className="flex flex-col gap-1.5">
               <label htmlFor="name" className="text-xs font-bold tracking-wide uppercase">Nombre</label>
               <input id="name" {...register("name")} type="text" autoComplete="given-name" className="w-full border-2 border-black bg-button px-4 py-2.5 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black" />
-              {errors.name && <p className="text-xs text-red-600">{errors.name.message}</p>}
+              {errors.name && <p className="w-fit border-2 border-black bg-coral px-2 py-0.5 text-xs">{errors.name.message}</p>}
             </div>
 
             <div className="flex flex-col gap-1.5">
               <label htmlFor="surname" className="text-xs font-bold tracking-wide uppercase">Apellido</label>
               <input id="surname" {...register("surname")} type="text" autoComplete="family-name" className="w-full border-2 border-black bg-button px-4 py-2.5 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black" />
-              {errors.surname && <p className="text-xs text-red-600">{errors.surname.message}</p>}
+              {errors.surname && <p className="w-fit border-2 border-black bg-coral px-2 py-0.5 text-xs">{errors.surname.message}</p>}
             </div>
 
             <fieldset className="flex flex-col gap-1.5">
@@ -70,32 +70,32 @@ const Register = () => {
 
             <InputImage id="photo" name="photo" label="Foto de perfil" onChange={setPhoto} />
 
-            <div className="flex flex-col gap-1.5 sm:col-span-2">
+            <div className="flex flex-col gap-1.5 md:col-span-2">
               <label htmlFor="username" className="text-xs font-bold tracking-wide uppercase">{isArtist ? "Nombre artistico" : "Usuario"}</label>
               <input id="username" type="text" autoComplete="username" {...register("username")} className="w-full border-2 border-black bg-button px-4 py-2.5 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black" />
-              {errors.username && <p className="text-xs text-red-600">{errors.username.message}</p>}
+              {errors.username && <p className="w-fit border-2 border-black bg-coral px-2 py-0.5 text-xs">{errors.username.message}</p>}
             </div>
 
-            <div className="flex flex-col gap-1.5 sm:col-span-2">
+            <div className="flex flex-col gap-1.5 md:col-span-2">
               <label htmlFor="email" className="text-xs font-bold tracking-wide uppercase">Email</label>
               <input id="email" {...register("email")} type="email" autoComplete="email" className="w-full border-2 border-black bg-button px-4 py-2.5 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black" />
-              {errors.email && <p className="text-xs text-red-600">{errors.email.message}</p>}
+              {errors.email && <p className="w-fit border-2 border-black bg-coral px-2 py-0.5 text-xs">{errors.email.message}</p>}
             </div>
 
-            <div className="flex flex-col gap-1.5 sm:col-span-2">
+            <div className="flex flex-col gap-1.5 md:col-span-2">
               <label htmlFor="password" className="text-xs font-bold tracking-wide uppercase">Contraseña</label>
               <input id="password" {...register("password")} type="password" autoComplete="new-password" className="w-full border-2 border-black bg-button px-4 py-2.5 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black" />
-              {errors.password && <p className="text-xs text-red-600">{errors.password.message}</p>}
+              {errors.password && <p className="w-fit border-2 border-black bg-coral px-2 py-0.5 text-xs">{errors.password.message}</p>}
             </div>
 
-            <div className="flex flex-col gap-1.5 sm:col-span-2">
+            <div className="flex flex-col gap-1.5 md:col-span-2">
               <label htmlFor="bio" className="text-xs font-bold tracking-wide uppercase">Bio (opcional)</label>
               <textarea id="bio" rows={3} {...register("bio")} className="w-full resize-none border-2 border-black bg-button px-4 py-2.5 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black" />
-              {errors.bio && <p className="text-xs text-red-600">{errors.bio.message}</p>}
+              {errors.bio && <p className="w-fit border-2 border-black bg-coral px-2 py-0.5 text-xs">{errors.bio.message}</p>}
             </div>
           </div>
 
-          {isError && <p className="text-center text-sm text-red-600">{error.message}</p>}
+          {isError && <p className="w-fit border-2 border-black bg-coral px-2 py-0.5 text-sm self-center">{error.message}</p>}
           {isSuccess && <p className="text-center text-sm font-bold">¡Listo! Revisá tu email para confirmar la cuenta.</p>}
 
           <button

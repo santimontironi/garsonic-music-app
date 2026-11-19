@@ -19,6 +19,12 @@ export class UsersController {
     return this.usersService.findFavArtists(req.user!.sub)
   }
 
+  @Get('me/stats')
+  @Roles('ARTIST')
+  findStats(@Req() req: Request) {
+    return this.usersService.findStats(req.user!.sub)
+  }
+
   @Get(':id')
   findOne(@Req() req: Request, @Param('id', ParseUUIDPipe) id: string) {
     return this.usersService.findById(req.user!.sub, id)
@@ -33,7 +39,7 @@ export class UsersController {
   @Patch('me')
   @UseInterceptors(
     FileInterceptor('photo', {
-      limits: { fileSize: 5 * 1024 * 1024 },
+      limits: { fileSize: 4 * 1024 * 1024 },
       fileFilter: (_req, file, cb) => {
         if (!file.mimetype.startsWith('image/')) {
           return cb(new BadRequestException('La foto debe ser una imagen'), false)

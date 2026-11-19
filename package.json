@@ -5,7 +5,7 @@
   "description": "Garsonic monorepo root",
   "workspaces": ["shared", "backend", "frontend-web"],
   "scripts": {
-    "prepare": "husky"
+    "prepare": "husky || true"
   },
   "devDependencies": {
     "husky": "^9.1.7"

@@ -65,10 +65,10 @@ const PlaylistDetail = ({ playlistId, onBack }: PlaylistDetailProps) => {
         )}
       </div>
 
-      {updatePlaylist.isError && <p role="alert" className="text-sm text-red-600">{updatePlaylist.error.message}</p>}
+      {updatePlaylist.isError && <p role="alert" className="w-fit border-2 border-black bg-coral px-2 py-0.5 text-sm">{updatePlaylist.error.message}</p>}
 
       {isPending && <div className="py-12"><Loader /></div>}
-      {isError && <p role="alert" className="text-sm text-red-600">{error.message}</p>}
+      {isError && <p role="alert" className="w-fit border-2 border-black bg-coral px-2 py-0.5 text-sm">{error.message}</p>}
 
       {playlist && (
         <>

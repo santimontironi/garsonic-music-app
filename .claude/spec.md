@@ -52,9 +52,10 @@ Decisiones:
 ## Autenticación y mails
 
 - **Autenticación:** JWT guardado en cookies.
-- **Envío de mails:** Nodemailer, para dos casos:
+- **Envío de mails:** Nodemailer, para tres casos:
   - Confirmar la cuenta del usuario: al confirmarla, `User.emailVerified` pasa a `true`.
   - Recuperar la clave (ver Olvidé mi contraseña).
+  - Avisar que se cambió la clave (ver Cambiar clave).
 
 ## Olvidé mi contraseña
 
@@ -65,7 +66,21 @@ Usa el mismo patrón que la confirmación de cuenta: un JWT con secret propio, s
 - **Token:** JWT de 20 minutos con `{ sub: user.id }`, firmado con `JWT_FORGOT_SECRET` concatenado con el hash de la clave actual del usuario. Al cambiar la clave cambia el hash y el link deja de servir, así que es de uso único. Para verificarlo, primero se lee el `sub` con `decode` (sin verificar), se busca el usuario y después se verifica con su secret.
 - Los dos endpoints llevan `@Throttle` de 5 por minuto, como login y register.
 - **Front:** el `ForgotPasswordModal` del login llama al primer endpoint y muestra el mensaje. La página `/recuperar-clave/:token` tiene el formulario de la clave nueva (con confirmación) y, si sale bien, redirige al login.
-- Es distinto de "cambiar clave", que se hace con la sesión iniciada desde el perfil.
+- Es distinto de "cambiar clave", que se hace con la sesión iniciada desde el perfil (ver Cambiar clave).
+
+## Cambiar clave
+
+Para ambos roles (USER y ARTIST), con la sesión iniciada.
+
+- `PATCH /auth/password` con `{ currentPassword, newPassword }`, requiere login y no tiene restricción de rol.
+- **Validaciones:**
+  - `newPassword` sigue las mismas reglas que la clave del registro y tiene que ser distinta de `currentPassword`.
+  - Si `currentPassword` no coincide con la clave guardada → 400 con un mensaje claro.
+- **Si sale bien:** hashea y guarda la clave nueva y le manda al usuario un mail de aviso ("tu contraseña se cambió. Si no fuiste vos, recuperá tu cuenta desde 'Olvidé mi contraseña'"). La sesión **no** se cierra: el usuario sigue logueado.
+- Lleva `@Throttle` de 5 por minuto, como login y register.
+- Efecto secundario buscado: los links de "Olvidé mi contraseña" pedidos antes del cambio dejan de servir, porque su firma depende del hash de la clave.
+- Las otras sesiones abiertas (otros navegadores) siguen válidas hasta que vence su JWT: el backend no guarda sesiones.
+- **Front:** el botón "Cambiar clave" y el modal con el formulario están dentro de la sección del perfil, en el panel de los dos roles. El formulario tiene clave actual, clave nueva y confirmación de la clave nueva; la confirmación se valida solo en el front. Si sale bien, muestra un mensaje de éxito y cierra el modal.
 
 ## Imágenes
 
@@ -83,6 +98,9 @@ La sección "Estadísticas" del panel de artista muestra, por ahora, solo lo que
 | Favoritos por canción y canciones más guardadas | Cantidad de `FavSong` por canción. |
 | En cuántas playlists aparece cada canción | Cantidad de `SongPlaylist` por canción. |
 | Total de canciones, álbumes y singles | `Song` y `Album` del artista; los singles son las canciones con `albumId = null`. |
+| Minutos de música | Suma de `durationSec` de las canciones del artista, redondeada a minutos. |
+
+Todo sale de un único endpoint `GET /users/me/stats` (solo ARTIST). Las tarjetas de totales viven solo en esta sección, no en el home del artista. La tabla de canciones muestra solo las que tienen al menos un favorito o una playlist.
 
 Las reproducciones quedan afuera hasta que exista el reproductor: no hay tabla ni campo que las cuente. A futuro se evaluará agregar una tabla `Play` (canción, usuario y fecha) para tener reproducciones por período y oyentes únicos.
 
@@ -95,7 +113,6 @@ Todos los endpoints tienen rate limit, contado por IP con `@nestjs/throttler`.
 - Al pasarse del límite responde **429** con el mensaje `Demasiadas solicitudes, probá de nuevo en un minuto`.
 - El backend usa `trust proxy = 1` para tomar la IP real del cliente detrás del proxy de Vercel.
 - El contador vive en memoria: en Vercel cada instancia lleva el suyo, así que el límite es por instancia. Si hace falta un límite exacto, se conecta Redis como storage.
-- Pendiente: cuando exista el endpoint de cambiar clave, lleva `@Throttle` con 5/min como login y register.
 
 ## Búsqueda
 
@@ -180,13 +197,23 @@ El backend consume `shared` compilado (`shared/dist`, en `.gitignore`) y el clie
 - `prebuild` (antes de `npm run build`, el que corre Vercel): compila `shared` y corre `prisma generate`.
 - `prestart:dev` (antes de `npm run start:dev`): compila `shared`. Si se cambia un schema de `shared` con el backend corriendo, hay que reiniciarlo.
 
+`main.ts` termina con `void bootstrap()`, sin `await`. En Vercel `app.listen()` queda interceptado y su promesa nunca resuelve: con top-level await el módulo no termina de cargar y cada request muere por timeout (500 `FUNCTION_INVOCATION_FAILED` a los 60 s, sin logs de runtime).
+
 ### Rutas del frontend (SPA)
 
-El frontend es una SPA con React Router: en Vercel, recargar o entrar directo a una ruta interna (`/login`, `/user/...`) da 404 porque no existe un archivo con ese nombre. Se resuelve con `frontend-web/vercel.json`, que reescribe toda ruta a `index.html`:
+El frontend es una SPA con React Router: en Vercel, recargar o entrar directo a una ruta interna (`/login`, `/user/...`) da 404 porque no existe un archivo con ese nombre. Se resuelve con `frontend-web/vercel.json`, que además hace el proxy al backend (ver Cookies entre front y back):
 
 ```json
-{ "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }] }
+{
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "https://garsonic-backend.vercel.app/api/:path*" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
 ```
+
+- El orden importa: Vercel aplica la primera regla que coincide, así que `/api` va antes que el catch-all. Los archivos reales del build (`/assets/*`) se sirven antes de los rewrites.
+- El destino es el dominio estable del proyecto `garsonic-backend` (no la URL de cada deploy). `vercel.json` no lee variables de entorno: si Vercel asigna otro nombre, hay que cambiar esa línea.
 
 ### Cookies entre front y back
 
@@ -195,37 +222,49 @@ El front y el back quedan en subdominios distintos de `vercel.app`, que está en
 - **Proxy por rewrite:** el `vercel.json` del front reescribe `/api/(.*)` al backend y `VITE_BACKEND_URL` pasa a ser `/api`. Todo queda en el mismo origen: la cookie es propia y no hace falta CORS en producción.
 - **Dominio propio:** front y back en subdominios del mismo dominio (por ejemplo `app.` y `api.`), y la cookie pasa a ser del mismo sitio.
 
+**Decisión: proxy por rewrite.** `VITE_BACKEND_URL=/api` en el proyecto del front en Vercel y la cookie con `sameSite: 'lax'` en todos los entornos. CORS se mantiene solo para desarrollo (front y back en puertos distintos). Pendiente: una vez deployado, verificar con un log de `req.ip` que el back recibe la IP real del usuario a través del rewrite; si llega la de Vercel, todos comparten el contador del rate limit y hay que ajustar `trust proxy`.
+
 ### CD (deploy continuo)
 
 Todo lo que entra a `master` se deploya a producción en Vercel, tanto `backend` como `frontend-web`. No se usa la integración de Git de Vercel: el CD lo hace GitHub Actions con la CLI de Vercel (es a propósito, para practicar el flujo por terminal).
 
-- **Proyectos:** dos proyectos en Vercel creados con `vercel link`, con Root Directory `backend` y `frontend-web`. Ninguno está conectado al repo de GitHub, así que Vercel no se entera de los pushes y no deploya por su cuenta. Si `vercel link` ofrece conectar el repo, hay que rechazarlo.
-- **Workflow:** se extiende `.github/workflows/ci.yml` para que también corra en los push a `master`. Los jobs de deploy corren solo en ese caso y dependen de los jobs de lint y typecheck (`needs`), así que no se deploya un commit que no pasa los checks. `master` tiene branch protection: para mergear hay que pasar el CI y no se puede pushear directo.
+- **Proyectos:** `garsonic-backend` y `garsonic-frontend`, creados con `vercel project add` (crea el proyecto sin linkear carpetas ni conectar el repo), con Root Directory `backend` y `frontend-web`. Ninguno está conectado al repo de GitHub, así que Vercel no se entera de los pushes y no deploya por su cuenta.
+- **Configuración de los proyectos** (Settings → Build and Deployment): preset NestJS en el back y Vite en el front, "Include files outside the root directory in the Build Step" activado en los dos (necesitan `../shared`), Node.js 22.x (igual que el CI) y build por defecto. Install por defecto en el front; en el back, `npm install --include=dev`: con `NODE_ENV=production` cargada, npm saltea las `devDependencies` (husky, `@nestjs/cli`, `typescript`, `prisma`) y el build las necesita.
+- **Variables de entorno** (Settings → Environment Variables, entorno Production):
+  - Back (marcadas como Sensitive): `DATABASE_URL` (la URL `-pooler` de Neon con `sslmode=verify-full`), `JWT_SECRET`, `JWT_CONFIRM_SECRET` y `JWT_FORGOT_SECRET` (nuevos, distintos a los de desarrollo), `CLOUDINARY_*`, `EMAIL_USER`, `EMAIL_PASS`, `FRONTEND_URL=https://garsonic-frontend.vercel.app` y `NODE_ENV=production`. `PORT` no va.
+  - Front: `VITE_BACKEND_URL=/api`. Queda incrustada en el JS durante el build, así que tiene que estar cargada antes del deploy.
+- **Workflow:** el CD vive en `.github/workflows/cd.yml`, separado del CI, y corre en cada push a `master`. `ci.yml` también acepta `workflow_call`, así `cd.yml` lo llama como primer job (`uses: ./.github/workflows/ci.yml`) y los jobs de deploy dependen de él (`needs`). Así no se deploya un commit que no pasa lint y typecheck, y los checks no se duplican. Se descartaron `workflow_run`, porque obliga a chequear a mano el resultado del CI y usa la versión del workflow que está en la rama por defecto, y confiar solo en la branch protection, porque el commit que queda en `master` no se vuelve a chequear. `master` tiene branch protection: para mergear hay que pasar el CI y no se puede pushear directo.
 - **Pasos de cada deploy**, desde la raíz del repo (la CLI toma el Root Directory de los settings que baja `vercel pull`; correrlos desde la subcarpeta duplica la ruta):
   1. `vercel pull --yes --environment=production --token=...`
   2. `vercel build --prod --token=...` (el build se hace en el runner de GitHub)
   3. `vercel deploy --prebuilt --prod --token=...`
 - **Migraciones:** el job del backend corre `prisma migrate deploy` contra la base de producción antes de deployar. Si la migración falla, no se deploya nada.
 - **Orden:** el deploy del frontend espera al del backend (`needs: [deploy-backend]`), para que un front nuevo nunca le pegue a un backend viejo.
+- **Concurrencia:** `cd.yml` usa `concurrency: cd-production` sin cancelar el que está en curso. Si se mergean dos PR seguidos, el segundo CD espera al primero, y nunca corren en paralelo dos migraciones o dos deploys.
 - **Secretos en GitHub:** `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID_BACKEND`, `VERCEL_PROJECT_ID_FRONTEND` y `DATABASE_URL` (producción).
 - **Limitaciones aceptadas:** se deployan los dos proyectos en cada merge aunque haya cambiado uno solo (se puede filtrar por paths más adelante), y no hay deploys de preview (serían otro job con `vercel deploy` sin `--prod`).
 
 ### Pendientes antes del deploy
 
-- **Renombrar el paquete `shared` a `@garsonic/shared`:** existe un paquete público `shared` en npm; si la instalación se hiciera desde la subcarpeta sin workspaces, se bajaría ese (dependency confusion).
-- **Vercel:** verificar que esté activo "Include files outside the root directory in the Build Step", para que el build acceda a `shared/`.
-- **CD:** crear los proyectos con `vercel link`, cargar los secretos en GitHub y sumar los jobs de deploy a `ci.yml` (ver CD).
-- **Tests en el CI:** agregar `npm run test -w backend`; hoy el CI solo hace lint y typecheck.
-- **SPA:** crear `frontend-web/vercel.json` con el rewrite a `index.html` (ver Rutas del frontend).
-- **Cookies:** elegir entre proxy por rewrite y dominio propio (ver Cookies entre front y back).
-- **`.gitignore`:** agregar `.vercel` al de la raíz (lo crea `vercel link` ahí, con los IDs del proyecto).
+- ~~**Dependency confusion con `shared`.**~~ Existe un paquete público `shared` en npm; con `"shared": "*"`, una instalación sin workspaces bajaba ese. Se resolvió con `"shared": "file:../shared"` en `backend` y `frontend-web`: npm nunca lo busca en el registro y, si no encuentra la carpeta, falla.
+- ~~**Vercel:** verificar que esté activo "Include files outside the root directory in the Build Step".~~ Hecho en los dos proyectos.
+- **CD:** ~~crear los proyectos con `vercel project add`~~ (hecho), cargar los secretos en GitHub y crear `cd.yml` (ver CD).
+- ~~**Tests en el CI.**~~ Se saca de los pendientes del deploy: el backend todavía no tiene tests. Cuando se escriban, se suma `npm run test -w backend` al `ci.yml`.
+- ~~**SPA:** crear `frontend-web/vercel.json`.~~ Hecho, con el rewrite a `index.html` y el proxy a `/api` (ver Rutas del frontend).
+- **Límite de 4.5 MB por request de Vercel:** hoy los archivos pasan por el backend antes de ir a Cloudinary, y las canciones aceptan hasta 20 MB. Solución elegida: subida firmada directa a Cloudinary solo para canciones (firma en `GET /songs/upload-signature`, el front sube a Cloudinary y `POST /songs` recibe los `publicId` y los verifica con `cloudinary.api.resource`), y bajar el tope de las imágenes a 4 MB (hecho para registro, perfil, álbumes y playlists: `FileInterceptor` del backend y `maxSizeMB` de `InputImage`; la portada de las canciones se define con la subida directa).
+- ~~**Rate limit en serverless.**~~ Limitación aceptada: el throttler guarda los contadores en memoria y cada instancia de Vercel tiene los suyos, así que con varias instancias el límite se reparte (con poco tráfico se reutiliza la misma instancia y funciona casi igual). Si hace falta un límite exacto: pasar el storage del throttler a Redis (Upstash) o usar las reglas de rate limit del firewall de Vercel.
+- **Neon con pooler:** el backend en Vercel usa la URL `-pooler` (serverless abre muchas conexiones); el secreto `DATABASE_URL` del CD, que corre las migraciones, usa la directa.
+- ~~**Mail:** sacar `tls: { rejectUnauthorized: false }` de `backend/src/config/mail.config.ts`.~~ Hecho: se verifica el certificado de Gmail.
+- **Scripts de instalación de npm 11:** `npm install` avisa que no corre los scripts de `bcrypt`, `prisma` y `@prisma/engines` sin aprobarlos (`npm install-scripts approve`). Verificar que en una instalación limpia (CI y Vercel) `bcrypt` quede compilado.
+- ~~**Cookies:** elegir entre proxy por rewrite y dominio propio.~~ Proxy por rewrite (ver Cookies entre front y back).
+- ~~**`.gitignore`:** agregar `.vercel` al de la raíz.~~ Hecho.
 
 ## Estado actual
 
-- **Backend:** módulos `auth`, `users` (perfil público, editar perfil, artistas favoritos), `albumes`, `songs` (incluye canciones favoritas), `genres`, `playlists`, `search` y `contact`, con Prisma, Cloudinary, mails y rate limiting.
-- **Frontend web:** landing (con formulario de contacto), login, registro, confirmación de cuenta, olvidé mi contraseña y los paneles de USER y ARTIST (búsqueda, perfiles, playlists, álbumes, canciones, reproductor, artistas favoritos y canciones favoritas).
+- **Backend:** módulos `auth`, `users` (perfil público, editar perfil, artistas favoritos, estadísticas del artista), `albumes`, `songs` (incluye canciones favoritas), `genres`, `playlists`, `search` y `contact`, con Prisma, Cloudinary, mails y rate limiting.
+- **Frontend web:** landing (con formulario de contacto), login, registro, confirmación de cuenta, olvidé mi contraseña, cambiar clave y los paneles de USER y ARTIST (búsqueda, perfiles, playlists, álbumes, canciones, reproductor, artistas favoritos, canciones favoritas y estadísticas del artista).
 - **Pendiente:**
-  - Estadísticas del artista (`Stats` es un stub).
-  - Endpoint de cambiar clave (con su `@Throttle`, ver Rate limiting).
+  - ~~Estadísticas del artista (`Stats` era un stub).~~ Hecho. Falta evaluar la tabla `Play` para sumar reproducciones (ver Estadísticas del artista).
+  - ~~Cambiar clave (ver Cambiar clave).~~ Hecho.
   - Frontend mobile (ver Reutilización en mobile). Antes, el backend tiene que aceptar el JWT también por `Authorization: Bearer`, porque hoy solo lo lee de la cookie.
   - Pendientes del deploy (ver Pendientes antes del deploy).

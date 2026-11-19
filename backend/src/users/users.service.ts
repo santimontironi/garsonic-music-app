@@ -59,6 +59,42 @@ export class UsersService {
     return favs.map(({ artist }) => artist)
   }
 
+  async findStats(artistId: string) {
+    const [fans, albums, songs] = await Promise.all([
+      this.prisma.favArtist.count({ where: { artistId } }),
+      this.prisma.album.count({ where: { artistId } }),
+      this.prisma.song.findMany({
+        where: { artistId },
+        orderBy: { fans: { _count: 'desc' } },
+        select: {
+          id: true,
+          title: true,
+          cover: true,
+          albumId: true,
+          durationSec: true,
+          album: { select: { cover: true } },
+          _count: { select: { fans: true, playlists: true } }
+        }
+      })
+    ])
+
+    return {
+      fans,
+      albums,
+      songs: songs.length,
+      singles: songs.filter(song => !song.albumId).length,
+      minutes: Math.round(songs.reduce((acc, song) => acc + song.durationSec, 0) / 60),
+      // solo las que se guardaron en favoritos o playlists; sin portada propia se usa la del álbum, igual que en favoritos
+      songStats: songs.filter(song => song._count.fans > 0 || song._count.playlists > 0).map(song => ({
+        id: song.id,
+        title: song.title,
+        cover: song.cover ?? song.album?.cover ?? null,
+        favs: song._count.fans,
+        playlists: song._count.playlists
+      }))
+    }
+  }
+
   async toggleFavArtist(userId: string, artistId: string) {
     const artist = await this.prisma.user.findUnique({ where: { id: artistId }, select: { role: true } })
     if (artist?.role !== 'ARTIST') throw new NotFoundException('Artista no encontrado')

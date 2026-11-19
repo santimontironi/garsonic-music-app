@@ -1,8 +1,8 @@
-import { BadRequestException, Body, Controller, Get, Param, Post, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common'
+import { BadRequestException, Body, Controller, Get, Param, Patch, Post, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
-import { Throttle } from '@nestjs/throttler'
+import { Throttle } from '../common/decorators/throttle.decorator.js'
 import type { Request, Response } from 'express'
-import { forgotPasswordSchema, loginSchema, registerSchema, resetPasswordSchema, type ForgotPasswordInput, type LoginInput, type RegisterInput, type ResetPasswordInput } from 'shared/schemas/auth.schema'
+import { changePasswordSchema, forgotPasswordSchema, loginSchema, registerSchema, resetPasswordSchema, type ChangePasswordInput, type ForgotPasswordInput, type LoginInput, type RegisterInput, type ResetPasswordInput } from 'shared/schemas/auth.schema'
 import { ZodValidationPipe } from '../common/pipes/zod.validation.pipe.js'
 import { AuthService } from './auth.service.js'
 import { JwtAuthGuard } from './guards/jwt-auth.guard.js'
@@ -11,11 +11,11 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard.js'
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Throttle({ default: { ttl: 60_000, limit: 5 } })
+  @Throttle(5)
   @Post('register')
   @UseInterceptors(
     FileInterceptor('photo', {
-      limits: { fileSize: 5 * 1024 * 1024 },
+      limits: { fileSize: 4 * 1024 * 1024 },
       fileFilter: (_req, file, cb) => {
         if (!file.mimetype.startsWith('image/')) {
           return cb(new BadRequestException('La foto debe ser una imagen'), false)
@@ -36,13 +36,13 @@ export class AuthController {
     return this.authService.confirm(token)
   }
 
-  @Throttle({ default: { ttl: 60_000, limit: 5 } })
+  @Throttle(5)
   @Post('forgot-password')
   forgotPassword(@Body(new ZodValidationPipe(forgotPasswordSchema)) body: ForgotPasswordInput) {
     return this.authService.forgotPassword(body)
   }
 
-  @Throttle({ default: { ttl: 60_000, limit: 5 } })
+  @Throttle(5)
   @Post('forgot-password/:token')
   resetPassword(
     @Param('token') token: string,
@@ -51,7 +51,7 @@ export class AuthController {
     return this.authService.resetPassword(token, body)
   }
 
-  @Throttle({ default: { ttl: 60_000, limit: 5 } })
+  @Throttle(5)
   @Post('login')
   async login(
     @Body(new ZodValidationPipe(loginSchema)) body: LoginInput,
@@ -62,7 +62,7 @@ export class AuthController {
     res.cookie('auth_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      sameSite: 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000
     })
 
@@ -75,12 +75,22 @@ export class AuthController {
     return this.authService.me(req.user!.sub)
   }
 
+  @Throttle(5)
+  @UseGuards(JwtAuthGuard)
+  @Patch('password')
+  changePassword(
+    @Req() req: Request,
+    @Body(new ZodValidationPipe(changePasswordSchema)) body: ChangePasswordInput
+  ) {
+    return this.authService.changePassword(req.user!.sub, body)
+  }
+
   @Post('logout')
   logout(@Res({ passthrough: true }) res: Response) {
     res.clearCookie('auth_token', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+      sameSite: 'lax'
     })
     return { message: 'Sesión cerrada' }
   }

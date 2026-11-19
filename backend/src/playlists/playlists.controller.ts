@@ -64,7 +64,7 @@ export class PlaylistsController {
   @Roles('USER')
   @UseInterceptors(
     FileInterceptor('image', {
-      limits: { fileSize: 5 * 1024 * 1024 },
+      limits: { fileSize: 4 * 1024 * 1024 },
       fileFilter: (_req, file, cb) => {
         if (!file.mimetype.startsWith('image/')) {
           return cb(new BadRequestException('La imagen debe ser una imagen válida'), false)

@@ -15,7 +15,7 @@ const FavoriteSongs = () => {
       <h2 className="text-xl font-bold uppercase md:text-3xl">Canciones favoritas</h2>
 
       {isPending && <div className="py-12"><Loader /></div>}
-      {isError && <p role="alert" className="text-sm text-red-600">{error.message}</p>}
+      {isError && <p role="alert" className="w-fit border-2 border-black bg-coral px-2 py-0.5 text-sm">{error.message}</p>}
 
       {favSongs?.length === 0 && (
         <EmptyState

@@ -1,11 +1,9 @@
 import { useMe } from "../../hooks/auth/useMe"
 import { useMySongs } from "../../hooks/song/useMySongs"
-import { useMyAlbums } from "../../hooks/album/useMyAlbums"
 import type { SideNavArtistSections } from "../../types/general.types"
 import Logo from "../ui/Logo"
 import SongList from "../songs/SongList"
 import QuickAccessArtist from "./QuickAccessArtist"
-import HomeArtistStats from "./HomeArtistStats"
 import { usePlayer } from "../../context/PlayerContext"
 
 type Props = {
@@ -15,13 +13,10 @@ type Props = {
 const HomeArtist = ({ setSection }: Props) => {
   const { data: user } = useMe()
   const { data: songs } = useMySongs()
-  const { data: albums } = useMyAlbums()
   const { playQueue } = usePlayer()
 
   const artistName = user ? user.username : ""
   const recentTracks = songs?.slice(0, 5).map(song => ({ ...song, artistName })) ?? []
-
-  const totalMinutes = Math.round((songs?.reduce((acc, song) => acc + song.durationSec, 0) ?? 0) / 60)
 
   return (
     <section className="flex flex-col gap-8 md:gap-12">
@@ -31,8 +26,8 @@ const HomeArtist = ({ setSection }: Props) => {
         </h1>
       </header>
 
-      <div className="grid border-4 border-black shadow-hard-lg lg:grid-cols-[1fr_auto]">
-        <div className="flex flex-col gap-4 border-b-4 border-black bg-green bg-[linear-gradient(to_right,#00000026_1px,transparent_1px),linear-gradient(to_bottom,#00000026_1px,transparent_1px)] bg-size-[36px_36px] p-6 md:p-10 lg:border-r-4 lg:border-b-0">
+      <div className="grid border-4 border-black shadow-hard-lg md:grid-cols-[1fr_auto]">
+        <div className="flex flex-col gap-4 border-b-4 border-black bg-green bg-[linear-gradient(to_right,#00000026_1px,transparent_1px),linear-gradient(to_bottom,#00000026_1px,transparent_1px)] bg-size-[36px_36px] p-6 md:p-10 md:border-r-4 md:border-b-0">
           <h2 className="text-xl leading-tight uppercase md:text-3xl">¿Qué vas a lanzar hoy?</h2>
           <p className="max-w-xl text-sm leading-relaxed md:text-base">
             Subí tus canciones, agrupalas en álbumes y hacé que tu música llegue a nuevos oyentes.
@@ -57,22 +52,16 @@ const HomeArtist = ({ setSection }: Props) => {
           </div>
         </div>
 
-        <div aria-hidden="true" className="hidden items-center justify-center bg-coral p-10 lg:flex xl:p-14">
+        <div aria-hidden="true" className="hidden items-center justify-center bg-coral p-10 md:flex xl:p-14">
           <div className="w-32 xl:w-40">
             <Logo />
           </div>
         </div>
       </div>
 
-      <div className="grid gap-5 sm:grid-cols-3">
-        <HomeArtistStats label="Canciones" value={songs?.length ?? 0} icon="bi-music-note-beamed" bg="bg-coral" />
-        <HomeArtistStats label="Álbumes" value={albums?.length ?? 0} icon="bi-vinyl-fill" bg="bg-green" />
-        <HomeArtistStats label="Minutos de música" value={totalMinutes} icon="bi-clock-fill" bg="bg-button" />
-      </div>
-
       <div className="flex flex-col gap-5">
         <h2 className="text-sm uppercase md:text-base">Accesos rápidos</h2>
-        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
           <QuickAccessArtist title="Mis canciones" text="Subí y organizá tus temas" icon="bi-music-note-beamed" onClick={() => setSection("my-songs")} />
           <QuickAccessArtist title="Mis álbumes" text="Agrupá tus canciones" icon="bi-vinyl-fill" onClick={() => setSection("my-albums")} />
           <QuickAccessArtist title="Estadísticas" text="Cómo suena tu música" icon="bi-bar-chart-fill" onClick={() => setSection("stats")} />

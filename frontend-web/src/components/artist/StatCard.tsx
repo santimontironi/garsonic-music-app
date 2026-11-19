@@ -5,7 +5,7 @@ type Props = {
   bg: string
 }
 
-const HomeArtistStats = ({ label, value, icon, bg }: Props) => {
+const StatCard = ({ label, value, icon, bg }: Props) => {
   return (
     <div className={`flex items-center gap-4 border-4 border-black p-5 shadow-hard ${bg}`}>
       <span className="flex size-12 shrink-0 items-center justify-center border-2 border-black bg-button text-xl" aria-hidden="true">
@@ -19,4 +19,4 @@ const HomeArtistStats = ({ label, value, icon, bg }: Props) => {
   )
 }
 
-export default HomeArtistStats
+export default StatCard

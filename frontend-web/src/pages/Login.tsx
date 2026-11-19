@@ -59,25 +59,25 @@ const Login = () => {
             <div className="flex flex-col gap-1.5">
               <label htmlFor="email" className="text-xs font-bold tracking-wide uppercase">Email</label>
               <input id="email" type="email" autoComplete="email" {...register('email')} className="w-full border-2 border-black bg-button px-4 py-2.5 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black" />
-              {errors.email && <p className="text-xs text-red-600">{errors.email.message}</p>}
+              {errors.email && <p className="w-fit border-2 border-black bg-coral px-2 py-0.5 text-xs">{errors.email.message}</p>}
             </div>
 
             <div className="flex flex-col gap-1.5">
               <label htmlFor="password" className="text-xs font-bold tracking-wide uppercase">Contraseña</label>
               <input id="password" type="password" autoComplete="current-password" {...register('password')} className="w-full border-2 border-black bg-button px-4 py-2.5 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black" />
-              {errors.password && <p className="text-xs text-red-600">{errors.password.message}</p>}
+              {errors.password && <p className="w-fit border-2 border-black bg-coral px-2 py-0.5 text-xs">{errors.password.message}</p>}
             </div>
 
             <button
               type="button"
               onClick={() => setShowForgotPassword(true)}
-              className="self-end text-xs font-bold cursor-pointer underline underline-offset-2"
+              className="self-end cursor-pointer text-xs font-bold underline underline-offset-2"
             >
               ¿Olvidaste tu contraseña?
             </button>
           </div>
 
-          {isError && <p className="text-center text-sm text-red-600">{error.message}</p>}
+          {isError && <p className="w-fit border-2 border-black bg-coral px-2 py-0.5 text-sm self-center">{error.message}</p>}
 
           <button
             type="submit"

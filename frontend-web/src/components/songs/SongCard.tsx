@@ -19,13 +19,15 @@ const SongCard = ({ song, artistName, fallbackCover, showFav, onPlay, onRemove, 
   return (
     <article className="group flex h-full flex-col gap-3 border-4 border-black bg-button p-3 shadow-hard md:p-4 xl:p-5">
       <div className="relative">
-        {cover ? (
-          <img src={cover} alt="" className="aspect-square w-full border-2 border-black object-cover" />
-        ) : (
-          <div className="flex aspect-square w-full items-center justify-center border-2 border-black bg-background text-5xl" aria-hidden="true">
-            <i className="bi bi-music-note-beamed"></i>
-          </div>
-        )}
+        <div className="aspect-square overflow-hidden border-2 border-black">
+          {cover ? (
+            <img src={cover} alt="" className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.03] motion-reduce:transition-none" />
+          ) : (
+            <div className="flex size-full items-center justify-center bg-background text-5xl" aria-hidden="true">
+              <i className="bi bi-music-note-beamed"></i>
+            </div>
+          )}
+        </div>
 
         <button
           type="button"
