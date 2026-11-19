@@ -248,7 +248,7 @@ Todo lo que entra a `master` se deploya a producción en Vercel, tanto `backend`
 
 - ~~**Dependency confusion con `shared`.**~~ Existe un paquete público `shared` en npm; con `"shared": "*"`, una instalación sin workspaces bajaba ese. Se resolvió con `"shared": "file:../shared"` en `backend` y `frontend-web`: npm nunca lo busca en el registro y, si no encuentra la carpeta, falla.
 - ~~**Vercel:** verificar que esté activo "Include files outside the root directory in the Build Step".~~ Hecho en los dos proyectos.
-- **CD:** ~~crear los proyectos con `vercel project add`~~ (hecho), cargar los secretos en GitHub y crear `cd.yml` (ver CD).
+- ~~**CD:** crear los proyectos con `vercel project add`, cargar los secretos en GitHub y crear `cd.yml` (ver CD).~~ Hecho: el primer deploy por `cd.yml` (PR #13) salió bien.
 - ~~**Tests en el CI.**~~ Se saca de los pendientes del deploy: el backend todavía no tiene tests. Cuando se escriban, se suma `npm run test -w backend` al `ci.yml`.
 - ~~**SPA:** crear `frontend-web/vercel.json`.~~ Hecho, con el rewrite a `index.html` y el proxy a `/api` (ver Rutas del frontend).
 - **Límite de 4.5 MB por request de Vercel:** hoy los archivos pasan por el backend antes de ir a Cloudinary, y las canciones aceptan hasta 20 MB. Solución elegida: subida firmada directa a Cloudinary solo para canciones (firma en `GET /songs/upload-signature`, el front sube a Cloudinary y `POST /songs` recibe los `publicId` y los verifica con `cloudinary.api.resource`), y bajar el tope de las imágenes a 4 MB (hecho para registro, perfil, álbumes y playlists: `FileInterceptor` del backend y `maxSizeMB` de `InputImage`; la portada de las canciones se define con la subida directa).
