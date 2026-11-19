@@ -199,11 +199,19 @@ El backend consume `shared` compilado (`shared/dist`, en `.gitignore`) y el clie
 
 ### Rutas del frontend (SPA)
 
-El frontend es una SPA con React Router: en Vercel, recargar o entrar directo a una ruta interna (`/login`, `/user/...`) da 404 porque no existe un archivo con ese nombre. Se resuelve con `frontend-web/vercel.json`, que reescribe toda ruta a `index.html`:
+El frontend es una SPA con React Router: en Vercel, recargar o entrar directo a una ruta interna (`/login`, `/user/...`) da 404 porque no existe un archivo con ese nombre. Se resuelve con `frontend-web/vercel.json`, que además hace el proxy al backend (ver Cookies entre front y back):
 
 ```json
-{ "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }] }
+{
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "https://garsonic-backend.vercel.app/api/:path*" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
 ```
+
+- El orden importa: Vercel aplica la primera regla que coincide, así que `/api` va antes que el catch-all. Los archivos reales del build (`/assets/*`) se sirven antes de los rewrites.
+- El destino es el dominio estable del proyecto `garsonic-backend` (no la URL de cada deploy). `vercel.json` no lee variables de entorno: si Vercel asigna otro nombre, hay que cambiar esa línea.
 
 ### Cookies entre front y back
 
@@ -211,6 +219,8 @@ El front y el back quedan en subdominios distintos de `vercel.app`, que está en
 
 - **Proxy por rewrite:** el `vercel.json` del front reescribe `/api/(.*)` al backend y `VITE_BACKEND_URL` pasa a ser `/api`. Todo queda en el mismo origen: la cookie es propia y no hace falta CORS en producción.
 - **Dominio propio:** front y back en subdominios del mismo dominio (por ejemplo `app.` y `api.`), y la cookie pasa a ser del mismo sitio.
+
+**Decisión: proxy por rewrite.** `VITE_BACKEND_URL=/api` en el proyecto del front en Vercel y la cookie con `sameSite: 'lax'` en todos los entornos. CORS se mantiene solo para desarrollo (front y back en puertos distintos). Pendiente: una vez deployado, verificar con un log de `req.ip` que el back recibe la IP real del usuario a través del rewrite; si llega la de Vercel, todos comparten el contador del rate limit y hay que ajustar `trust proxy`.
 
 ### CD (deploy continuo)
 
@@ -229,13 +239,18 @@ Todo lo que entra a `master` se deploya a producción en Vercel, tanto `backend`
 
 ### Pendientes antes del deploy
 
-- **Renombrar el paquete `shared` a `@garsonic/shared`:** existe un paquete público `shared` en npm; si la instalación se hiciera desde la subcarpeta sin workspaces, se bajaría ese (dependency confusion).
+- ~~**Dependency confusion con `shared`.**~~ Existe un paquete público `shared` en npm; con `"shared": "*"`, una instalación sin workspaces bajaba ese. Se resolvió con `"shared": "file:../shared"` en `backend` y `frontend-web`: npm nunca lo busca en el registro y, si no encuentra la carpeta, falla.
 - **Vercel:** verificar que esté activo "Include files outside the root directory in the Build Step", para que el build acceda a `shared/`.
 - **CD:** crear los proyectos con `vercel link`, cargar los secretos en GitHub y sumar los jobs de deploy a `ci.yml` (ver CD).
-- **Tests en el CI:** agregar `npm run test -w backend`; hoy el CI solo hace lint y typecheck.
-- **SPA:** crear `frontend-web/vercel.json` con el rewrite a `index.html` (ver Rutas del frontend).
-- **Cookies:** elegir entre proxy por rewrite y dominio propio (ver Cookies entre front y back).
-- **`.gitignore`:** agregar `.vercel` al de la raíz (lo crea `vercel link` ahí, con los IDs del proyecto).
+- ~~**Tests en el CI.**~~ Se saca de los pendientes del deploy: el backend todavía no tiene tests. Cuando se escriban, se suma `npm run test -w backend` al `ci.yml`.
+- ~~**SPA:** crear `frontend-web/vercel.json`.~~ Hecho, con el rewrite a `index.html` y el proxy a `/api` (ver Rutas del frontend).
+- **Límite de 4.5 MB por request de Vercel:** hoy los archivos pasan por el backend antes de ir a Cloudinary, y las canciones aceptan hasta 20 MB. Solución elegida: subida firmada directa a Cloudinary solo para canciones (firma en `GET /songs/upload-signature`, el front sube a Cloudinary y `POST /songs` recibe los `publicId` y los verifica con `cloudinary.api.resource`), y bajar el tope de las imágenes a 4 MB (hecho para registro, perfil, álbumes y playlists: `FileInterceptor` del backend y `maxSizeMB` de `InputImage`; la portada de las canciones se define con la subida directa).
+- ~~**Rate limit en serverless.**~~ Limitación aceptada: el throttler guarda los contadores en memoria y cada instancia de Vercel tiene los suyos, así que con varias instancias el límite se reparte (con poco tráfico se reutiliza la misma instancia y funciona casi igual). Si hace falta un límite exacto: pasar el storage del throttler a Redis (Upstash) o usar las reglas de rate limit del firewall de Vercel.
+- **Neon con pooler:** el backend en Vercel usa la URL `-pooler` (serverless abre muchas conexiones); el secreto `DATABASE_URL` del CD, que corre las migraciones, usa la directa.
+- ~~**Mail:** sacar `tls: { rejectUnauthorized: false }` de `backend/src/config/mail.config.ts`.~~ Hecho: se verifica el certificado de Gmail.
+- **Scripts de instalación de npm 11:** `npm install` avisa que no corre los scripts de `bcrypt`, `prisma` y `@prisma/engines` sin aprobarlos (`npm install-scripts approve`). Verificar que en una instalación limpia (CI y Vercel) `bcrypt` quede compilado.
+- ~~**Cookies:** elegir entre proxy por rewrite y dominio propio.~~ Proxy por rewrite (ver Cookies entre front y back).
+- ~~**`.gitignore`:** agregar `.vercel` al de la raíz.~~ Hecho.
 
 ## Estado actual
 
