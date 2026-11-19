@@ -109,8 +109,8 @@ const MyProfile = () => {
               </div>
             )}
 
-            {errors.username && <p className="text-xs text-red-600">{errors.username.message}</p>}
-            {isError && <p className="text-xs text-red-600">{error.message}</p>}
+            {errors.username && <p className="w-fit border-2 border-black bg-coral px-2 py-0.5 text-xs">{errors.username.message}</p>}
+            {isError && <p className="w-fit border-2 border-black bg-coral px-2 py-0.5 text-xs">{error.message}</p>}
           </>
         }
       />

@@ -33,11 +33,11 @@ const ForgotPasswordModal = ({ onClose }: ForgotPasswordModalProps) => {
           <div className="flex flex-col gap-1.5">
             <label htmlFor="forgot-email" className="text-xs font-bold tracking-wide uppercase">Email</label>
             <input id="forgot-email" type="email" autoComplete="email" {...register('email')} className="w-full border-2 border-black bg-button px-4 py-2.5 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black" />
-            {errors.email && <p className="text-xs text-red-600">{errors.email.message}</p>}
+            {errors.email && <p className="w-fit border-2 border-black bg-coral px-2 py-0.5 text-xs">{errors.email.message}</p>}
           </div>
         )}
 
-        {isError && <p role="alert" className="text-center text-sm text-red-600">{error.message}</p>}
+        {isError && <p role="alert" className="w-fit border-2 border-black bg-coral px-2 py-0.5 text-sm self-center">{error.message}</p>}
 
         <div className="flex flex-col gap-3">
           {!isSuccess && (

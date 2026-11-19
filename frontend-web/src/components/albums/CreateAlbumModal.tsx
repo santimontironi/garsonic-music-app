@@ -49,12 +49,12 @@ const CreateAlbumModal = ({ onClose }: CreateAlbumModalProps) => {
                     <div className="flex flex-col gap-1.5">
                         <label htmlFor="title" className="text-xs font-bold tracking-wide uppercase">Título</label>
                         <input id="title" type="text" {...register("title")} className="w-full border-2 border-black bg-button px-4 py-2.5 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black" />
-                        {errors.title && <p className="text-xs text-red-600">{errors.title.message}</p>}
+                        {errors.title && <p className="w-fit border-2 border-black bg-coral px-2 py-0.5 text-xs">{errors.title.message}</p>}
                     </div>
 
                     <InputImage id="cover" name="cover" label="Portada (opcional)" onChange={setCover} />
 
-                    {isError && <p className="text-center text-sm text-red-600">{error.message}</p>}
+                    {isError && <p className="w-fit border-2 border-black bg-coral px-2 py-0.5 text-sm self-center">{error.message}</p>}
 
                     <div className="flex flex-col-reverse gap-3 md:flex-row">
                         <button

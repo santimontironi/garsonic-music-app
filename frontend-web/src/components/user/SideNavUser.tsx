@@ -40,7 +40,7 @@ const SideNavUser = ({ section, setSection, open }: Props) => {
       <div className="flex flex-col gap-5 p-5 xl:max-2xl:gap-3 xl:max-2xl:p-4">
         {groups.map(group => (
           <div key={group} className="flex flex-col gap-3 border-t-2 border-black pt-5 first:border-t-0 first:pt-0 xl:max-2xl:gap-2 xl:max-2xl:pt-3">
-            <p className="text-xs uppercase">{group}</p>
+            <p className="text-xs font-bold tracking-widest uppercase">{group}</p>
 
             {items.filter(item => item.group === group).map(({ id, label, icon }) => {
               const active = section === id

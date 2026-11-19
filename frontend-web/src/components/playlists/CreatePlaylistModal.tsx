@@ -50,7 +50,7 @@ const CreatePlaylistModal = ({ onClose }: CreatePlaylistModalProps) => {
                     <div className="flex flex-col gap-1.5">
                         <label htmlFor="name" className="text-xs font-bold tracking-wide uppercase">Nombre</label>
                         <input id="name" type="text" {...register("name")} className="w-full border-2 border-black bg-button px-4 py-2.5 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black" />
-                        {errors.name && <p className="text-xs text-red-600">{errors.name.message}</p>}
+                        {errors.name && <p className="w-fit border-2 border-black bg-coral px-2 py-0.5 text-xs">{errors.name.message}</p>}
                     </div>
 
                     <InputImage id="image" name="image" label="Imagen (opcional)" onChange={setImage} />
@@ -63,7 +63,7 @@ const CreatePlaylistModal = ({ onClose }: CreatePlaylistModalProps) => {
                         </span>
                     </label>
 
-                    {isError && <p className="text-center text-sm text-red-600">{error.message}</p>}
+                    {isError && <p className="w-fit border-2 border-black bg-coral px-2 py-0.5 text-sm self-center">{error.message}</p>}
 
                     <div className="flex flex-col-reverse gap-3 md:flex-row">
                         <button

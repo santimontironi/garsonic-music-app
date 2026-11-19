@@ -43,17 +43,17 @@ const ResetPassword = () => {
             <div className="flex flex-col gap-1.5">
               <label htmlFor="password" className="text-xs font-bold tracking-wide uppercase">Nueva contraseña</label>
               <input id="password" type="password" autoComplete="new-password" {...register('password')} className="w-full border-2 border-black bg-button px-4 py-2.5 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black" />
-              {errors.password && <p className="text-xs text-red-600">{errors.password.message}</p>}
+              {errors.password && <p className="w-fit border-2 border-black bg-coral px-2 py-0.5 text-xs">{errors.password.message}</p>}
             </div>
 
             <div className="flex flex-col gap-1.5">
               <label htmlFor="confirmPassword" className="text-xs font-bold tracking-wide uppercase">Repetir contraseña</label>
               <input id="confirmPassword" type="password" autoComplete="new-password" {...register('confirmPassword')} className="w-full border-2 border-black bg-button px-4 py-2.5 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black" />
-              {errors.confirmPassword && <p className="text-xs text-red-600">{errors.confirmPassword.message}</p>}
+              {errors.confirmPassword && <p className="w-fit border-2 border-black bg-coral px-2 py-0.5 text-xs">{errors.confirmPassword.message}</p>}
             </div>
           </div>
 
-          {isError && <p role="alert" className="text-center text-sm text-red-600">{error.message}</p>}
+          {isError && <p role="alert" className="w-fit border-2 border-black bg-coral px-2 py-0.5 text-sm self-center">{error.message}</p>}
 
           <button
             type="submit"

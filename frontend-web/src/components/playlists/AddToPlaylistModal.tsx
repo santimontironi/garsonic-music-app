@@ -61,7 +61,7 @@ const AddToPlaylistModal = ({ song, onClose }: AddToPlaylistModalProps) => {
                         />
                     )}
 
-                    {isError && <p role="alert" className="text-center text-sm text-red-600">{error.message}</p>}
+                    {isError && <p role="alert" className="w-fit border-2 border-black bg-coral px-2 py-0.5 text-sm self-center">{error.message}</p>}
                 </div>
             </div>
         </div>

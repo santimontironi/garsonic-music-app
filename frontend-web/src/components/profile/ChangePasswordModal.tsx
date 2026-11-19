@@ -28,22 +28,22 @@ const ChangePasswordModal = ({ onClose, onSuccess }: ChangePasswordModalProps) =
         <div className="flex flex-col gap-1.5">
           <label htmlFor="currentPassword" className="text-xs font-bold tracking-wide uppercase">Contraseña actual</label>
           <input id="currentPassword" type="password" autoComplete="current-password" {...register('currentPassword')} className="w-full border-2 border-black bg-button px-4 py-2.5 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black" />
-          {errors.currentPassword && <p className="text-xs text-red-600">{errors.currentPassword.message}</p>}
+          {errors.currentPassword && <p className="w-fit border-2 border-black bg-coral px-2 py-0.5 text-xs">{errors.currentPassword.message}</p>}
         </div>
 
         <div className="flex flex-col gap-1.5">
           <label htmlFor="newPassword" className="text-xs font-bold tracking-wide uppercase">Nueva contraseña</label>
           <input id="newPassword" type="password" autoComplete="new-password" {...register('newPassword')} className="w-full border-2 border-black bg-button px-4 py-2.5 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black" />
-          {errors.newPassword && <p className="text-xs text-red-600">{errors.newPassword.message}</p>}
+          {errors.newPassword && <p className="w-fit border-2 border-black bg-coral px-2 py-0.5 text-xs">{errors.newPassword.message}</p>}
         </div>
 
         <div className="flex flex-col gap-1.5">
           <label htmlFor="confirmPassword" className="text-xs font-bold tracking-wide uppercase">Repetir nueva contraseña</label>
           <input id="confirmPassword" type="password" autoComplete="new-password" {...register('confirmPassword')} className="w-full border-2 border-black bg-button px-4 py-2.5 text-sm shadow-hard focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-black" />
-          {errors.confirmPassword && <p className="text-xs text-red-600">{errors.confirmPassword.message}</p>}
+          {errors.confirmPassword && <p className="w-fit border-2 border-black bg-coral px-2 py-0.5 text-xs">{errors.confirmPassword.message}</p>}
         </div>
 
-        {isError && <p role="alert" className="text-center text-sm text-red-600">{error.message}</p>}
+        {isError && <p role="alert" className="w-fit border-2 border-black bg-coral px-2 py-0.5 text-sm self-center">{error.message}</p>}
 
         <div className="flex flex-col gap-3">
           <button

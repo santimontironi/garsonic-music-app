@@ -47,7 +47,7 @@ const ConfirmAccount = () => {
           {(isError || !token) && (
             <>
               <h1 className="text-2xl font-bold md:text-3xl">No pudimos confirmar tu cuenta</h1>
-              <p role="alert" className="text-sm text-red-600">{error?.message ?? "El enlace no es válido"}</p>
+              <p role="alert" className="w-fit border-2 border-black bg-coral px-2 py-0.5 text-sm">{error?.message ?? "El enlace no es válido"}</p>
               <Link to="/registro" className="text-sm font-bold underline underline-offset-2">
                 Volver a registrarme
               </Link>

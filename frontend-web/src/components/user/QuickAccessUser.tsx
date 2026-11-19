@@ -10,7 +10,7 @@ const QuickAccessUser = ({ title, text, icon, onClick }: Props) => {
     <button
       type="button"
       onClick={onClick}
-      className="group flex cursor-pointer flex-col gap-4 border-4 border-black bg-coral p-5 text-left press focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-black"
+      className="group flex cursor-pointer flex-col gap-4 border-4 border-black bg-coral p-5 text-left shadow-hard transition-[translate,box-shadow] duration-150 ease-out hover:-translate-0.5 hover:shadow-[6px_6px_0_0_#000] active:translate-1 active:shadow-none motion-reduce:transition-none focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-black"
     >
       <div className="flex items-center justify-between">
         <span className="flex size-12 items-center justify-center border-2 border-black bg-green text-xl text-black">
