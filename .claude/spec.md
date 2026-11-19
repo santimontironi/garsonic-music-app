@@ -233,13 +233,14 @@ Todo lo que entra a `master` se deploya a producción en Vercel, tanto `backend`
 - **Variables de entorno** (Settings → Environment Variables, entorno Production):
   - Back (marcadas como Sensitive): `DATABASE_URL` (la URL `-pooler` de Neon con `sslmode=verify-full`), `JWT_SECRET`, `JWT_CONFIRM_SECRET` y `JWT_FORGOT_SECRET` (nuevos, distintos a los de desarrollo), `CLOUDINARY_*`, `EMAIL_USER`, `EMAIL_PASS`, `FRONTEND_URL=https://garsonic-frontend.vercel.app` y `NODE_ENV=production`. `PORT` no va.
   - Front: `VITE_BACKEND_URL=/api`. Queda incrustada en el JS durante el build, así que tiene que estar cargada antes del deploy.
-- **Workflow:** se extiende `.github/workflows/ci.yml` para que también corra en los push a `master`. Los jobs de deploy corren solo en ese caso y dependen de los jobs de lint y typecheck (`needs`), así que no se deploya un commit que no pasa los checks. `master` tiene branch protection: para mergear hay que pasar el CI y no se puede pushear directo.
+- **Workflow:** el CD vive en `.github/workflows/cd.yml`, separado del CI, y corre en cada push a `master`. `ci.yml` también acepta `workflow_call`, así `cd.yml` lo llama como primer job (`uses: ./.github/workflows/ci.yml`) y los jobs de deploy dependen de él (`needs`). Así no se deploya un commit que no pasa lint y typecheck, y los checks no se duplican. Se descartaron `workflow_run`, porque obliga a chequear a mano el resultado del CI y usa la versión del workflow que está en la rama por defecto, y confiar solo en la branch protection, porque el commit que queda en `master` no se vuelve a chequear. `master` tiene branch protection: para mergear hay que pasar el CI y no se puede pushear directo.
 - **Pasos de cada deploy**, desde la raíz del repo (la CLI toma el Root Directory de los settings que baja `vercel pull`; correrlos desde la subcarpeta duplica la ruta):
   1. `vercel pull --yes --environment=production --token=...`
   2. `vercel build --prod --token=...` (el build se hace en el runner de GitHub)
   3. `vercel deploy --prebuilt --prod --token=...`
 - **Migraciones:** el job del backend corre `prisma migrate deploy` contra la base de producción antes de deployar. Si la migración falla, no se deploya nada.
 - **Orden:** el deploy del frontend espera al del backend (`needs: [deploy-backend]`), para que un front nuevo nunca le pegue a un backend viejo.
+- **Concurrencia:** `cd.yml` usa `concurrency: cd-production` sin cancelar el que está en curso. Si se mergean dos PR seguidos, el segundo CD espera al primero, y nunca corren en paralelo dos migraciones o dos deploys.
 - **Secretos en GitHub:** `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID_BACKEND`, `VERCEL_PROJECT_ID_FRONTEND` y `DATABASE_URL` (producción).
 - **Limitaciones aceptadas:** se deployan los dos proyectos en cada merge aunque haya cambiado uno solo (se puede filtrar por paths más adelante), y no hay deploys de preview (serían otro job con `vercel deploy` sin `--prod`).
 
@@ -247,7 +248,7 @@ Todo lo que entra a `master` se deploya a producción en Vercel, tanto `backend`
 
 - ~~**Dependency confusion con `shared`.**~~ Existe un paquete público `shared` en npm; con `"shared": "*"`, una instalación sin workspaces bajaba ese. Se resolvió con `"shared": "file:../shared"` en `backend` y `frontend-web`: npm nunca lo busca en el registro y, si no encuentra la carpeta, falla.
 - ~~**Vercel:** verificar que esté activo "Include files outside the root directory in the Build Step".~~ Hecho en los dos proyectos.
-- **CD:** crear los proyectos con `vercel link`, cargar los secretos en GitHub y sumar los jobs de deploy a `ci.yml` (ver CD).
+- **CD:** ~~crear los proyectos con `vercel project add`~~ (hecho), cargar los secretos en GitHub y crear `cd.yml` (ver CD).
 - ~~**Tests en el CI.**~~ Se saca de los pendientes del deploy: el backend todavía no tiene tests. Cuando se escriban, se suma `npm run test -w backend` al `ci.yml`.
 - ~~**SPA:** crear `frontend-web/vercel.json`.~~ Hecho, con el rewrite a `index.html` y el proxy a `/api` (ver Rutas del frontend).
 - **Límite de 4.5 MB por request de Vercel:** hoy los archivos pasan por el backend antes de ir a Cloudinary, y las canciones aceptan hasta 20 MB. Solución elegida: subida firmada directa a Cloudinary solo para canciones (firma en `GET /songs/upload-signature`, el front sube a Cloudinary y `POST /songs` recibe los `publicId` y los verifica con `cloudinary.api.resource`), y bajar el tope de las imágenes a 4 MB (hecho para registro, perfil, álbumes y playlists: `FileInterceptor` del backend y `maxSizeMB` de `InputImage`; la portada de las canciones se define con la subida directa).
