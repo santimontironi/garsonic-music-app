@@ -86,6 +86,15 @@ Para ambos roles (USER y ARTIST), con la sesión iniciada.
 
 Las fotos (perfil de usuario/artista, portada de álbum, portada de canción, portada de playlist) se suben a **Cloudinary**. Configuración en `backend/src/config/cloudinary.config.ts`, credenciales en `CLOUDINARY_CLOUD_NAME` / `CLOUDINARY_API_KEY` / `CLOUDINARY_API_SECRET`.
 
+**Canciones (subida directa):** el audio y la portada de una canción no pasan por el backend, porque Vercel corta los requests de más de 4.5 MB y los audios aceptan hasta 20 MB. El resto de las imágenes sí pasan por el backend (tope de 4 MB).
+
+1. El front pide `GET /songs/upload-signature` (solo ARTIST). El backend firma con `CLOUDINARY_API_SECRET` una subida a `songs/audio/<artistId>` y otra a `songs/covers/<artistId>`, y devuelve `cloudName`, `apiKey`, `timestamp` y la carpeta y la firma de cada una (`uploadSignatureSchema` de `shared`). Cloudinary rechaza la subida si se cambia la carpeta o pasó más de una hora.
+2. El front sube los archivos directo a la API de Cloudinary (el audio como `video`) y se queda con los `public_id`.
+3. `POST /songs` recibe un JSON (`createSongBodySchema`): `title`, `genreId`, `albumId?`, `audioPublicId` y `coverPublicId?`.
+4. El backend rechaza con 400 los `public_id` que no están en las carpetas del artista o que ya usa otra canción, sin borrar nada. Después valida el álbum y el género, y le pide cada archivo a Cloudinary (`api.resource` con `media_metadata: true`, que es lo que trae la duración): el audio tiene que ser audio, con duración y hasta 20 MB; la portada, hasta 4 MB. La URL y la duración salen de Cloudinary, no del front. Si algo falla, borra los archivos subidos.
+
+Limitación aceptada: si el front sube los archivos y nunca llama a `POST /songs` (por ejemplo, porque cierran la pestaña), quedan huérfanos en Cloudinary.
+
 Cada campo de imagen (`photo`, `cover`, `image`) tiene su par `*PublicId` (`photoPublicId`, `coverPublicId`, `imagePublicId`) que guarda el `public_id` de Cloudinary. Es necesario porque `cloudinary.uploader.destroy()` pide el `public_id`, no la URL, y parsearlo desde la URL es frágil. Al borrar un registro que tiene imagen, se usa ese `public_id` para borrarla también de Cloudinary, no solo el registro en la base.
 
 ## Estadísticas del artista
@@ -106,7 +115,7 @@ Las reproducciones quedan afuera hasta que exista el reproductor: no hay tabla n
 
 ## Rate limiting
 
-Todos los endpoints tienen rate limit, contado por IP con `@nestjs/throttler`.
+Todos los endpoints tienen rate limit, contado por IP y por ruta con el guard propio `ThrottleGuard` (`backend/src/common/guards/throttle.guard.ts`), que reemplazó a `@nestjs/throttler` porque esa librería no carga en Vercel con Nest 12 (ESM).
 
 - Endpoints de auth (login, register, forgot password, cambiar clave) y contacto: **5 requests por minuto**, con contador propio por endpoint.
 - Resto de los endpoints: **70 requests por minuto** (guard global en `AppModule`).
@@ -251,7 +260,7 @@ Todo lo que entra a `master` se deploya a producción en Vercel, tanto `backend`
 - ~~**CD:** crear los proyectos con `vercel project add`, cargar los secretos en GitHub y crear `cd.yml` (ver CD).~~ Hecho: el primer deploy por `cd.yml` (PR #13) salió bien.
 - ~~**Tests en el CI.**~~ Se saca de los pendientes del deploy: el backend todavía no tiene tests. Cuando se escriban, se suma `npm run test -w backend` al `ci.yml`.
 - ~~**SPA:** crear `frontend-web/vercel.json`.~~ Hecho, con el rewrite a `index.html` y el proxy a `/api` (ver Rutas del frontend).
-- **Límite de 4.5 MB por request de Vercel:** hoy los archivos pasan por el backend antes de ir a Cloudinary, y las canciones aceptan hasta 20 MB. Solución elegida: subida firmada directa a Cloudinary solo para canciones (firma en `GET /songs/upload-signature`, el front sube a Cloudinary y `POST /songs` recibe los `publicId` y los verifica con `cloudinary.api.resource`), y bajar el tope de las imágenes a 4 MB (hecho para registro, perfil, álbumes y playlists: `FileInterceptor` del backend y `maxSizeMB` de `InputImage`; la portada de las canciones se define con la subida directa).
+- ~~**Límite de 4.5 MB por request de Vercel.**~~ Hecho: el audio y la portada de las canciones suben firmados directo a Cloudinary (ver Imágenes → Canciones), y el resto de las imágenes tiene un tope de 4 MB (`FileInterceptor` del backend y `maxSizeMB` de `InputImage`).
 - ~~**Rate limit en serverless.**~~ Limitación aceptada: el throttler guarda los contadores en memoria y cada instancia de Vercel tiene los suyos, así que con varias instancias el límite se reparte (con poco tráfico se reutiliza la misma instancia y funciona casi igual). Si hace falta un límite exacto: pasar el storage del throttler a Redis (Upstash) o usar las reglas de rate limit del firewall de Vercel.
 - **Neon con pooler:** el backend en Vercel usa la URL `-pooler` (serverless abre muchas conexiones); el secreto `DATABASE_URL` del CD, que corre las migraciones, usa la directa.
 - ~~**Mail:** sacar `tls: { rejectUnauthorized: false }` de `backend/src/config/mail.config.ts`.~~ Hecho: se verifica el certificado de Gmail.
