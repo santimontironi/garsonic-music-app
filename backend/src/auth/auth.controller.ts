@@ -1,6 +1,6 @@
 import { BadRequestException, Body, Controller, Get, Param, Patch, Post, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
-import { Throttle } from '@nestjs/throttler'
+import { Throttle } from '../common/decorators/throttle.decorator.js'
 import type { Request, Response } from 'express'
 import { changePasswordSchema, forgotPasswordSchema, loginSchema, registerSchema, resetPasswordSchema, type ChangePasswordInput, type ForgotPasswordInput, type LoginInput, type RegisterInput, type ResetPasswordInput } from 'shared/schemas/auth.schema'
 import { ZodValidationPipe } from '../common/pipes/zod.validation.pipe.js'
@@ -11,7 +11,7 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard.js'
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Throttle({ default: { ttl: 60_000, limit: 5 } })
+  @Throttle(5)
   @Post('register')
   @UseInterceptors(
     FileInterceptor('photo', {
@@ -36,13 +36,13 @@ export class AuthController {
     return this.authService.confirm(token)
   }
 
-  @Throttle({ default: { ttl: 60_000, limit: 5 } })
+  @Throttle(5)
   @Post('forgot-password')
   forgotPassword(@Body(new ZodValidationPipe(forgotPasswordSchema)) body: ForgotPasswordInput) {
     return this.authService.forgotPassword(body)
   }
 
-  @Throttle({ default: { ttl: 60_000, limit: 5 } })
+  @Throttle(5)
   @Post('forgot-password/:token')
   resetPassword(
     @Param('token') token: string,
@@ -51,7 +51,7 @@ export class AuthController {
     return this.authService.resetPassword(token, body)
   }
 
-  @Throttle({ default: { ttl: 60_000, limit: 5 } })
+  @Throttle(5)
   @Post('login')
   async login(
     @Body(new ZodValidationPipe(loginSchema)) body: LoginInput,
@@ -75,7 +75,7 @@ export class AuthController {
     return this.authService.me(req.user!.sub)
   }
 
-  @Throttle({ default: { ttl: 60_000, limit: 5 } })
+  @Throttle(5)
   @UseGuards(JwtAuthGuard)
   @Patch('password')
   changePassword(

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { ThrottleGuard } from './common/guards/throttle.guard.js';
 import { AuthModule } from './auth/auth.module.js';
 import { CloudinaryModule } from './cloudinary/cloudinary.module.js';
 import { MailModule } from './mail/mail.module.js';
@@ -15,12 +15,8 @@ import { ContactModule } from './contact/contact.module.js';
 
 @Module({
   imports: [
-    ThrottlerModule.forRoot({
-      throttlers: [{ ttl: 60_000, limit: 70 }],
-      errorMessage: 'Demasiadas solicitudes, probá de nuevo en un minuto',
-    }),
     PrismaModule, CloudinaryModule, MailModule, AuthModule, SongsModule, AlbumesModule, PlaylistsModule, GenresModule, UsersModule, SearchModule, ContactModule,
   ],
-  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
+  providers: [{ provide: APP_GUARD, useClass: ThrottleGuard }],
 })
 export class AppModule {}

@@ -197,6 +197,8 @@ El backend consume `shared` compilado (`shared/dist`, en `.gitignore`) y el clie
 - `prebuild` (antes de `npm run build`, el que corre Vercel): compila `shared` y corre `prisma generate`.
 - `prestart:dev` (antes de `npm run start:dev`): compila `shared`. Si se cambia un schema de `shared` con el backend corriendo, hay que reiniciarlo.
 
+`main.ts` termina con `void bootstrap()`, sin `await`. En Vercel `app.listen()` queda interceptado y su promesa nunca resuelve: con top-level await el módulo no termina de cargar y cada request muere por timeout (500 `FUNCTION_INVOCATION_FAILED` a los 60 s, sin logs de runtime).
+
 ### Rutas del frontend (SPA)
 
 El frontend es una SPA con React Router: en Vercel, recargar o entrar directo a una ruta interna (`/login`, `/user/...`) da 404 porque no existe un archivo con ese nombre. Se resuelve con `frontend-web/vercel.json`, que además hace el proxy al backend (ver Cookies entre front y back):
@@ -226,7 +228,11 @@ El front y el back quedan en subdominios distintos de `vercel.app`, que está en
 
 Todo lo que entra a `master` se deploya a producción en Vercel, tanto `backend` como `frontend-web`. No se usa la integración de Git de Vercel: el CD lo hace GitHub Actions con la CLI de Vercel (es a propósito, para practicar el flujo por terminal).
 
-- **Proyectos:** dos proyectos en Vercel creados con `vercel link`, con Root Directory `backend` y `frontend-web`. Ninguno está conectado al repo de GitHub, así que Vercel no se entera de los pushes y no deploya por su cuenta. Si `vercel link` ofrece conectar el repo, hay que rechazarlo.
+- **Proyectos:** `garsonic-backend` y `garsonic-frontend`, creados con `vercel project add` (crea el proyecto sin linkear carpetas ni conectar el repo), con Root Directory `backend` y `frontend-web`. Ninguno está conectado al repo de GitHub, así que Vercel no se entera de los pushes y no deploya por su cuenta.
+- **Configuración de los proyectos** (Settings → Build and Deployment): preset NestJS en el back y Vite en el front, "Include files outside the root directory in the Build Step" activado en los dos (necesitan `../shared`), Node.js 22.x (igual que el CI) y build por defecto. Install por defecto en el front; en el back, `npm install --include=dev`: con `NODE_ENV=production` cargada, npm saltea las `devDependencies` (husky, `@nestjs/cli`, `typescript`, `prisma`) y el build las necesita.
+- **Variables de entorno** (Settings → Environment Variables, entorno Production):
+  - Back (marcadas como Sensitive): `DATABASE_URL` (la URL `-pooler` de Neon con `sslmode=verify-full`), `JWT_SECRET`, `JWT_CONFIRM_SECRET` y `JWT_FORGOT_SECRET` (nuevos, distintos a los de desarrollo), `CLOUDINARY_*`, `EMAIL_USER`, `EMAIL_PASS`, `FRONTEND_URL=https://garsonic-frontend.vercel.app` y `NODE_ENV=production`. `PORT` no va.
+  - Front: `VITE_BACKEND_URL=/api`. Queda incrustada en el JS durante el build, así que tiene que estar cargada antes del deploy.
 - **Workflow:** se extiende `.github/workflows/ci.yml` para que también corra en los push a `master`. Los jobs de deploy corren solo en ese caso y dependen de los jobs de lint y typecheck (`needs`), así que no se deploya un commit que no pasa los checks. `master` tiene branch protection: para mergear hay que pasar el CI y no se puede pushear directo.
 - **Pasos de cada deploy**, desde la raíz del repo (la CLI toma el Root Directory de los settings que baja `vercel pull`; correrlos desde la subcarpeta duplica la ruta):
   1. `vercel pull --yes --environment=production --token=...`
@@ -240,7 +246,7 @@ Todo lo que entra a `master` se deploya a producción en Vercel, tanto `backend`
 ### Pendientes antes del deploy
 
 - ~~**Dependency confusion con `shared`.**~~ Existe un paquete público `shared` en npm; con `"shared": "*"`, una instalación sin workspaces bajaba ese. Se resolvió con `"shared": "file:../shared"` en `backend` y `frontend-web`: npm nunca lo busca en el registro y, si no encuentra la carpeta, falla.
-- **Vercel:** verificar que esté activo "Include files outside the root directory in the Build Step", para que el build acceda a `shared/`.
+- ~~**Vercel:** verificar que esté activo "Include files outside the root directory in the Build Step".~~ Hecho en los dos proyectos.
 - **CD:** crear los proyectos con `vercel link`, cargar los secretos en GitHub y sumar los jobs de deploy a `ci.yml` (ver CD).
 - ~~**Tests en el CI.**~~ Se saca de los pendientes del deploy: el backend todavía no tiene tests. Cuando se escriban, se suma `npm run test -w backend` al `ci.yml`.
 - ~~**SPA:** crear `frontend-web/vercel.json`.~~ Hecho, con el rewrite a `index.html` y el proxy a `/api` (ver Rutas del frontend).

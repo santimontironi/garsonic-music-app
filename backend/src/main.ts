@@ -29,4 +29,6 @@ async function bootstrap() {
   await app.listen(process.env.PORT ?? 3000);
 }
 
-await bootstrap();
+// Sin await: en Vercel app.listen() queda interceptado y nunca resuelve; con top-level await
+// el módulo no termina de cargar y la función muere por timeout (500 a los 60 s).
+void bootstrap();
