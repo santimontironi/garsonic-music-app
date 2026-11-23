@@ -1,6 +1,6 @@
-import axios, { AxiosError } from 'axios';
+import { create, type AxiosError } from 'axios';
 
-const api = axios.create({
+const api = create({
   baseURL: import.meta.env.VITE_BACKEND_URL,
   withCredentials: true,
 });
