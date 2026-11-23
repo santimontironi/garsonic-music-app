@@ -1,4 +1,4 @@
-import axios, { AxiosError } from 'axios';
+import axios, { type AxiosError } from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import { router } from 'expo-router';
 
