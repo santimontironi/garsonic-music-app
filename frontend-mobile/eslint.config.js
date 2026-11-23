@@ -7,4 +7,10 @@ module.exports = defineConfig([
   {
     ignores: ['dist/*'],
   },
+  {
+    rules: {
+      // falso positivo con axios.create(), la forma estándar de usar axios (igual que en frontend-web)
+      'import/no-named-as-default-member': 'off',
+    },
+  },
 ]);
