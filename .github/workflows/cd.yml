@@ -4,7 +4,11 @@ on:
   push:
     branches:
       - master
+    # mobile no se deploya en Vercel: un push que solo lo toca no redeploya back ni front
+    paths-ignore:
+      - 'frontend-mobile/**'
 
+# esto es para que no se solapen deploys de Vercel, que a veces fallan si hay dos al mismo tiempo. o sea si hay 2 pushes a master, el primero deploya y el segundo espera a que termine el primero. si el primero falla, el segundo no se cancela, sino que sigue y hace su deploy.
 concurrency:
   group: cd-production
   cancel-in-progress: false
