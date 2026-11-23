@@ -114,6 +114,10 @@ jobs:
       - name: Generate route types
         run: npx expo customize tsconfig.json
 
+      # corre el lint de mobile (eslint-config-expo)
+      - name: Lint mobile
+        run: npm run lint
+
       # chequea los tipos de TypeScript sin generar archivos
       - name: Typecheck mobile
         run: npm run typecheck
