@@ -69,6 +69,12 @@ export class AuthController {
     return user
   }
 
+  @Throttle(5)
+  @Post('mobile/login')
+  mobileLogin(@Body(new ZodValidationPipe(loginSchema)) body: LoginInput) {
+    return this.authService.login(body)
+  }
+
   @UseGuards(JwtAuthGuard)
   @Get('me')
   async me(@Req() req: Request) {

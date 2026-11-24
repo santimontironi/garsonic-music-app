@@ -49,7 +49,10 @@ export const changePasswordFormSchema = changePasswordFields
     .refine(isDifferentPassword, samePasswordError)
     .refine((data) => data.newPassword === data.confirmPassword, { message: 'Las contraseñas no coinciden', path: ['confirmPassword'] })
 
-export const userRefSchema = z.object({ id: z.uuid(), username: z.string() })
+// respuesta de POST /auth/mobile/login
+export const mobileLoginResponseSchema = z.object({ user: userSchema, token: z.string() })
+
+export const userRefSchema =z.object({ id: z.uuid(), username: z.string() })
 
 export const userSummarySchema = userSchema.pick({ id: true, username: true, name: true, surname: true, photo: true })
 

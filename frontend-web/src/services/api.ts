@@ -1,4 +1,4 @@
-import axios, { AxiosError } from 'axios';
+import axios, { type AxiosError } from 'axios';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_URL,

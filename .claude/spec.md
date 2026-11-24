@@ -19,8 +19,32 @@ Lo único compartido son los schemas de `shared/schemas`, que son el contrato de
 - Si mantener las dos copias sincronizadas se vuelve frecuente, se pasan los services a `shared` con el patrón `setApi()`.
 - Cada app tiene su propio `api.ts` y sus services adaptados, porque cambian tres cosas:
   1. **URL del backend:** la web usa `import.meta.env.VITE_BACKEND_URL` (propio de Vite); mobile usa las variables de su entorno (por ejemplo Expo).
-  2. **Autenticación:** en React Native las cookies no son confiables. Mobile guarda el JWT en `SecureStore` y lo manda en `Authorization: Bearer ...`, así que el backend tiene que aceptar el token también por header, no solo por cookie.
-  3. **Archivos:** la web manda un `File` en el `FormData`; en React Native no existe `File` y se manda `{ uri, name, type }`.
+  2. **Autenticación:** en React Native las cookies no son confiables. Mobile guarda el JWT en `SecureStore` y lo manda en `Authorization: Bearer ...` (ver Autenticación y mails).
+  3. **Archivos:** la web manda un `File` en el `FormData`; en React Native no existe `File` y se manda `{ uri, name, type }`. La imagen se elige de la galería con `expo-image-picker` (recorte cuadrado).
+
+### Pantalla inicial en mobile
+
+El index de mobile no es una landing: es una pantalla de bienvenida con el logo, una frase corta y dos botones, **Ingresar** (login) y **Crear cuenta** (registro). No tiene secciones ni formulario de contacto, que quedan solo en la web.
+
+- Si hay un JWT guardado en `SecureStore`, la bienvenida se saltea y se redirige directo al panel del rol.
+
+### Navegación por rol en mobile
+
+Las rutas se separan en grupos de Expo Router y el `_layout.tsx` raíz decide cuáles existen con `Stack.Protected`, según la sesión que devuelve `useMe`:
+
+| Guard | Rutas |
+|---|---|
+| `!user` | `index` (bienvenida), `login`, `register` |
+| `user.role === 'USER'` | grupo `(user)` |
+| `user.role === 'ARTIST'` | grupo `(artist)` (pendiente) |
+
+- Al loguearse o cerrar sesión cambia la cache de `me` y Expo Router redirige solo a la primera ruta disponible: no hay `router.replace` en login ni logout.
+- `Stack.Protected` maneja la navegación, no la seguridad: la autorización real está en el back (`JwtAuthGuard` y `@Roles`).
+- Cada pantalla maneja su propia safe area (`SafeAreaView` de `react-native-safe-area-context`) para que su fondo llegue hasta los bordes; dentro de los grupos con tabs se usa `edges={['top']}`, porque abajo la cubre la barra.
+
+**Panel de USER `(user)`:** barra de tabs abajo (reemplaza al `SideNavUser` de la web), con íconos de `expo-symbols` (SF Symbols en iOS, Material Symbols en Android). Tabs: **Inicio** (`index`), **Buscar** (`search`), **Playlists** (`playlists`), **Favoritos** (`favorites`, junta artistas y canciones favoritas, que en la web son dos secciones) y **Perfil** (`profile`, con el botón de cerrar sesión). Por ahora son placeholders con el título; el contenido se arma de a una pantalla.
+
+- Cerrar sesión (web y mobile) pone `me` en `null` y borra el resto de las queries, para que otro usuario en el mismo dispositivo no vea la cache del anterior. `me` no se borra porque el guard está suscripto a esa query.
 
 ## Modelo de datos
 
@@ -51,7 +75,7 @@ Decisiones:
 
 ## Autenticación y mails
 
-- **Autenticación:** JWT guardado en cookies.
+- **Autenticación:** JWT. La web lo recibe en la cookie `httpOnly` `auth_token` (`POST /auth/login`, que devuelve solo `user`). Mobile usa `POST /auth/mobile/login`: mismo body y mismo `@Throttle(5)`, no setea cookie y devuelve `{ user, token }` (`mobileLoginResponseSchema`). El `JwtAuthGuard` acepta el token por la cookie o por `Authorization: Bearer ...`. En mobile, cerrar sesión es borrar el token de `SecureStore`.
 - **Envío de mails:** Nodemailer, para tres casos:
   - Confirmar la cuenta del usuario: al confirmarla, `User.emailVerified` pasa a `true`.
   - Recuperar la clave (ver Olvidé mi contraseña).
@@ -117,7 +141,7 @@ Las reproducciones quedan afuera hasta que exista el reproductor: no hay tabla n
 
 Todos los endpoints tienen rate limit, contado por IP y por ruta con el guard propio `ThrottleGuard` (`backend/src/common/guards/throttle.guard.ts`), que reemplazó a `@nestjs/throttler` porque esa librería no carga en Vercel con Nest 12 (ESM).
 
-- Endpoints de auth (login, register, forgot password, cambiar clave) y contacto: **5 requests por minuto**, con contador propio por endpoint.
+- Endpoints de auth (login web y mobile, register, forgot password, cambiar clave) y contacto: **5 requests por minuto**, con contador propio por endpoint.
 - Resto de los endpoints: **70 requests por minuto** (guard global en `AppModule`).
 - Al pasarse del límite responde **429** con el mensaje `Demasiadas solicitudes, probá de nuevo en un minuto`.
 - El backend usa `trust proxy = 1` para tomar la IP real del cliente detrás del proxy de Vercel.
@@ -251,6 +275,8 @@ Todo lo que entra a `master` se deploya a producción en Vercel, tanto `backend`
 - **Orden:** el deploy del frontend espera al del backend (`needs: [deploy-backend]`), para que un front nuevo nunca le pegue a un backend viejo.
 - **Concurrencia:** `cd.yml` usa `concurrency: cd-production` sin cancelar el que está en curso. Si se mergean dos PR seguidos, el segundo CD espera al primero, y nunca corren en paralelo dos migraciones o dos deploys.
 - **Secretos en GitHub:** `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID_BACKEND`, `VERCEL_PROJECT_ID_FRONTEND` y `DATABASE_URL` (producción).
+- **CI de mobile:** `ci.yml` tiene un job `mobile` que no deploya nada: compila `shared`, genera los tipos de las rutas con `expo customize tsconfig.json` (`.expo/` no se sube y sin ellos `typedRoutes` falla), corre `npm run lint` (`expo lint` con `eslint-config-expo`), `npm run typecheck`, `expo-doctor` (versiones compatibles con el SDK) y `expo export --platform android` (que la app bundlee). `eslint-import-resolver-typescript` está como devDependency directa de mobile: si queda anidado dentro de `eslint-config-expo`, `eslint-plugin-import` (en la raíz del monorepo) no lo encuentra y el alias `@/` falla en el lint. Como `cd.yml` llama a `ci.yml`, un mobile roto también frena el deploy de back y front.
+- **Mobile fuera del CD:** `cd.yml` tiene `paths-ignore: frontend-mobile/**`, así que un push a `master` que solo toca mobile no corre el CD (mobile no se deploya en Vercel). Si el push toca mobile y otra carpeta, el CD corre igual.
 - **Limitaciones aceptadas:** se deployan los dos proyectos en cada merge aunque haya cambiado uno solo (se puede filtrar por paths más adelante), y no hay deploys de preview (serían otro job con `vercel deploy` sin `--prod`).
 
 ### Pendientes antes del deploy
@@ -275,5 +301,5 @@ Todo lo que entra a `master` se deploya a producción en Vercel, tanto `backend`
 - **Pendiente:**
   - ~~Estadísticas del artista (`Stats` era un stub).~~ Hecho. Falta evaluar la tabla `Play` para sumar reproducciones (ver Estadísticas del artista).
   - ~~Cambiar clave (ver Cambiar clave).~~ Hecho.
-  - Frontend mobile (ver Reutilización en mobile). Antes, el backend tiene que aceptar el JWT también por `Authorization: Bearer`, porque hoy solo lo lee de la cookie.
+  - Frontend mobile (ver Reutilización en mobile). El backend ya acepta el JWT por `Authorization: Bearer` y tiene `POST /auth/mobile/login`.
   - Pendientes del deploy (ver Pendientes antes del deploy).

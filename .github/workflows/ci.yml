@@ -1,58 +1,131 @@
+# nombre que aparece en la pestaña Actions de GitHub
 name: CI
 
+# cuándo corre el workflow
 on:
+  # en cada push a develop
   push:
     branches:
       - develop
+  # en cada PR que apunte a master
   pull_request:
     branches:
       - master
+  # permite que cd.yml lo llame como primer job antes de deployar
   workflow_call:
 
 jobs:
+  # chequeos del backend
   backend:
+    # máquina virtual de GitHub donde corre el job
     runs-on: ubuntu-latest
 
     steps:
+      # baja el código del repo a la máquina
       - uses: actions/checkout@v4
 
+      # instala Node 22 y cachea las dependencias de npm entre corridas
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
 
+      # fija la versión de npm, la misma que se usa en local
       - run: npm install -g npm@11.19.1
 
+      # instala las dependencias de todos los workspaces tal cual el package-lock
       - run: npm ci
 
+      # compila shared, porque el backend importa sus schemas ya compilados
       - name: Build shared
         run: npm run build -w shared
 
+      # genera el cliente de Prisma (el lint lo necesita) y corre el lint
       - name: Lint backend
         run: |
           npm exec -w backend -- prisma generate
           npm run lint -w backend
 
+      # chequea los tipos de TypeScript sin generar archivos
       - name: Typecheck backend
         run: npm run typecheck -w backend
 
+  # chequeos del frontend web
   frontend:
+    # máquina virtual de GitHub donde corre el job
     runs-on: ubuntu-latest
 
     steps:
+      # baja el código del repo a la máquina
       - uses: actions/checkout@v4
 
+      # instala Node 22 y cachea las dependencias de npm entre corridas
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
 
+      # fija la versión de npm, la misma que se usa en local
       - run: npm install -g npm@11.19.1
 
+      # instala las dependencias de todos los workspaces tal cual el package-lock
       - run: npm ci
 
+      # corre el lint del frontend web
       - name: Lint frontend
         run: npm run lint -w frontend-web
 
+      # chequea los tipos de TypeScript sin generar archivos
       - name: Typecheck frontend
         run: npm run typecheck -w frontend-web
+
+  # chequeos de mobile: no se deploya, solo confirma que compila y que la app bundlea
+  mobile:
+    # máquina virtual de GitHub donde corre el job
+    runs-on: ubuntu-latest
+    # los comandos de Expo leen el proyecto de la carpeta donde corren
+    defaults:
+      run:
+        working-directory: frontend-mobile
+
+    steps:
+      # baja el código del repo a la máquina
+      - uses: actions/checkout@v4
+
+      # instala Node 22 y cachea las dependencias de npm entre corridas
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # fija la versión de npm, la misma que se usa en local
+      - run: npm install -g npm@11.19.1
+
+      # instala las dependencias desde la raíz, donde está el package-lock de los workspaces
+      - run: npm ci
+        working-directory: .
+
+      # compila shared desde la raíz, porque mobile importa sus schemas
+      - name: Build shared
+        run: npm run build -w shared
+        working-directory: .
+
+      # genera los tipos de las rutas: .expo/ no se sube y sin ellos typedRoutes falla
+      - name: Generate route types
+        run: npx expo customize tsconfig.json
+
+      # corre el lint de mobile (eslint-config-expo)
+      - name: Lint mobile
+        run: npm run lint
+
+      # chequea los tipos de TypeScript sin generar archivos
+      - name: Typecheck mobile
+        run: npm run typecheck
+
+      # revisa que las versiones de los paquetes sean compatibles con el SDK de Expo
+      - name: Doctor mobile
+        run: npx -y expo-doctor
+
+      # arma el bundle de Android: atrapa assets o imports que Metro no resuelve
+      - name: Bundle mobile
+        run: npx expo export --platform android --output-dir ${{ runner.temp }}/mobile-bundle

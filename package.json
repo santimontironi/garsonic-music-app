@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "description": "Garsonic monorepo root",
-  "workspaces": ["shared", "backend", "frontend-web"],
+  "workspaces": ["shared", "backend", "frontend-web", "frontend-mobile"],
   "scripts": {
     "prepare": "husky || true"
   },
