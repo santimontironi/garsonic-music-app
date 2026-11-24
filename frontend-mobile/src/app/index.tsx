@@ -2,6 +2,7 @@ import { Image } from 'expo-image'
 import { router } from 'expo-router'
 import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native'
 import Animated, { FadeIn, FadeInDown, FadeInLeft } from 'react-native-reanimated'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { colors } from '@/utils/colors'
 
 const Index = () => {
@@ -10,7 +11,7 @@ const Index = () => {
   const vinylSize = width * 1.3
 
   return (
-    <View style={styles.screen}>
+    <SafeAreaView style={styles.screen}>
       <Animated.View entering={FadeInDown.duration(400)} style={styles.header}>
         <View style={styles.logoCell}>
           <Image source={require('@/assets/images/logo.png')} style={styles.logo} contentFit="contain" accessibilityLabel="Logo de Garsonic" />
@@ -47,7 +48,7 @@ const Index = () => {
           </Pressable>
         </Animated.View>
       </View>
-    </View>
+    </SafeAreaView>
   )
 }
 

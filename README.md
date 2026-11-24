@@ -32,7 +32,7 @@ Un mismo modelo de cuenta cubre usuarios y artistas: no hay tablas separadas, el
 | Plataforma | Tecnología | Estado |
 |---|---|---|
 | **Web** | React + Vite | En producción en [garsonic-frontend.vercel.app](https://garsonic-frontend.vercel.app). |
-| **Android / iOS** | React Native | En desarrollo. |
+| **Android / iOS** | React Native + Expo | En desarrollo (ver [App mobile](#app-mobile)). |
 
 Las dos apps consumen la misma API del backend.
 
@@ -66,6 +66,10 @@ Las dos apps consumen la misma API del backend.
 | Bootstrap Icons | Iconografía |
 | ESLint | Lint |
 
+### Mobile: `frontend-mobile/`
+
+Ver [App mobile](#app-mobile).
+
 ### Compartido: `shared/`
 
 Schemas de [Zod](https://zod.dev/) que usan el front y el back, así las validaciones son las mismas de los dos lados. Se compila a `shared/dist` y los dos proyectos lo consumen como `"shared": "file:../shared"`.
@@ -81,7 +85,7 @@ Schemas de [Zod](https://zod.dev/) que usan el front y el back, así las validac
 
 ## Estructura del repo
 
-Monorepo con npm workspaces (`shared`, `backend`, `frontend-web`):
+Monorepo con npm workspaces (`shared`, `backend`, `frontend-web`, `frontend-mobile`):
 
 ```
 garsonic/
@@ -97,6 +101,7 @@ garsonic/
 │       ├── pages/      Home, Login, Register, ConfirmAccount,
 │       │               ResetPassword, UserPanel, ArtistPanel
 │       ├── hooks/, services/, context/, types/, utils/
+├── frontend-mobile/    App React Native + Expo (ver App mobile)
 └── shared/             Schemas de Zod compartidos
 ```
 
@@ -210,7 +215,7 @@ Los tokens viven en [`frontend-web/src/index.css`](frontend-web/src/index.css). 
 
 ### Instalación
 
-Desde la raíz del repo (instala los tres workspaces):
+Desde la raíz del repo (instala los cuatro workspaces):
 
 ```bash
 npm install
@@ -290,11 +295,68 @@ Se corren desde cada carpeta, o desde la raíz con `-w` (por ejemplo `npm run li
 | `frontend-web` | `npm run build` / `npm run preview` | Build de producción y vista previa |
 | `frontend-web` | `npm run lint` / `npm run typecheck` | ESLint y TypeScript |
 
+## App mobile
+
+App para Android e iOS en `frontend-mobile/`, hecha con [Expo](https://expo.dev/) y React Native. Consume la misma API que la web y usa los mismos schemas de `shared/`. **Está en desarrollo.**
+
+### Tecnologías
+
+| Tecnología | Uso |
+|---|---|
+| [Expo SDK 58](https://expo.dev/) + React Native 0.88 | App nativa (TypeScript) |
+| [Expo Router](https://docs.expo.dev/router/introduction/) | Navegación basada en archivos (`src/app/`), con rutas tipadas |
+| [TanStack Query](https://tanstack.com/query) + Axios | Pedidos a la API y caché |
+| React Hook Form + Zod | Formularios y validación (con `Controller`, porque RN no tiene inputs del DOM) |
+| `expo-secure-store` | Guarda el JWT de la sesión |
+| React Native Reanimated | Animaciones (entrada de la bienvenida, loader) |
+| `@expo-google-fonts/krona-one` | Tipografía Krona One, igual que la web |
+| ESLint (`eslint-config-expo`) | Lint |
+
+### Qué hay hasta ahora
+
+| Parte | Estado |
+|---|---|
+| **Bienvenida** (`src/app/index.tsx`) | Hecha: logo, las palabras *Escuchá / Guardá / Publicá*, una frase y los botones **Ingresar** y **Crear cuenta**. No es una landing: las secciones y el formulario de contacto quedan solo en la web. |
+| **Login** (`src/app/login.tsx`) | Formulario con estilo Garsonic, validado con `loginSchema` de `shared` y conectado a `useLogin`. Todavía no redirige a un panel después de entrar. |
+| **Registro** (`src/app/register.tsx`) | Pantalla vacía (solo el título). |
+| **Auth** (`services/auth.service.ts`, `hooks/auth/`) | Services copiados de la web y adaptados (login mobile, token, `FormData` con `{ uri, name, type }`). Hooks `useLogin` y `useMe` listos; `useRegister` vacío. |
+| **Cliente de la API** (`services/api.ts`) | Axios con el token en `Authorization: Bearer` y cierre de sesión automático ante un 401 con token. |
+| **Componentes** | `Loader` (ondas animadas con Reanimated). |
+| **Paneles de usuario y artista** | Pendientes, igual que saltear la bienvenida si ya hay un token guardado. |
+
+### Diferencias con la web
+
+- **Sesión:** en React Native las cookies no son confiables. Mobile usa `POST /auth/mobile/login`, que devuelve `{ user, token }`; el token se guarda en `SecureStore` y viaja en `Authorization: Bearer ...`. Cerrar sesión es borrar el token.
+- **Código copiado, no compartido:** `services`, `types` y `hooks` se copian de `frontend-web/src` y se adaptan. Lo único compartido son los schemas de `shared/` (ver [`.claude/spec.md`](.claude/spec.md), Reutilización en mobile).
+- **Estilos:** los mismos tokens que la web, en `src/utils/colors.ts`, con `StyleSheet` (sin Tailwind).
+
+### Puesta en marcha
+
+Crear `frontend-mobile/.env.local` con la URL del backend. En un celular físico no sirve `localhost`: hay que usar la IP de la PC en la red local.
+
+```env
+EXPO_PUBLIC_BACKEND_URL="http://192.168.x.x:3000/api"
+```
+
+```bash
+npm run build -w shared   # mobile importa los schemas compilados
+cd frontend-mobile
+npm start                 # abre Expo; se escanea el QR con Expo Go
+```
+
+| Comando | Qué hace |
+|---|---|
+| `npm start` | Servidor de Expo |
+| `npm run android` / `npm run ios` | Abre la app en el emulador |
+| `npm run lint` / `npm run typecheck` | ESLint y TypeScript |
+
+Mobile no se deploya: el CD ignora los cambios que solo tocan `frontend-mobile/`.
+
 ## CI/CD
 
 | Workflow | Cuándo corre | Qué hace |
 |---|---|---|
-| [`ci.yml`](.github/workflows/ci.yml) | Push a `develop` y PR a `master` | Lint y typecheck del back y del front |
+| [`ci.yml`](.github/workflows/ci.yml) | Push a `develop` y PR a `master` | Lint y typecheck del back, del front y de mobile (más `expo-doctor` y bundle de Android) |
 | [`cd.yml`](.github/workflows/cd.yml) | Push a `master` | Corre el CI, aplica las migraciones en Neon y deploya en Vercel: primero el back y después el front |
 
 - **Flujo de ramas:** se trabaja en `develop` y se mergea a `master` por PR. `master` tiene branch protection: el CI tiene que pasar y no se puede pushear directo.

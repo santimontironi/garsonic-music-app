@@ -8,13 +8,14 @@ const api = axios.create({
   baseURL: process.env.EXPO_PUBLIC_BACKEND_URL,
 });
 
-// en React Native no hay cookies confiables: el JWT viaja en el header
+// en React Native no hay cookies confiables: el JWT viaja en el header. entonces en este caso se intercepta la request para agregar el token.
 api.interceptors.request.use(async (config) => {
   const token = await SecureStore.getItemAsync(TOKEN_KEY);
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
+//se implementa un interceptor de respuesta para manejar errores de autenticación y otros errores de la API. Si se recibe un error 401 con un token enviado, se asume que el token ha expirado o es inválido, y se cierra la sesión eliminando el token del almacenamiento seguro y redirigiendo al usuario a la página de inicio de sesión. Además, se maneja el mensaje de error para proporcionar retroalimentación al usuario.
 api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError<{ message?: string | string[] }>) => {

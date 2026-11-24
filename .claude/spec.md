@@ -20,13 +20,31 @@ Lo único compartido son los schemas de `shared/schemas`, que son el contrato de
 - Cada app tiene su propio `api.ts` y sus services adaptados, porque cambian tres cosas:
   1. **URL del backend:** la web usa `import.meta.env.VITE_BACKEND_URL` (propio de Vite); mobile usa las variables de su entorno (por ejemplo Expo).
   2. **Autenticación:** en React Native las cookies no son confiables. Mobile guarda el JWT en `SecureStore` y lo manda en `Authorization: Bearer ...` (ver Autenticación y mails).
-  3. **Archivos:** la web manda un `File` en el `FormData`; en React Native no existe `File` y se manda `{ uri, name, type }`.
+  3. **Archivos:** la web manda un `File` en el `FormData`; en React Native no existe `File` y se manda `{ uri, name, type }`. La imagen se elige de la galería con `expo-image-picker` (recorte cuadrado).
 
 ### Pantalla inicial en mobile
 
 El index de mobile no es una landing: es una pantalla de bienvenida con el logo, una frase corta y dos botones, **Ingresar** (login) y **Crear cuenta** (registro). No tiene secciones ni formulario de contacto, que quedan solo en la web.
 
 - Si hay un JWT guardado en `SecureStore`, la bienvenida se saltea y se redirige directo al panel del rol.
+
+### Navegación por rol en mobile
+
+Las rutas se separan en grupos de Expo Router y el `_layout.tsx` raíz decide cuáles existen con `Stack.Protected`, según la sesión que devuelve `useMe`:
+
+| Guard | Rutas |
+|---|---|
+| `!user` | `index` (bienvenida), `login`, `register` |
+| `user.role === 'USER'` | grupo `(user)` |
+| `user.role === 'ARTIST'` | grupo `(artist)` (pendiente) |
+
+- Al loguearse o cerrar sesión cambia la cache de `me` y Expo Router redirige solo a la primera ruta disponible: no hay `router.replace` en login ni logout.
+- `Stack.Protected` maneja la navegación, no la seguridad: la autorización real está en el back (`JwtAuthGuard` y `@Roles`).
+- Cada pantalla maneja su propia safe area (`SafeAreaView` de `react-native-safe-area-context`) para que su fondo llegue hasta los bordes; dentro de los grupos con tabs se usa `edges={['top']}`, porque abajo la cubre la barra.
+
+**Panel de USER `(user)`:** barra de tabs abajo (reemplaza al `SideNavUser` de la web), con íconos de `expo-symbols` (SF Symbols en iOS, Material Symbols en Android). Tabs: **Inicio** (`index`), **Buscar** (`search`), **Playlists** (`playlists`), **Favoritos** (`favorites`, junta artistas y canciones favoritas, que en la web son dos secciones) y **Perfil** (`profile`, con el botón de cerrar sesión). Por ahora son placeholders con el título; el contenido se arma de a una pantalla.
+
+- Cerrar sesión (web y mobile) pone `me` en `null` y borra el resto de las queries, para que otro usuario en el mismo dispositivo no vea la cache del anterior. `me` no se borra porque el guard está suscripto a esa query.
 
 ## Modelo de datos
 
