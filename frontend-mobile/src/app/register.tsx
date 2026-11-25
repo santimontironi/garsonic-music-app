@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Image } from 'expo-image'
 import * as ImagePicker from 'expo-image-picker'
 import { Link, router } from 'expo-router'
-import { SymbolView, type SymbolViewProps } from 'expo-symbols'
+import { SymbolView, type SymbolViewProps } from 'expo-symbols' //libreria para usar iconos nativos de iOS y Android.
 import { useState } from 'react'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 import { KeyboardAvoidingView, Pressable, ScrollView, StyleSheet, Text, TextInput, View, type TextInputProps } from 'react-native'

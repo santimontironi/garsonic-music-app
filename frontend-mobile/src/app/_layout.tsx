@@ -26,7 +26,12 @@ const RootNavigator = () => {
 
       {/* cuando el usuario que se loguea o esta logueado gracias al token, es redirigido al panel de USER */}
       <Stack.Protected guard={user?.role === 'USER'}>
-        <Stack.Screen name="(user)" />
+        <Stack.Screen name="user" />
+      </Stack.Protected>
+
+      {/* cuando el usuario que se loguea o esta logueado gracias al token, es redirigido al panel de ARTIST */}
+      <Stack.Protected guard={user?.role === 'ARTIST'}>
+        <Stack.Screen name="artist" />
       </Stack.Protected>
     </Stack>
   )

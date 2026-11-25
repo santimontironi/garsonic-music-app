@@ -30,19 +30,22 @@ El index de mobile no es una landing: es una pantalla de bienvenida con el logo,
 
 ### Navegación por rol en mobile
 
-Las rutas se separan en grupos de Expo Router y el `_layout.tsx` raíz decide cuáles existen con `Stack.Protected`, según la sesión que devuelve `useMe`:
+Las rutas se separan en carpetas por rol y el `_layout.tsx` raíz decide cuáles existen con `Stack.Protected`, según la sesión que devuelve `useMe`:
 
 | Guard | Rutas |
 |---|---|
 | `!user` | `index` (bienvenida), `login`, `register` |
-| `user.role === 'USER'` | grupo `(user)` |
-| `user.role === 'ARTIST'` | grupo `(artist)` (pendiente) |
+| `user.role === 'USER'` | carpeta `user` |
+| `user.role === 'ARTIST'` | carpeta `artist` |
 
 - Al loguearse o cerrar sesión cambia la cache de `me` y Expo Router redirige solo a la primera ruta disponible: no hay `router.replace` en login ni logout.
 - `Stack.Protected` maneja la navegación, no la seguridad: la autorización real está en el back (`JwtAuthGuard` y `@Roles`).
+- `user` y `artist` son carpetas comunes y no grupos `(user)` / `(artist)`: los grupos no suman segmento a la URL, y `index`, `search` y `profile` de los dos paneles chocaban en `/`, `/search` y `/profile`. Con los grupos, cerrar sesión tiraba "Maximum update depth exceeded" en `Stack.Protected`; se cambió a carpetas para que cada pantalla tenga una URL única.
 - Cada pantalla maneja su propia safe area (`SafeAreaView` de `react-native-safe-area-context`) para que su fondo llegue hasta los bordes; dentro de los grupos con tabs se usa `edges={['top']}`, porque abajo la cubre la barra.
 
-**Panel de USER `(user)`:** barra de tabs abajo (reemplaza al `SideNavUser` de la web), con íconos de `expo-symbols` (SF Symbols en iOS, Material Symbols en Android). Tabs: **Inicio** (`index`), **Buscar** (`search`), **Playlists** (`playlists`), **Favoritos** (`favorites`, junta artistas y canciones favoritas, que en la web son dos secciones) y **Perfil** (`profile`, con el botón de cerrar sesión). Por ahora son placeholders con el título; el contenido se arma de a una pantalla.
+**Panel de USER `user/`:** barra de tabs abajo (reemplaza al `SideNavUser` de la web), con íconos de `expo-symbols` (SF Symbols en iOS, Material Symbols en Android). Tabs: **Inicio** (`index`), **Buscar** (`search`), **Playlists** (`playlists`), **Favoritos** (`favorites`, junta artistas y canciones favoritas, que en la web son dos secciones) y **Perfil** (`profile`, con el botón de cerrar sesión). Por ahora son placeholders con el título; el contenido se arma de a una pantalla.
+
+**Panel de ARTIST `artist/`:** misma barra de tabs (reemplaza al `SideNavArtist`). Tabs: **Inicio** (`index`), **Buscar** (`search`), **Canciones** (`songs`), **Álbumes** (`albums`), **Stats** (`stats`) y **Perfil** (`profile`). `search` y `profile` son las mismas para los dos roles: viven en `components/search/Search.tsx` y `components/profile/Profile.tsx`, y las rutas de `user/` y `artist/` solo las reexportan. El estilo de la barra y el helper de íconos viven en `components/ui/tabs.tsx`, compartido por los dos layouts. Placeholders por ahora.
 
 - Cerrar sesión (web y mobile) pone `me` en `null` y borra el resto de las queries, para que otro usuario en el mismo dispositivo no vea la cache del anterior. `me` no se borra porque el guard está suscripto a esa query.
 
